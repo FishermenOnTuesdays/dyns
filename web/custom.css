@@ -1,0 +1,57 @@
+.m10 {
+    margin: 10px;
+}
+
+.align-items-center {
+    display: flex; 
+    align-items: center;  /*Aligns vertically center */
+    justify-content: center; /*Aligns horizontally center */
+  }
+
+.remove {
+    
+}
+
+.btn-ch{
+
+}
+
+.animated-gif-container { 
+
+}
+
+.semiopacity {
+    background-image:url("fish_animation.gif");
+    background-repeat:repeat;
+    opacity: 1.0; /* Полупрозрачный фон */
+    filter: alpha(Opacity=50); /* Прозрачность в IE */
+}
+
+.col-05 {
+    flex: 0 0 5%;
+    max-width: 5%;
+}
+
+.col-20 {
+    flex: 0 0 20%;
+    max-width: 20%;
+}
+
+.col-25 {
+    flex: 0 0 25%;
+    max-width: 25%;
+}
+
+.col-40 {
+    flex: 0 0 40%;
+    max-width: 40%;
+}
+
+.col-75 {
+    flex: 0 0 75%;
+    max-width: 75%;
+}
+
+.texted {
+    font-size: 16pt;
+}

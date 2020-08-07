@@ -1,0 +1,137 @@
+<!--
+	<div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1">
+		<button type="button" class="btn btn-outline-primary active" id="x1/x2">x1x2</button>
+		<button type="button" class="btn btn-outline-primary" id="x1/x3">x1x3</button>
+		<button type="button" class="btn btn-outline-primary" id="x2/x3">x2x3</button>
+	</div>
+-->
+
+<html>
+    <head>
+        <title>Анализ данных</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <link rel = "stylesheet" href="bootstrap.min.css"/>
+        <link rel = "stylesheet" href="custom.css"/>
+        <link rel="icon" href="icon.ico" type="image/x-icon">
+        <script src="jquery-3.5.0.min.js"></script>
+        <script src="plotly.min.js"></script>
+        <script src="plot.js"></script>
+    </head>
+
+    <body>
+        <div class="container-fluid animated-gif-container semiopacity">
+            <div class="container-md">
+                <div class="row m10">
+                    <div class="col-8">
+                        <img src="logo.svg" height="150">
+                    </div>
+                </div>			
+                <div id="animated-gif-container"></div>
+
+                <fieldset class="shadow p-2 rounded bg-primary justify-content-center m10">
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col col-20 p-1 h5 text-white">начальное условие</div>
+                        <div class="col col-75 p-1 h5 text-white">вектор-функция скорости</div>
+                    </div>
+
+                    <div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
+                        <div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="x1_0"></div>
+                        <div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dx1/dt"></div>
+                        <div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div>
+                    </div>
+    
+                    <div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
+                        <div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="x2_0"></div>
+                        <div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dx2/dt"></div>
+                        <div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div>
+                    </div>
+    
+                    <div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
+                        <div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="x3_0"></div>
+                        <div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dx3/dt"></div>
+                        <div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div>
+                    </div>
+                </fieldset>
+
+                <div class="row justify-content-center m10">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-dark btn-block" id="addx">добавить переменную</button>
+                    </div>
+                </div>
+
+                <div class="shadow p-2 rounded bg-primary justify-content-center m10">
+                    <div class="row no-gutters bg-white rounded shadow mb-1 ml-1">
+                        <div class="col col-25 p-1 align-items-center texted font-weight-bolder">число итераций</div>
+                        <div class="col col-75 p-1"><input type="text" class="form-control" id="N" placeholder="N"></div>
+                    </div>
+
+                    <div class="row no-gutters bg-white rounded shadow mb-1 ml-1">
+                        <div class="col col-25 p-1 align-items-center texted font-weight-bolder">dt</div>
+                        <div class="col col-75 p-1"><input type="text" class="form-control" id="dt" placeholder="dt"></div>
+                    </div>
+
+                    <div class="row justify-content-center p-1">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
+                        </div>
+                     </div>
+
+                    </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12"></div>
+            </div>
+
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">&nbsp;</div>
+            </div>
+            <div class="row">
+                <div class="col-12 code"></div>
+            </div>
+        </div>
+        <div class="container-fluid" id="charts">
+            <div class="wrapper shadow p-3 mb-5 bg-white rounded ml-1">
+                <div id="chartXYt"></div>
+            </div>
+        </div>
+
+        <div class="container-fluid" id="charts">
+            <div class="container-fluid" id="phasecharts">
+                <div class="col-12">
+                    <h1>фазовые кривые</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
+                        <div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1"></div>
+                        <div id="chartXY"></div>
+                    </div>
+                    <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
+                        <div id="phasechart2">
+                            <div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1"></div>
+                            <div id="chartXZ"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
+                        <div id="phasechart3">
+                            <div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1"></div>
+                            <div id="chartYZ"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wrapper">
+                <div id="chartPoincare"></div>
+            </div>
+            <div class="wrapper" id="3dcharts">
+                <div id="chartXY3D"></div>
+            </div>
+        </div>
+        
+
+    </body>
+
+</html>
