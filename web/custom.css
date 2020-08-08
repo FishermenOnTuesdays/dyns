@@ -32,6 +32,11 @@
     max-width: 5%;
 }
 
+.col-15s {
+    flex: 0 0 15%;
+    max-width: 15%;
+}
+
 .col-20 {
     flex: 0 0 20%;
     max-width: 20%;
@@ -50,6 +55,11 @@
 .col-75 {
     flex: 0 0 75%;
     max-width: 75%;
+}
+
+.col-80 {
+    flex: 0 0 80%;
+    max-width: 80%;
 }
 
 .texted {

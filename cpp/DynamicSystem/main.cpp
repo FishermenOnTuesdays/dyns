@@ -12,7 +12,7 @@ typedef std::complex<long double> complex;
 const double x_0 = 0.1;
 const double y_0 = 0.1;
 long int max_time = 10;
-const double dt = 0.01;
+//const double dt = 0.01;
 const double dh = 0; //Шаг векторного поля
 const double E1 = 0.1;
 const double E2 = 0.1;
@@ -290,6 +290,7 @@ int main()
 	f1out.open("../res/result.csv");//Введите свой путь
 	std::vector<long double> var;
 	size_t N;
+	
 	std::cin >> N;
 	for (size_t i = 1; i <= N; i++)
 	{
@@ -304,6 +305,8 @@ int main()
 		std::cin >> var[i];
 	std::vector<std::vector<long double>> dots;
 	std::cin >> max_time;
+	double dt;
+	std::cin >> dt;
 	while(t < max_time)
 	{
 		dots.push_back(var);

@@ -15,6 +15,7 @@
         <link rel="icon" href="icon.ico" type="image/x-icon">
         <script src="jquery-3.5.0.min.js"></script>
         <script src="plotly.min.js"></script>
+        <script src="popper.min.js"></script>
         <script src="plot.js"></script>
     </head>
 
@@ -27,6 +28,28 @@
                     </div>
                 </div>			
                 <div id="animated-gif-container"></div>
+
+                <nav class="navbar navbar-expand-lg navbar-light bg-light rounded m10">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                      <span class="navbar-toggler-icon"></span>
+                    </button>
+                  
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                      <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Dropdown link
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </nav>
 
                 <fieldset class="shadow p-2 rounded bg-primary justify-content-center m10">
                     <div class="row justify-content-start p-1 ml-1">
@@ -60,23 +83,22 @@
                 </div>
 
                 <div class="shadow p-2 rounded bg-primary justify-content-center m10">
-                    <div class="row no-gutters bg-white rounded shadow mb-1 ml-1">
-                        <div class="col col-25 p-1 align-items-center texted font-weight-bolder">число итераций</div>
-                        <div class="col col-75 p-1"><input type="text" class="form-control" id="N" placeholder="N"></div>
+                    <div class="row no-gutters mb-1 ml-1">
+                        <div class="col col-20 p-1 align-items-center h5 text-white justify-content-end">число итераций   </div>
+                        <div class="col col-80 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="N" placeholder="N"></div>
                     </div>
 
-                    <div class="row no-gutters bg-white rounded shadow mb-1 ml-1">
-                        <div class="col col-25 p-1 align-items-center texted font-weight-bolder">dt</div>
-                        <div class="col col-75 p-1"><input type="text" class="form-control" id="dt" placeholder="dt"></div>
+                    <div class="row no-gutters mb-1 ml-1">
+                        <div class="col col-20 p-1 align-items-center h5 text-white justify-content-end">dt   </div>
+                        <div class="col col-80 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder="dt"></div>
                     </div>
 
                     <div class="row justify-content-center p-1">
                         <div class="col-12">
                             <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
                         </div>
-                     </div>
-
                     </div>
+                </div>
             </div>
             
             <div class="row">

@@ -12,13 +12,15 @@ def calc(data):
     answer = []
 
     # send number of input params
-    value = str(len(data) // 2) + '\n'
+    value = str((len(data) - 2)//2) + '\n'
+    #print(value[:-1])
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     p.stdin.write(value)
     p.stdin.flush()
 
     for param in data:
         value = str(data[param][0]) + '\n'
+        #print(value[:-1])
         value = bytes(value, 'UTF-8')  # Needed in Python 3.
         p.stdin.write(value)
         p.stdin.flush()
