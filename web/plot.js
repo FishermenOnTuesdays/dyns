@@ -22,7 +22,7 @@ jQuery(function(){
     jQuery("#3dcharts").hide();
     
     document.getElementById("N").defaultValue = "1000";
-    document.getElementById("dt").defaultValue = "0.001";
+    document.getElementById("dt").defaultValue = "0.01";
 
     jQuery("#draw").click(onDraw);
     jQuery('#addx').click(function(){
@@ -31,6 +31,30 @@ jQuery(function(){
     $(document).on('click', '.remove', function() {
         $(this).parent().parent().remove();
     });
+    
+    //example attractors
+    {
+        jQuery("#lorenz").click(function(){
+            params = ["10*(x2-x1)", "x1*(28-x3)-x2", "x1*x2-(8/3)*x3"]
+            setFields(3, params);
+            document.getElementById("N").value = "10000";
+        })
+
+        jQuery("#dequanli").click(function(){
+            params = ["40*(x2-x1)+0.16*x1*x3", "55*x1+20*x2-x1*x3", "1.833*x3+x1*x2-0.65*x1*x1"]
+            setFields(3, params);
+            document.getElementById("N").value = "10000";
+            document.getElementById("dt").value = "0.001";
+        })
+
+        jQuery("#shilnikov").click(function(){
+            params = ["x2", "x3", "-0.87*x1-x2-0.4*x3+x1*x1"]
+            setFields(3, params);
+            document.getElementById("N").value = "100000";
+            document.getElementById("dt").value = "0.001";
+        })
+    }
+    
     // btns
     $(document).on('click', '.btn-ch', function(){
         if ($(this).is("active"))
@@ -48,6 +72,30 @@ jQuery(function(){
         }
      });
 });
+
+function setStarts(defval, n){
+    $('input[id="x_0"]').each(function(i, elem){
+        if (i < n) {elem.value = defval;}
+    });
+}
+
+function ensureFields(n){
+    count = 0;
+    $('input[id="x"]').each(function(i, elem){
+        count++;
+    });
+    for(var i = 0; i < (n - count); i++){
+        $('fieldset').append(newrow());
+    }
+}
+
+function setFields(n, array){
+    ensureFields(n);
+    $('input[id="x"]').each(function(i, elem){
+        if (i < n) {elem.value = array[i];}
+    });
+    setStarts(0.1, 3);
+}
 
 function onDraw()
 {

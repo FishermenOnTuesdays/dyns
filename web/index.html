@@ -10,18 +10,22 @@
     <head>
         <title>Анализ данных</title>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-        <link rel = "stylesheet" href="bootstrap.min.css"/>
-        <link rel = "stylesheet" href="custom.css"/>
+        <script src="scripts/jquery-3.5.0.min.js"></script>
         <link rel="icon" href="icon.ico" type="image/x-icon">
-        <script src="jquery-3.5.0.min.js"></script>
-        <script src="plotly.min.js"></script>
-        <script src="popper.min.js"></script>
+        <script src="scripts/plotly.min.js"></script>
+        <script src="scripts/bootstrap.bundle.min.js"></script>
+        <script src="scripts/bootstrap.bundle.js"></script>
+        <link rel = "stylesheet" href="scripts/bootstrap.min.css"/>
+        
         <script src="plot.js"></script>
+        <link rel = "stylesheet" href="custom.css"/>
     </head>
 
     <body>
         <div class="container-fluid animated-gif-container semiopacity">
             <div class="container-md">
+
+                <!--            logo            -->
                 <div class="row m10">
                     <div class="col-8">
                         <img src="logo.svg" height="150">
@@ -29,6 +33,7 @@
                 </div>			
                 <div id="animated-gif-container"></div>
 
+                <!--            nav frame            -->
                 <nav class="navbar navbar-expand-lg navbar-light bg-light rounded m10">
                     <a class="navbar-brand" href="#">Navbar</a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,18 +44,19 @@
                       <ul class="navbar-nav mr-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Dropdown link
+                            Примеры
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <a class="dropdown-item" href="#">Something else here</a>
+                            <a class="dropdown-item" href="#" id="lorenz">Аттрактор Лоренца</a>
+                            <a class="dropdown-item" href="#" id="dequanli">Аттрактор Дэцюань Ли</a>
+                            <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
                             </div>
                         </li>
                       </ul>
                     </div>
-                  </nav>
-
+                </nav>
+                
+                <!--            main input frame            -->
                 <fieldset class="shadow p-2 rounded bg-primary justify-content-center m10">
                     <div class="row justify-content-start p-1 ml-1">
                         <div class="col col-20 p-1 h5 text-white">начальное условие</div>
@@ -76,12 +82,14 @@
                     </div>
                 </fieldset>
 
+                <!--            add row button            -->
                 <div class="row justify-content-center m10">
                     <div class="col-6">
                         <button type="button" class="btn btn-outline-dark btn-block" id="addx">добавить переменную</button>
                     </div>
                 </div>
 
+                <!--            secondary input frame            -->
                 <div class="shadow p-2 rounded bg-primary justify-content-center m10">
                     <div class="row no-gutters mb-1 ml-1">
                         <div class="col col-20 p-1 align-items-center h5 text-white justify-content-end">число итераций   </div>
@@ -93,26 +101,22 @@
                         <div class="col col-80 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder="dt"></div>
                     </div>
 
-                    <div class="row justify-content-center p-1">
+                    <div class="row justify-content-center">
                         <div class="col-12">
                             <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
                         </div>
                     </div>
                 </div>
+
             </div>
             
             <div class="row">
                 <div class="col-12"></div>
             </div>
-            <div class="row">
-                <div class="col-12"></div>
-            </div>
 
         </div>
+
         <div class="container">
-            <div class="row">
-                <div class="col-12">&nbsp;</div>
-            </div>
             <div class="row">
                 <div class="col-12 code"></div>
             </div>
