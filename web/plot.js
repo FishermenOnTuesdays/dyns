@@ -70,7 +70,33 @@ jQuery(function(){
             $(this).siblings().removeClass('active');
             makePlotXY(xs[this.id.split('/')[0]], xs[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
         }
-     });
+    });
+
+    const realFileBtn = document.getElementById("real-file");
+    const customFileBtn = document.getElementById("custom-button");
+
+    customFileBtn.addEventListener("click", function() {
+        realFileBtn.click();
+      });
+    
+    realFileBtn.addEventListener("change", function() {
+        if (realFileBtn.value) {
+            //notice user
+            var code = jQuery(".code");
+            var d = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
+            code.prepend(d);
+            jQuery("#success_alert").delay(1000).fadeOut(100);
+            //show graph
+            console.log(realFileBtn)
+            plot(realFileBtn.files[0].path);
+            jQuery("#charts").show();
+        } else {
+            var code = jQuery(".code");
+            var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕВЕРНЫЙ ФОРМАТ ФАЙЛА</div>');
+            code.prepend(d);
+            jQuery("#error_alert").delay(1000).fadeOut(100);
+        }
+      });
 });
 
 function setStarts(defval, n){
@@ -117,7 +143,7 @@ function onDraw()
     data['N'] = jQuery("#N").val();
     data['dt'] = jQuery("#dt").val();
 
-    console.log(data);
+    //console.log(data);
     if (Object.values(data).length > 2 && k == k0){
         var code = jQuery(".code");
         var d = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
@@ -140,7 +166,7 @@ function onDraw()
 
 function success(data)
 {
-    console.log(data);
+    //console.log(data);
     //console.log("success");
     jQuery("#success_alert").delay(500).fadeOut(100);
     plot();
@@ -150,8 +176,12 @@ function success(data)
 //plot
 //--------------------------------------------------------------------------
 function plot(path) {
-    Plotly.d3.csv("../res/result.csv", function(data){ processData(data) } );
-    };
+    if (path){
+        Plotly.d3.csv(path, function(data){ processData(data) } );
+    } else{
+        Plotly.d3.csv("../res/result.csv", function(data){ processData(data) } );
+    }
+};
 
 function processData(allRows) {
 
