@@ -2,10 +2,38 @@
 var ndims;
 var xs = {};
 
+// init popovers
+$(document).ready(function(){
+    //Инициализация всплывающей панели для
+    //элементов веб-страницы, имеющих атрибут
+    //data-toggle="popover"
+    $('[data-toggle="popover-left"]').popover({
+      //Установление направления отображения popover
+      placement : 'left',
+      trigger: "hover"
+    });
+    $('#navbarDropdownMenuLink').popover();
+    //$("#popover-left").popover({ trigger: "hover" });
+});
+
 //-------------------------------------------------------
+function successAlert(state) {
+    if (state){
+        //add alert
+        //var success_alert_html = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
+        //jQuery(".code").prepend(success_alert_html);
+        //add spinner to button
+        var spinner_html = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
+        jQuery("#draw").text("");
+        jQuery("#draw").append(spinner_html);
+    } else{
+        //jQuery("#success_alert").delay(500).fadeOut(100);
+        jQuery("#draw").empty();
+        jQuery("#draw").text("Построить графики");
+    }
+}
 
 function newrow(){
-    console.log(1)
     var newx = '<div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1"><div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="xi_0"></div><div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dxi/dt"></div><div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div></div>';
     count = 1;
     $('input[id="x"]').each(function(i, elem){
@@ -38,6 +66,7 @@ jQuery(function(){
             params = ["10*(x2-x1)", "x1*(28-x3)-x2", "x1*x2-(8/3)*x3"]
             setFields(3, params);
             document.getElementById("N").value = "10000";
+            document.getElementById("dt").value = "0.01";
         })
 
         jQuery("#dequanli").click(function(){
@@ -72,33 +101,41 @@ jQuery(function(){
         }
     });
 
-    const realFileBtn = document.getElementById("real-file");
-    const customFileBtn = document.getElementById("custom-button");
-
-    customFileBtn.addEventListener("click", function() {
-        realFileBtn.click();
-      });
+    function displayPlotData(results){		
+        successAlert(true);
+        jQuery("#success_alert").delay(1000).fadeOut(100);
+        plot(results.data, "local");
+        jQuery("#charts").show();
+    }
     
-    realFileBtn.addEventListener("change", function() {
-        if (realFileBtn.value) {
-            //notice user
-            var code = jQuery(".code");
-            var d = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
-            code.prepend(d);
-            jQuery("#success_alert").delay(1000).fadeOut(100);
-            //show graph
-            console.log(realFileBtn)
-            plot(realFileBtn.files[0].path);
-            jQuery("#charts").show();
-        } else {
-            var code = jQuery(".code");
-            var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕВЕРНЫЙ ФОРМАТ ФАЙЛА</div>');
-            code.prepend(d);
-            jQuery("#error_alert").delay(1000).fadeOut(100);
-        }
-      });
+    $('#UploadModal').on('shown.bs.modal', function () {
+        //$('#myInput').trigger('focus')
+    })
+
+    $('#submit-file').on("click",function(e){
+		e.preventDefault();
+		$('#files').parse({
+			config: {
+				delimiter: "auto",
+				complete: displayPlotData,
+			},
+			before: function(file, inputElem)
+			{
+				//console.log("Parsing file...", file);
+			},
+			error: function(err, file)
+			{
+				//console.log("ERROR:", err, file);
+			},
+			complete: function()
+			{
+				//console.log("Done with all files");
+			}
+		});
+    });
 });
 
+// UI fill ins
 function setStarts(defval, n){
     $('input[id="x_0"]').each(function(i, elem){
         if (i < n) {elem.value = defval;}
@@ -123,6 +160,7 @@ function setFields(n, array){
     setStarts(0.1, 3);
 }
 
+// web graph
 function onDraw()
 {
     k0 = 0;
@@ -145,9 +183,7 @@ function onDraw()
 
     //console.log(data);
     if (Object.values(data).length > 2 && k == k0){
-        var code = jQuery(".code");
-        var d = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
-        code.prepend(d);
+        successAlert(true);
 
         jQuery.post(
             'http://91.79.32.28:3389',
@@ -159,8 +195,8 @@ function onDraw()
         var code = jQuery(".code");
         var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕВЕРНЫЙ ФОРМАТ ЗНАЧЕНИЙ</div>');
         code.prepend(d);
+        $('#navbarDropdownMenuLink').popover('show');
         jQuery("#error_alert").delay(1000).fadeOut(100);
-        //alert('неверные начальные значения');
     }
 }
 
@@ -168,49 +204,85 @@ function success(data)
 {
     //console.log(data);
     //console.log("success");
-    jQuery("#success_alert").delay(500).fadeOut(100);
+    //successAlert(false);
     plot();
     jQuery("#charts").show();
 }
 
 //plot
 //--------------------------------------------------------------------------
-function plot(path) {
-    if (path){
-        Plotly.d3.csv(path, function(data){ processData(data) } );
+//global data var
+var dataarc = [];
+var n;
+
+function plot(dataset, type) {
+    if (dataset){
+        processData(dataset, type);
     } else{
-        Plotly.d3.csv("../res/result.csv", function(data){ processData(data) } );
+        Plotly.d3.csv("../res/result.csv", function(data){ processData(data, "web") } );
     }
 };
 
-function processData(allRows) {
-
-    console.log(allRows);
-    ndims = Object.keys(allRows[0]).length - 1
-
+function getData(dataset, type){
+    
     xs = {};
-    for (var i = 1; i <= ndims; i++){
-        xs['x' + i] = [];
-    }
-    if (ndims < 3){
-        xs['x3'] = [];
-    }
+    t = [];
+    
+    if (type == "web"){
+        n = dataset.length
+        ndims = Object.keys(dataset[0]).length - 1
 
-    var t = [];
-
-    for (var i = 0; i < allRows.length; i++) {
-        row = allRows[i];
-        for (var j = 1; j <= ndims; j++){
-            xs['x' + j].push(row['x' + j]);
+        for (var i = 1; i <= ndims; i++){
+            xs['x' + i] = [];
         }
         if (ndims < 3){
-            xs['x3'].push(0);
+            xs['x3'] = [];
         }
-        t.push(row['t']);
+
+        for (var i = 0; i < dataset.length; i++) {
+            row = dataset[i];
+            for (var j = 1; j <= ndims; j++){
+                xs['x' + j].push(row['x' + j]);
+            }
+            if (ndims < 3){
+                xs['x3'].push(0);
+            }
+            t.push(row['t']);
+        }
+    } else if (type == "local"){
+        n = dataset.length - 2
+        ndims = (dataset[0].join(",").split(",")).length - 1
+        for (var i = 1; i <= ndims; i++){
+            xs['x' + i] = [];
+        }
+        if (ndims < 3){
+            xs['x3'] = [];
+        }
+
+        for(var i = 1; i < (dataset.length - 1); i++){
+			var row = dataset[i];
+			var cells = row.join(",").split(",");
+			for(var j = 1; j <= ndims; j++){
+				xs['x' + j].push(cells[j - 1]);
+            }
+            if (ndims < 3){
+                xs['x3'].push(0);
+            }
+            t.push(cells[ndims]);
+        }
     }
 
-    console.log(ndims);
-    console.log(xs);
+    return n, ndims, xs, t
+}
+
+function processData(allRows, type) {
+    
+    console.log(allRows);
+
+    n, ndims, xs, t = getData(allRows, type);
+
+    dataarc = [n, ndims, xs, t];
+
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
     jQuery("#phasecharts").hide();
@@ -236,6 +308,7 @@ function processData(allRows) {
     
     makePlot3D(xs['x1'], xs['x2'], xs['x3']);
     //-----------------------------------------------------------
+    successAlert(false);
 }
 
 function makePlotT(ndims, dims, t){
@@ -400,3 +473,43 @@ Plotly.newPlot('chartXY3D', data,
         }
     );
 };
+
+// save plot data
+function savetocsv() {
+    n = dataarc[0]
+    ndims = dataarc[1];
+    xs = dataarc[2];
+    t = dataarc[3];
+
+    if (dataarc.length > 0){
+        var csv = '';
+        //header
+        for (var i = 1; i <= ndims; i++){
+            csv += ("x" + i + ",");
+        }
+        csv += "t\n";
+
+        //data part
+        for (var i = 0; i < n; i++) {
+            for (var j = 1; j <= ndims; j++){
+                csv += xs["x" + j][i];
+                csv += ",";
+            }
+            csv += t[i];
+            csv += "\n";
+        }
+    
+        //console.log(csv);
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'result.csv';
+        hiddenElement.click();
+    }
+    else{
+        var code = jQuery(".code");
+        var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕТ ДАННЫХ ДЛЯ ВЫГРУЗКИ</div>');
+        code.prepend(d);
+        jQuery("#error_alert").delay(1000).fadeOut(100);
+    }
+}

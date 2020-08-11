@@ -2,6 +2,10 @@
     margin: 10px;
 }
 
+.m05 {
+    margin: 5px;
+}
+
 .align-items-center {
     display: flex; 
     align-items: center;  /*Aligns vertically center */

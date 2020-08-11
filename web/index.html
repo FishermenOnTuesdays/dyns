@@ -11,6 +11,7 @@
         <title>Анализ данных</title>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <script src="scripts/jquery-3.5.0.min.js"></script>
+        <script src="scripts/papaparse.min.js"></script>
         <link rel="icon" href="icon.ico" type="image/x-icon">
         <script src="scripts/plotly.min.js"></script>
         <script src="scripts/bootstrap.bundle.min.js"></script>
@@ -38,26 +39,60 @@
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                       <span class="navbar-toggler-icon"></span>
                     </button>
-                  
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                      <ul class="navbar-nav mr-auto">
-                        
-                        <li class="nav-item active align-items-center">
-                            <input type="file" id="real-file" hidden="hidden"/>
-                            <button class="btn btn-sm align-bottom btn-outline-secondary" id="custom-button">Открыть файл</button>
-                        </li>
+                    
+                    
 
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-primary" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Примеры
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="#" id="lorenz">Аттрактор Лоренца</a>
-                            <a class="dropdown-item" href="#" id="dequanli">Аттрактор Дэцюань Ли</a>
-                            <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-primary" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь можно ознакомится с примерами вводных данных" rel="popover" data-placement="left" data-original-title="Есть вопросы?" data-trigger="hover">
+                                    Примеры
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="#" id="lorenz">Аттрактор Лоренца</a>
+                                    <a class="dropdown-item" href="#" id="dequanli">Аттрактор Дэцюань Ли</a>
+                                    <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
+                                </div>
+                            </li>
+
+                            <!-- Button trigger modal -->
+                            <li class="nav-item active align-items-center m05">
+                                <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" data-toggle="modal" data-target="#UploadModal">
+                                    Открыть CSV
+                                </button>
+                            </li>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="UploadModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">Загрузите CSV файл</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="form-inline">
+                                            <div class="form-group">
+                                            <input type="file" id="files" class="form-control" accept=".csv" required=""></div>
+                                            <div class="form-group">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>-->
+                                    <button type="submit" id="submit-file" class="btn btn-primary" data-dismiss="modal">Загрузить</button>
+                                    </div>
+                                </div>
+                                </div>
                             </div>
-                        </li>
-                      </ul>
+
+                            <li class="nav-item active align-items-center m05">
+                                <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" onclick="savetocsv()">Скачать CSV</button> 
+                            </li>
+                        </ul>
+                        <!--<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>-->
                     </div>
                 </nav>
                 
@@ -126,6 +161,12 @@
                 <div class="col-12 code"></div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="row" id="parsed_csv_list">
+            </div>
+        </div>
+
         <div class="container-fluid" id="charts">
             <div class="wrapper shadow p-3 mb-5 bg-white rounded ml-1">
                 <div id="chartXYt"></div>
