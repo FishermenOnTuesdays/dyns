@@ -379,12 +379,18 @@ function makePlotLyapunov(ndims, dims, t){
     //show exponents
     eps = 1e-6;
     var lisample = '<li class="list-group-item type">λ</li>';
+    arrLyapunov  = []
+    for(var i = 1; i <= ndims; i++){
+        arrLyapunov.push(ls['l' + i][n - 1]);
+    }
+    arrLyapunov.sort().reverse();
+
     $('.list-group').each(function(num, elem){
         $(elem).empty();
         li = '';
-        for(var i = 1; i <= ndims; i++){
+        for(var i = 0; i < ndims; i++){
             licurr = lisample;
-            value = ls['l' + i][n - 1];
+            value = arrLyapunov[i];
             if (value > 0){
                 licurr = licurr.split("type").join('list-group-item-success');
             } else if (-eps < value && value < eps){
