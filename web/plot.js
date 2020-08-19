@@ -48,6 +48,7 @@ jQuery(function(){
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
     jQuery("#3dcharts").hide();
+    jQuery("#lyapunovchart").hide();
     
     document.getElementById("N").defaultValue = "1000";
     document.getElementById("dt").defaultValue = "0.01";
@@ -186,7 +187,7 @@ function onDraw()
         successAlert(true);
 
         jQuery.post(
-            'http://91.79.32.28:3389',
+            'http://83.237.22.37:5000',
             data,
             success
         );
@@ -219,21 +220,23 @@ function plot(dataset, type) {
     if (dataset){
         processData(dataset, type);
     } else{
-        Plotly.d3.csv("../res/result.csv", function(data){ processData(data, "web") } );
+        Plotly.d3.csv("output/result.csv", function(data){ processData(data, "web") } );
     }
 };
 
 function getData(dataset, type){
     
     xs = {};
+    ls = {};
     t = [];
     
     if (type == "web"){
         n = dataset.length
-        ndims = Object.keys(dataset[0]).length - 1
+        ndims = (Object.keys(dataset[0]).length - 1) / 2
 
         for (var i = 1; i <= ndims; i++){
             xs['x' + i] = [];
+            ls['l' + i] = [];
         }
         if (ndims < 3){
             xs['x3'] = [];
@@ -243,6 +246,7 @@ function getData(dataset, type){
             row = dataset[i];
             for (var j = 1; j <= ndims; j++){
                 xs['x' + j].push(row['x' + j]);
+                ls['l' + j].push(row['l' + j]);
             }
             if (ndims < 3){
                 xs['x3'].push(0);
@@ -251,9 +255,11 @@ function getData(dataset, type){
         }
     } else if (type == "local"){
         n = dataset.length - 2
-        ndims = (dataset[0].join(",").split(",")).length - 1
+        ndims = ((dataset[0].join(",").split(",")).length - 1) / 2
+
         for (var i = 1; i <= ndims; i++){
             xs['x' + i] = [];
+            ls['l' + i] = [];
         }
         if (ndims < 3){
             xs['x3'] = [];
@@ -263,7 +269,8 @@ function getData(dataset, type){
 			var row = dataset[i];
 			var cells = row.join(",").split(",");
 			for(var j = 1; j <= ndims; j++){
-				xs['x' + j].push(cells[j - 1]);
+                xs['x' + j].push(cells[j - 1]);
+                ls['l' + j].push(cells[ndims + j - 1]);
             }
             if (ndims < 3){
                 xs['x3'].push(0);
@@ -272,16 +279,23 @@ function getData(dataset, type){
         }
     }
 
-    return n, ndims, xs, t
+    return [n, ndims, xs, t, ls];
 }
 
 function processData(allRows, type) {
     
-    console.log(allRows);
+    //console.log(allRows);
 
-    n, ndims, xs, t = getData(allRows, type);
+    dataarc = getData(allRows, type);
+    n = dataarc[0];
+    ndims = dataarc[1];
+    xs = dataarc[2];
+    t = dataarc[3];
+    ls = dataarc[4];
 
-    dataarc = [n, ndims, xs, t];
+    //console.log(dataarc);
+
+    jQuery("#lyapunovchart").show();
 
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
@@ -302,6 +316,7 @@ function processData(allRows, type) {
 
     // make plots -----------------------------------------------
     makePlotT(ndims, xs, t);
+    makePlotLyapunov(ndims, ls, t);
     makePlotPhase();
     //makePlotXY(xs['x1'], xs['x2']);
     //makePlotPoincare(x, xx);
@@ -334,6 +349,54 @@ function makePlotT(ndims, dims, t){
             t: 50,
             pad: 4}
         });
+};
+
+function makePlotLyapunov(ndims, dims, t){
+    var plotDiv = document.getElementById("plot");
+    
+    traces = []
+    
+    for (var i = 1; i <= ndims; i++) {
+        ticker = "λ" + i
+        id = "l" + i
+        traces.push({
+            x: t,
+            y: dims[id],
+            name: ticker
+        });
+    }
+    
+    Plotly.newPlot('chartLyapunov', traces, {
+        displayModeBar: true,
+        margin: {
+            l: 50,
+            r: 50,
+            b: 50,
+            t: 50,
+            pad: 4}
+        });
+    
+    //show exponents
+    eps = 1e-6;
+    var lisample = '<li class="list-group-item type">λ</li>';
+    $('.list-group').each(function(num, elem){
+        $(elem).empty();
+        li = '';
+        for(var i = 1; i <= ndims; i++){
+            licurr = lisample;
+            value = ls['l' + i][n - 1];
+            if (value > 0){
+                licurr = licurr.split("type").join('list-group-item-success');
+            } else if (-eps < value && value < eps){
+                licurr = licurr.split("type").join('list-group-item-light');
+            } else if (value < 0){
+                licurr = licurr.split("type").join('list-group-item-danger');
+            }
+            licurr = licurr.split("λ").join(value);
+            li += licurr;
+        }
+        $(elem).append(li);
+    });
 };
 
 function makePlotPhase(){

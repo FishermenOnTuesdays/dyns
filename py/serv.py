@@ -63,7 +63,7 @@ class S(BaseHTTPRequestHandler):
         # self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
 
-def run(server_class=HTTPServer, handler_class=S, port=3389):
+def run(server_class=HTTPServer, handler_class=S, port=5000):
     logging.basicConfig(level=logging.INFO)
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
@@ -81,6 +81,6 @@ if __name__ == '__main__':
 
     if len(argv) == 2:
         # int(argv[1])
-        run(port=3389)
+        run(port=5000)
     else:
         run()
