@@ -231,8 +231,8 @@ function getData(dataset, type){
     t = [];
     
     if (type == "web"){
-        n = dataset.length
-        ndims = (Object.keys(dataset[0]).length - 1) / 2
+        n = dataset.length;
+        ndims = (Object.keys(dataset[0]).length - 1) / 2;
 
         for (var i = 1; i <= ndims; i++){
             xs['x' + i] = [];
@@ -255,7 +255,7 @@ function getData(dataset, type){
         }
     } else if (type == "local"){
         n = dataset.length - 2
-        ndims = ((dataset[0].join(",").split(",")).length - 1) / 2
+        ndims = ((dataset[0].join(",").split(",")).length - 1) / 2;
 
         for (var i = 1; i <= ndims; i++){
             xs['x' + i] = [];
@@ -275,7 +275,7 @@ function getData(dataset, type){
             if (ndims < 3){
                 xs['x3'].push(0);
             }
-            t.push(cells[ndims]);
+            t.push(cells[ndims * 2]);
         }
     }
 
@@ -284,7 +284,7 @@ function getData(dataset, type){
 
 function processData(allRows, type) {
     
-    //console.log(allRows);
+    console.log(allRows);
 
     dataarc = getData(allRows, type);
     n = dataarc[0];
@@ -293,7 +293,7 @@ function processData(allRows, type) {
     t = dataarc[3];
     ls = dataarc[4];
 
-    //console.log(dataarc);
+    console.log(dataarc);
 
     jQuery("#lyapunovchart").show();
 
@@ -545,10 +545,12 @@ Plotly.newPlot('chartXY3D', data,
 
 // save plot data
 function savetocsv() {
-    n = dataarc[0]
+
+    n = dataarc[0];
     ndims = dataarc[1];
     xs = dataarc[2];
     t = dataarc[3];
+    ls = dataarc[4];
 
     if (dataarc.length > 0){
         var csv = '';
@@ -556,12 +558,19 @@ function savetocsv() {
         for (var i = 1; i <= ndims; i++){
             csv += ("x" + i + ",");
         }
+        for (var i = 1; i <= ndims; i++){
+            csv += ("l" + i + ",");
+        }
         csv += "t\n";
 
         //data part
         for (var i = 0; i < n; i++) {
             for (var j = 1; j <= ndims; j++){
                 csv += xs["x" + j][i];
+                csv += ",";
+            }
+            for (var j = 1; j <= ndims; j++){
+                csv += ls["l" + j][i];
                 csv += ",";
             }
             csv += t[i];
