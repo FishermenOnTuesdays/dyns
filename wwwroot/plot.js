@@ -234,19 +234,22 @@ function getData(dataset, type){
         n = dataset.length;
         ndims = (Object.keys(dataset[0]).length - 1) / 2;
 
+        lsum = {};
         for (var i = 1; i <= ndims; i++){
             xs['x' + i] = [];
             ls['l' + i] = [];
+            lsum['l' + i] = 0;
         }
         if (ndims < 3){
             xs['x3'] = [];
         }
-
+        
         for (var i = 0; i < dataset.length; i++) {
             row = dataset[i];
             for (var j = 1; j <= ndims; j++){
                 xs['x' + j].push(row['x' + j]);
-                ls['l' + j].push(row['l' + j]);
+                lsum['l' + j] += parseFloat(row['l' + j]);
+                ls['l' + j].push(lsum['l' + j] / (i + 1));
             }
             if (ndims < 3){
                 xs['x3'].push(0);
