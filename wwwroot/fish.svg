@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg id="animation_svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 250">
+ <path id="Lorenz" fill="none" stroke="rgb(164, 225, 255)" stroke-width = "0.5" d="M194.7 122.26c-48.35,20.05 -200.71,-177.14 -181.39,-34.99 10.21,75.12 64.7,151.27 131.44,142.28 110.82,-14.92 182.19,-204.66 119.4,-199.38 -54.51,4.59 -136.41,114.94 -161.24,118.99 -23.68,4.8 -32.74,-24.77 -23.06,-28.34 9.86,-3.64 56.76,62.75 96.18,70.03 71.5,13.21 191.41,-290.93 -55.35,-23.48 -21.9,27.2 -52.18,0.57 -60.56,-60.54 -6.78,-49.36 90.61,44.21 66.71,83.1 -37.78,61.47 -115.93,-107.7 -86.85,-126.91 23.33,-13.82 104.61,86.49 128.09,104.04 21.02,15.72 88.03,-44.22 71.56,-74.49 -12.79,-23.51 -103.88,79 -44.59,56.52 29.94,-11.35 14.95,-33.16 -0.34,-26.83z"/>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="0s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="1s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="2s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="3s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="4s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="5s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="6s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="7s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="8s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="9s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="10s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="11s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="12s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="13s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="14s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="15s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="16s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="17s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="18s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="19s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="20s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="21s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="22s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="23s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="24s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="25s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="26s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="27s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="28s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="29s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="30s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="31s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="32s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="33s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="34s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="35s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="36s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="37s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="38s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="39s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+              <image width="1050" heigh="600" transform="scale(0.01, 0.01) translate(-525, -300)" xlink:href="fish_min_compressed.svg">
+                <animateMotion 
+                    dur="40s"
+                    begin="40s"
+                    fill="freeze"
+                    repeatCount="indefinite"
+                    rotate="auto">
+                    <mpath xlink:href="#Lorenz" />
+                </animateMotion>
+              </image>
+</svg>

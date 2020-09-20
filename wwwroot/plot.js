@@ -229,6 +229,55 @@ function getData(dataset, type){
     xs = {};
     ls = {};
     t = [];
+    lt = [];
+    
+    if (type == "web"){
+        datalen = dataset.length;
+        ndims = (Object.keys(dataset[0]).length - 1) / 2;
+
+        for (var i = 1; i <= ndims; i++){
+            xs['x' + i] = [];
+            ls['l' + i] = [];
+        }
+        if (ndims < 3){
+            xs['x3'] = [];
+        }
+        
+        xsdone = false;
+        for (var i = 0; i < dataset.length; i++) {
+            row = dataset[i];
+            // endcheck
+            if (row['t'] == 0 && i > 0) { xsdone = true }
+
+            if (xsdone){
+                for (var j = 1; j <= ndims; j++){
+                    ls['l' + j].push(parseFloat(row['l' + j]));
+                }
+                lt.push(row['t']);
+            } else {
+                for (var j = 1; j <= ndims; j++){
+                    xs['x' + j].push(row['x' + j]);
+                }
+                t.push(row['t']);
+            }
+
+            if (ndims < 3){
+                xs['x3'].push(0);
+            }
+            t.push(row['t']);
+        }
+    } else if (type == "local"){
+        return 0;
+    }
+
+    return [n, ndims, xs, t, ls, lt];
+}
+
+function oldgetData(dataset, type){
+    
+    xs = {};
+    ls = {};
+    t = [];
     
     if (type == "web"){
         n = dataset.length;
@@ -289,12 +338,13 @@ function processData(allRows, type) {
     
     console.log(allRows);
 
-    dataarc = getData(allRows, type);
+    dataarc = oldgetData(allRows, type);
     n = dataarc[0];
     ndims = dataarc[1];
     xs = dataarc[2];
     t = dataarc[3];
     ls = dataarc[4];
+    lt = dataarc[5];
 
     console.log(dataarc);
 
@@ -319,7 +369,7 @@ function processData(allRows, type) {
 
     // make plots -----------------------------------------------
     makePlotT(ndims, xs, t);
-    makePlotLyapunov(ndims, ls, t);
+    makePlotLyapunov(ndims, ls, lt);
     makePlotPhase();
     //makePlotXY(xs['x1'], xs['x2']);
     //makePlotPoincare(x, xx);

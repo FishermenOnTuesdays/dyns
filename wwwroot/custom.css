@@ -1,3 +1,32 @@
+.background_animation
+{
+    position: relative;
+    background-color: rgb(144, 205, 255);
+    /* background-image: url(fish.svg); */
+    width: 100%;
+    padding-bottom: 50px;
+    padding-top: 50px;
+}
+
+.background_animation object
+{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -5%);
+}
+
+.container-md
+{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    width: 100%;
+}
+
+
+
 .m10 {
     margin: 10px;
 }
@@ -20,13 +49,7 @@
 
 }
 
-.animated-gif-container { 
-
-}
-
 .semiopacity {
-    background-image:url("fish_animation.gif");
-    background-repeat:repeat;
     opacity: 1.0; /* Полупрозрачный фон */
     filter: alpha(Opacity=50); /* Прозрачность в IE */
 }
@@ -54,6 +77,11 @@
 .col-40 {
     flex: 0 0 40%;
     max-width: 40%;
+}
+
+.col-65 {
+    flex: 0 0 65%;
+    max-width: 65%;
 }
 
 .col-75 {

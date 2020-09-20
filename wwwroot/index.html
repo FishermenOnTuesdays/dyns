@@ -19,25 +19,26 @@
         <link rel = "stylesheet" href="scripts/bootstrap.min.css"/>
         
         <script src="plot.js"></script>
+        <script src="animation.js"></script>
         <link rel = "stylesheet" href="custom.css"/>
     </head>
 
     <body>
-        <div class="container-fluid animated-gif-container semiopacity">
+        <div id="back_container" class = "background_animation">
+            <object id="svg_object" type="image/svg+xml" data="fish.svg"></object>   
             <div class="container-md">
-
+                
                 <!--            logo            -->
                 <div class="row m10">
                     <div class="col-8">
                         <img src="logo.svg" height="150">
                     </div>
-                </div>			
-                <div id="animated-gif-container"></div>
+                </div>
 
                 <!--            nav frame            -->
-                <nav class="navbar navbar-expand-lg navbar-light bg-light rounded m10">
+                <nav class="navbar navbar-expand navbar-light bg-light rounded m10">
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                      <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
                     </button>
                     
                     
@@ -103,19 +104,19 @@
                         <div class="col col-75 p-1 h5 text-white">вектор-функция скорости</div>
                     </div>
 
-                    <div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
+                    <div class="row no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
                         <div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="x1_0"></div>
                         <div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dx1/dt"></div>
                         <div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div>
                     </div>
     
-                    <div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
+                    <div class="row no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
                         <div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="x2_0"></div>
                         <div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dx2/dt"></div>
                         <div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div>
                     </div>
     
-                    <div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
+                    <div class="row no-gutters bg-white rounded shadow p-1 mb-1 ml-1">
                         <div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="x3_0"></div>
                         <div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dx3/dt"></div>
                         <div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div>
@@ -149,11 +150,6 @@
                 </div>
 
             </div>
-            
-            <div class="row">
-                <div class="col-12"></div>
-            </div>
-
         </div>
 
         <div class="container">
@@ -178,7 +174,7 @@
             <div class="container-fluid" id="lyapunovchart">
                 <div class="row justify-content-start no-gutters">
                     <div class="col-25">
-                        <h1>показатели Ляпунова</h1>
+                        <h1><span class="badge badge-primary badge-pill">Beta</span> показатели Ляпунова</h1>
                     </div>
                     <div class="col-75">
                         <ul class="list-group list-group-horizontal-lg">
@@ -226,8 +222,6 @@
             </div>
 
         </div>
-        
-
+    
     </body>
-
 </html>
