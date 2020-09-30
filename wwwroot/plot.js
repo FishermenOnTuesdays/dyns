@@ -187,7 +187,7 @@ function onDraw()
         successAlert(true);
 
         jQuery.post(
-            'http://83.237.22.37:5000',
+            'http://localhost:5000',
             data,
             success
         );
