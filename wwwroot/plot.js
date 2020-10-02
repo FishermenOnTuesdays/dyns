@@ -1,6 +1,8 @@
 // global vars
 var ndims;
 var xs = {};
+var Darc = 0;
+var currentXs = ['x1', 'x2', 'x3'];
 
 // init popovers
 $(document).ready(function(){
@@ -49,6 +51,8 @@ jQuery(function(){
     jQuery("#phasechart3").hide();
     jQuery("#3dcharts").hide();
     jQuery("#lyapunovchart").hide();
+    jQuery("#Poincarecharts").hide();
+    jQuery("#credits").hide();
     
     document.getElementById("N").defaultValue = "1000";
     document.getElementById("dt").defaultValue = "0.01";
@@ -56,6 +60,16 @@ jQuery(function(){
     jQuery("#draw").click(onDraw);
     jQuery('#addx').click(function(){
         $('fieldset').append(newrow());
+    });
+    jQuery('#drawPoincare').click(function(){
+        makePlotPoincare();
+    });
+    jQuery('#drawRangePoincare').click(function(){
+        for (var i = -50; i <= 50; i++){
+            Darc = i;
+            makePlotPoincare();
+        }
+        Darc = 0;
     });
     $(document).on('click', '.remove', function() {
         $(this).parent().parent().remove();
@@ -86,12 +100,14 @@ jQuery(function(){
     }
     
     // btns
-    $(document).on('click', '.btn-ch', function(){
+    $(document).on('click', '.btn-phase', function(){
         if ($(this).is("active"))
         {
             s = this.id;
+            /*
             $(this).siblings().removeClass('active');
             makePlotXY(xs[this.id.split('/')[0]], xs[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
+            */
         }
         else
         {
@@ -99,6 +115,26 @@ jQuery(function(){
             $(this).addClass('active');
             $(this).siblings().removeClass('active');
             makePlotXY(xs[this.id.split('/')[0]], xs[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
+        }
+    });
+
+    $(document).on('click', '.btn-Poincare', function(){
+        if ($(this).is("active"))
+        {
+            s = this.id;
+            /*
+            $(this).siblings().removeClass('active');
+            */
+        }
+        else
+        {
+            s = this.id;
+            $(this).addClass('active');
+            $(this).siblings().removeClass('active');
+            currentXs[0] = this.id.split('/')[0];
+            currentXs[1] = this.id.split('/')[1];
+            currentXs[2] = this.id.split('/')[2];
+            makePlotPoincare();
         }
     });
 
@@ -134,6 +170,7 @@ jQuery(function(){
 			}
 		});
     });
+
 });
 
 // UI fill ins
@@ -185,9 +222,9 @@ function onDraw()
     //console.log(data);
     if (Object.values(data).length > 2 && k == k0){
         successAlert(true);
-
+        data['type'] = 'main';
         jQuery.post(
-            'http://localhost:5000',
+            'http://192.168.31.80:5000',
             data,
             success
         );
@@ -336,7 +373,7 @@ function oldgetData(dataset, type){
 
 function processData(allRows, type) {
     
-    console.log(allRows);
+    //console.log(allRows);
 
     dataarc = oldgetData(allRows, type);
     n = dataarc[0];
@@ -346,10 +383,11 @@ function processData(allRows, type) {
     ls = dataarc[4];
     lt = dataarc[5];
 
-    console.log(dataarc);
+    //console.log(dataarc);
 
     jQuery("#lyapunovchart").show();
-
+    jQuery("#Poincarecharts").show();
+    jQuery("#credits").show();
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
     jQuery("#phasecharts").hide();
@@ -371,10 +409,9 @@ function processData(allRows, type) {
     makePlotT(ndims, xs, t);
     makePlotLyapunov(ndims, ls, lt);
     makePlotPhase();
-    //makePlotXY(xs['x1'], xs['x2']);
-    //makePlotPoincare(x, xx);
-    
-    makePlot3D(xs['x1'], xs['x2'], xs['x3']);
+    makePlot3D(xs['x1'], xs['x2'], xs['x3'], 'chartXY3D');
+    makePoincareUI();
+    makePlotPoincare();
     //-----------------------------------------------------------
     successAlert(false);
 }
@@ -459,15 +496,15 @@ function makePlotLyapunov(ndims, dims, t){
 };
 
 function makePlotPhase(){
-    $('.btn-group').each(function(num, elem){
+    $('.btngroupPhase').each(function(num, elem){
         $(elem).empty();
     });
     if (ndims == 2){
         makePlotXY(xs['x1'], xs['x2'], 'chartXY');
     }
     else {
-        var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch active" id="xi/xj">xixj</button>';
-        $('.btn-group').each(function(num, elem){
+        var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-phase active" id="xi/xj">xixj</button>';
+        $('.btngroupPhase').each(function(num, elem){
             btn = '';
             count = 0;
             for(var i = 1; i <= ndims; i++){
@@ -499,100 +536,302 @@ var traces = [{
 Plotly.newPlot(type, traces, {
     displayModeBar: true,
     margin: {
-        l: 50,
-        r: 50,
-        b: 50,
-        t: 50,
-        pad: 4}
+    t: 20, //top margin
+    l: 20, //left margin
+    r: 20, //right margin
+    b: 20 //bottom margin
+    }
     });
 };
 
-function makePlotPoincare(x, y){
-var plotDiv = document.getElementById("plot");
-var traces = [{
-    x: x,
-    y: y
-}];
-
-Plotly.newPlot('chartPoincare', traces,
-    {title: 'Пуанкаре'});
-};
-
-function makePlot3D(x, y, z){
-var plotDiv = document.getElementById("plot");
-
-// base plane
-var basePlane = [];
-for(let x = 0; x <= 10; x++){
-    var line = []
-    for(let y = 0; y <= 10; y++)
-        line.push(0)
-    basePlane.push(line)
-}
-
-// input plane
-var inputPlane = [];
-for(let x = 0; x <= 10; x++){
-    var line = []
-    for(let y = 0; y <= 10; y++)
-        line.push(-x-y-2)
-    inputPlane.push(line)
-}
-
-function getData() {
-    var basePlane = [];
-    for(let i = 0; i<10; i++)
-    basePlane.push(Array(10).fill().map(() => 0))
-    return basePlane;
-}  
-
-var data = getData();
-//console.log(data);
-
-var trace = {
-    type: 'scatter3d',
-    mode: 'markers',
-    x: x,
-    y: y,
-    z: z,
-    opacity: 1,
-    marker: {
-        color: '#000000',
-		size: 2,
-    },
-    name: 'flow',
-};
-/*
-var base = {
-    z: basePlane,
-    showscale: false,
-    opacity: 0.1,
-    type: 'surface',
-    name: 'базовая плоскость'
-};
-
-var input = {
-    z: inputPlane,
-    showscale: false,
-    opacity: 0.9,
-    type: 'surface',
-    name: 'данная плоскость'
-};
-
-data = [base, input, trace];
-*/
-data = [trace];
-Plotly.newPlot('chartXY3D', data,
-    {
-        height: 1000,
-        displayModeBar: true,
-        margin: {
-            l: 50,
-            r: 50,
-            b: 50,
-            t: 50,
-            pad: 4}
+function makePoincareUI(){
+    $('.btngroupPoincare').each(function(num, elem){
+        $(elem).empty();
+    });
+    if (ndims == 1) return 0;
+    var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-Poincare active" id="xi/xj/xk">xixjxk</button>';
+    $('.btngroupPoincare').each(function(num, elem){
+        btn = '';
+        count = 0;
+        for(var i = 1; i <= ndims; i++){
+            for(var j = i + 1; j <= ndims; j++){
+                for(var k = j + 1; k <= ndims; k++){
+                    btncurr = btnsample;
+                    if (num != count){
+                        btncurr = btncurr.split(" active").join('');
+                    }
+                    btncurr = btncurr.split("xi").join('x' + i);
+                    btncurr = btncurr.split("xj").join('x' + j);
+                    btncurr = btncurr.split("xk").join('x' + k);
+                    btn += btncurr;
+                    count++;
+                }
+            }
         }
+        $(elem).append(btn);
+    });
+}
+
+function successPoincare(data){
+    var data = JSON.parse(data);
+    //console.log(data);
+    if ((data['N'] > 0) || (Darc == 0)){
+        inputD.value = data['D'];
+        sliderD.value = data['D'];
+        // get plane params
+        var A = parseFloat(document.getElementById('inputA').value);
+        var B = parseFloat(document.getElementById('inputB').value);
+        var C = parseFloat(document.getElementById('inputC').value);
+        //var D = parseFloat(document.getElementById('inputD').value);
+        var D = Darc;
+        if (Darc == 0){
+            var D = parseFloat(document.getElementById('inputD').value);
+        }
+        
+        //console.log(data);
+        //console.log("success");
+        // Poincare 2D map
+        var traces = [{
+            x: data['X'],
+            y: data['Y'],
+            mode: 'markers'
+        }];
+        
+        Plotly.newPlot('chartPoincare2D', traces, {
+            height: document.getElementById('chartPoincare2D').offsetWidth,
+            displayModeBar: true,
+            margin: {
+            t: 25, //top margin
+            l: 25, //left margin
+            r: 25, //right margin
+            b: 25, //bottom margin
+            pad: 1 
+            }
+        });
+        var M1 = Math.max(Math.min(...xs[currentXs[0]]), Math.max(...xs[currentXs[0]]));
+        var M2 = Math.max(Math.min(...xs[currentXs[1]]), Math.max(...xs[currentXs[1]]));
+        var M3 = Math.max(Math.min(...xs[currentXs[2]]), Math.max(...xs[currentXs[2]]));
+        var T = 1 * Math.max(M1, M2, M3);
+        // 3D map
+        makePlotPoincare3D(xs[currentXs[0]], xs[currentXs[1]], xs[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
+    }
+}
+
+function makePlotPoincare(){
+    n = dataarc[0];
+    xs = dataarc[2];
+
+    // get plane params
+    var A = parseFloat(document.getElementById('inputA').value);
+    var B = parseFloat(document.getElementById('inputB').value);
+    var C = parseFloat(document.getElementById('inputC').value);
+    //var D = parseFloat(document.getElementById('inputD').value);
+    var D = Darc;
+    
+    // request data from server
+    data = {
+        type: 'Poincare',
+        N: n,
+        x1: xs[currentXs[0]],
+        x2: xs[currentXs[1]],
+        x3: xs[currentXs[2]],
+        A: A,
+        B: B,
+        C: C,
+        D: D
+    }
+    jQuery.post(
+        'http://192.168.31.80:5000',
+        data,
+        successPoincare
+    );
+};
+
+function makePlot3D(x, y, z, chartid){
+
+    var trace = {
+        type: 'scatter3d',
+        mode: 'lines',
+        x: x,
+        y: y,
+        z: z,
+        opacity: 1,
+        line:{
+            color: '#000000',
+            size: 1
+        },
+        /*marker: {
+            color: '#000000',
+            size: 2,
+        },*/
+        name: 'flow',
+    };
+
+    data = [trace];
+    Plotly.newPlot(chartid, data,
+        {
+            height: 1000,
+            displayModeBar: true,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1}
+            }
+        );
+};
+
+/*
+function transpose(matrix) {
+    const rows = matrix.length, cols = matrix[0].length;
+    const grid = [];
+    for (let j = 0; j < cols; j++) {
+      grid[j] = Array(rows);
+    }
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        grid[j][i] = matrix[i][j];
+      }
+    }
+    return grid;
+}*/
+
+function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
+    //var plotDiv = document.getElementById("plot");
+
+    // base plane
+    var basePlane = [];
+    for(let x = 0; x <= 10; x++){
+        var line = []
+        for(let y = 0; y <= 10; y++)
+            line.push(0)
+        basePlane.push(line)
+    }
+
+    // input plane
+    var inputPlane = {};
+    inputPlane['x'] = [], inputPlane['y'] = [], inputPlane['z'] = [];
+    for(let x = -T; x <= T; x+=(T/10)){
+        for(let y = -T; y <= T; y+=(T/10)){
+            z = -(A*x+B*y+D)/C;
+            inputPlane['x'].push(-(B*y+C*z+D)/A);
+            inputPlane['y'].push(-(A*x+C*z+D)/B);
+            inputPlane['z'].push(z);
+           
+        }
+        //inputPlane['x'].push(-(B*y+C*z+D)/A);
+        //inputPlane['y'].push(-(A*x+C*z+D)/B);
+        //inputPlane['z'].push(-(A*x+B*y+D)/C);
+    }
+
+    {
+    /*
+    function getData() {
+        var basePlane = [];
+        for(let i = 0; i<10; i++)
+        basePlane.push(Array(10).fill().map(() => 0))
+        return basePlane;
+    }  
+
+    var data = getData();
+    //console.log(data);
+    var base = {
+        z: basePlane,
+        showscale: false,
+        opacity: 0.1,
+        type: 'surface',
+        name: 'базовая плоскость'
+    };
+
+    var input = {
+        z: inputPlane,
+        showscale: false,
+        opacity: 0.9,
+        type: 'surface',
+        name: 'данная плоскость'
+    };
+
+    data = [base, input, trace];
+
+    var input = {
+        opacity: 0.8,
+        color:'rgb(255,100,200)',
+        type: 'mesh3d',
+        x: inputPlane['x'],
+        y: inputPlane['y'],
+        z: inputPlane['z'],
+    };
+    */
+    }
+
+    var input = {
+        type: "mesh3d",
+        x: inputPlane['x'],
+        y: inputPlane['y'],
+        z: inputPlane['z'],
+        opacity: 0.6,
+        //color:'rgb(254,254,254)'
+        color:'#99ccff'
+      };
+
+    //data = [trace, input];
+
+    var trace = {
+        type: 'scatter3d',
+        mode: 'lines',
+        x: X,
+        y: Y,
+        z: Z,
+        opacity: 1,
+        line:{
+            color: '#000000',
+            size: 1
+        },
+        /*
+        marker: {
+            color: '#000000',
+            size: 2,
+        },*/
+        name: 'flow',
+    };
+
+    //dataset = transpose(dataset);
+    var intersection_trace = {
+        type: 'scatter3d',
+        mode: 'markers',
+        x: dataset['x'],
+        y: dataset['y'],
+        z: dataset['z'],
+        opacity: 1,
+        marker:{
+            color: '#1E90FF',
+            size: 3
+        },
+        /*
+        marker: {
+            color: '#000000',
+            size: 2,
+        },*/
+        name: 'intersection',
+    };
+
+    data = [trace, input, intersection_trace];
+
+    //clear div
+    $(type).empty();
+
+    Plotly.newPlot(type, data,
+        {
+            height: document.getElementById(type).offsetWidth,
+            displayModeBar: true,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1}
+            }
     );
 };
 

@@ -17,6 +17,8 @@
         <script src="scripts/bootstrap.bundle.min.js"></script>
         <script src="scripts/bootstrap.bundle.js"></script>
         <link rel = "stylesheet" href="scripts/bootstrap.min.css"/>
+        <script src="scripts/jquery-ui.min.js"></script>
+        <link rel = "stylesheet" href="scripts/jquery-ui.min.css"/>
         
         <script src="plot.js"></script>
         <script src="animation.js"></script>
@@ -169,15 +171,15 @@
             </div>
         </div>
 
-        <div class="container-fluid" id="charts">
+        <div class="container-fluid" id="charts" style="margin-bottom: 2em;">
 
             <div class="container-fluid" id="lyapunovchart">
-                <div class="row justify-content-start no-gutters">
-                    <div class="col-25">
-                        <h1><span class="badge badge-primary badge-pill">Beta</span> показатели Ляпунова</h1>
+                <div class="row justify-content-start">
+                    <div class="col-35 justify-content-start align-self-center">
+                        <h1><span class="badge badge-primary badge-pill justify-content-start align-self-center">Beta</span> показатели Ляпунова</h1>
                     </div>
-                    <div class="col-75">
-                        <ul class="list-group list-group-horizontal-lg">
+                    <div class="col-65 justify-content-start align-self-center">
+                        <ul class="list-group list-group-horizontal-lg m10 justify-content-start align-self-center">
                             
                         </ul>
                     </div>
@@ -196,18 +198,18 @@
                 </div>
                 <div class="row">
                     <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
-                        <div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1"></div>
+                        <div class="btn-group mr-2 btngroupPhase" role="group" aria-label="First group" id="btngroup1"></div>
                         <div id="chartXY"></div>
                     </div>
                     <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
                         <div id="phasechart2">
-                            <div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1"></div>
+                            <div class="btn-group mr-2 btngroupPhase" role="group" aria-label="First group" id="btngroup1"></div>
                             <div id="chartXZ"></div>
                         </div>
                     </div>
                     <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
                         <div id="phasechart3">
-                            <div class="btn-group mr-2" role="group" aria-label="First group" id="btngroup1"></div>
+                            <div class="btn-group mr-2 btngroupPhase" role="group" aria-label="First group" id="btngroup1"></div>
                             <div id="chartYZ"></div>
                         </div>
                     </div>
@@ -222,29 +224,216 @@
             </div>
 
             <div class="container-fluid" id="Poincarecharts">
-                <div class="col-12">
-                    <h1>Отображения Пуанкаре</h1>
+                <div class="row justify-content-start align-self-center no-gutters">
+                    <div class="col-35">
+                        <h1><span class="badge badge-primary badge-pill align-self-bottom m10">Beta</span> Отображения Пуанкаре</h1>
+                    </div>
+                    <div class="col-65 justify-content-center align-self-center">
+                        <div class="btn-group btngroupPoincare justify-content-center m10" role="group" aria-label="First group"></div>
+                    </div>
                 </div>
+
                 <div class="row">
-                    <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
-                        <div class="btn-group mr-2 btngroupPoincare" role="group" aria-label="First group"></div>
-                        <div id="chartPoincare2D1"></div>
-                    </div>
-                    <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
-                        <div id="chartPoincare2D2W">
-                            <div class="btn-group mr-2 btngroupPoincare" role="group" aria-label="First group"></div>
-                            <div id="chartPoincare2D2"></div>
+                    <div class="col-2 bg-white">
+                        <div class="col-12 m10">
+                            <div class="row justify-content-center align-self-center mb-2"><h4>параметры секущей плоскости</h4></div>
+                            <div class="row align-self-center shadow rounded mb-1">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-start align-self-center mr-3 ml-3 mt-2">
+                                        <div class="col-15 justify-content-start align-self-center"><b>A =</b></div>
+                                        <div class="col-85">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="inputA" value="1">
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters justify-content-center align-self-center mb-2">
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputAL" value="-10">
+                                        </div>
+                                        <div class="col-60 justify-content-center align-self-center">
+                                            <input type="range" class="planeparams" id="sliderA" style="width: 100%" value="1" step="0.1" min="-10" max="10">
+                                        </div>
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputAR" value="10">
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var sliderA = document.getElementById("sliderA");
+                                    var inputA = document.getElementById("inputA");
+                                    var inputAL = document.getElementById("inputAL");
+                                    var inputAR = document.getElementById("inputAR");
+            
+                                    inputA.innerHTML = sliderA.value;
+                                    sliderA.oninput = function() {
+                                        inputA.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputA.oninput = function() {
+                                        sliderA.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputAL.oninput = function() {
+                                        sliderA.min = this.value;
+                                    }
+                                    inputAR.oninput = function() {
+                                        sliderA.max = this.value;
+                                    }
+                                </script>
+                            </div>
+                            <div class="row align-self-center shadow rounded mb-1">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-start align-self-center mr-3 ml-3 mt-2">
+                                        <div class="col-15 justify-content-start align-self-center"><b>B =</b></div>
+                                        <div class="col-85">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="inputB" value="1">
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters justify-content-center align-self-center mb-2">
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputBL" value="-10">
+                                        </div>
+                                        <div class="col-60 justify-content-center align-self-center">
+                                            <input type="range" class="planeparams" id="sliderB" style="width: 100%" value="1" step="0.1" min="-10" max="10">
+                                        </div>
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputBR" value="10">
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var sliderB = document.getElementById("sliderB");
+                                    var inputB = document.getElementById("inputB");
+                                    var inputBL = document.getElementById("inputBL");
+                                    var inputBR = document.getElementById("inputBR");
+            
+                                    inputB.innerHTML = sliderB.value;
+                                    sliderB.oninput = function() {
+                                        inputB.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputB.oninput = function() {
+                                        sliderB.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputBL.oninput = function() {
+                                        sliderB.min = this.value;
+                                    }
+                                    inputBR.oninput = function() {
+                                        sliderB.max = this.value;
+                                    }
+                                </script>
+                            </div>
+                            <div class="row align-self-center shadow rounded mb-1">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-start align-self-center mr-3 ml-3 mt-2">
+                                        <div class="col-15 justify-content-start align-self-center"><b>C =</b></div>
+                                        <div class="col-85">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="inputC" value="1">
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters justify-content-center align-self-center mb-2">
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputCL" value="-10">
+                                        </div>
+                                        <div class="col-60 justify-content-center align-self-center">
+                                            <input type="range" class="planeparams" id="sliderC" style="width: 100%" value="1" step="0.1" min="-10" max="10">
+                                        </div>
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputCR" value="10">
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var sliderC = document.getElementById("sliderC");
+                                    var inputC = document.getElementById("inputC");
+                                    var inputCL = document.getElementById("inputCL");
+                                    var inputCR = document.getElementById("inputCR");
+            
+                                    inputC.innerHTML = sliderC.value;
+                                    sliderC.oninput = function() {
+                                        inputC.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputC.oninput = function() {
+                                        sliderC.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputCL.oninput = function() {
+                                        sliderC.min = this.value;
+                                    }
+                                    inputCR.oninput = function() {
+                                        sliderC.max = this.value;
+                                    }
+                                </script>
+                            </div>
+                            <div class="row align-self-center shadow rounded mb-1">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-start align-self-center mr-3 ml-3 mt-2">
+                                        <div class="col-15 justify-content-start align-self-center"><b>D =</b></div>
+                                        <div class="col-85">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="inputD" value="1">
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters justify-content-center align-self-center mb-2">
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputDL" value="-100">
+                                        </div>
+                                        <div class="col-60 justify-content-center align-self-center">
+                                            <input type="range" class="planeparams" id="sliderD" style="width: 100%" value="1" step="0.1" min="-100" max="100">
+                                        </div>
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputDR" value="100">
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var sliderD = document.getElementById("sliderD");
+                                    var inputD = document.getElementById("inputD");
+                                    var inputDL = document.getElementById("inputDL");
+                                    var inputDR = document.getElementById("inputDR");
+            
+                                    inputD.innerHTML = sliderD.value;
+                                    sliderD.oninput = function() {
+                                        inputD.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputD.oninput = function() {
+                                        sliderD.value = this.value;
+                                        makePlotPoincare();
+                                    }
+                                    inputDL.oninput = function() {
+                                        sliderD.min = this.value;
+                                    }
+                                    inputDR.oninput = function() {
+                                        sliderD.max = this.value;
+                                    }
+                                </script>
+                            </div>
+                            <!--
+                            <div class="row justify-content-end align-self-center shadow rounded mb-1">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" id="drawPoincare">Построить отображение</button>
+                            </div>
+                            -->
+                            <div class="row justify-content-end align-self-center shadow rounded mb-1">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" id="drawRangePoincare">Построить анимацию</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-sm shadow p-3 mb-5 bg-white rounded ml-1">
-                        <div id="chartPoincare2D3W">
-                            <div class="btn-group mr-2 btngroupPoincare" role="group" aria-label="First group"></div>
-                            <div id="chartPoincare2D3"></div>
-                        </div>
+                    <div class="col-5 zero-padding">
+                        <div id="chartPoincare2D" class="m10"></div>
+                    </div>
+                    <div class="col-5 zero-padding">
+                        <div id="chartPoincare3D" class="m10"></div>
                     </div>
                 </div>
             </div>
 
+        </div>
+
+        <div class="container-fluid" id="credits">
+            <div class="row">
+                <div class="col-12 bg-primary text-white"><h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ МИФИ. 2020</h6></div>
+            </div>
         </div>
     
     </body>
