@@ -1,4 +1,8 @@
 // global vars
+local_ip = '192.168.31.80';
+dyns_ip = '85.143.113.155';
+
+ip = dyns_ip;
 var ndims;
 var xs = {};
 var Darc = 0;
@@ -224,7 +228,7 @@ function onDraw()
         successAlert(true);
         data['type'] = 'main';
         jQuery.post(
-            'http://192.168.31.80:5000',
+            'http://' + ip + ':5000',
             data,
             success
         );
@@ -626,7 +630,9 @@ function makePlotPoincare(){
     var B = parseFloat(document.getElementById('inputB').value);
     var C = parseFloat(document.getElementById('inputC').value);
     //var D = parseFloat(document.getElementById('inputD').value);
-    var D = Darc;
+    if (Darc == 0){
+        var D = parseFloat(document.getElementById('inputD').value);
+    } else var D = Darc;
     
     // request data from server
     data = {
@@ -641,7 +647,7 @@ function makePlotPoincare(){
         D: D
     }
     jQuery.post(
-        'http://192.168.31.80:5000',
+        'http://' + ip + ':5000',
         data,
         successPoincare
     );
