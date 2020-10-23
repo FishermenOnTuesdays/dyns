@@ -61,9 +61,19 @@
     filter: alpha(Opacity=50); /* Прозрачность в IE */
 }
 
+.col-02 {
+    flex: 0 0 2%;
+    max-width: 2%;
+}
+
 .col-05 {
     flex: 0 0 5%;
     max-width: 5%;
+}
+
+.col-08 {
+    flex: 0 0 8%;
+    max-width: 8%;
 }
 
 .col-010 {
@@ -106,6 +116,11 @@
     max-width: 70%;
 }
 
+.col-72 {
+    flex: 0 0 72%;
+    max-width: 72%;
+}
+
 .col-75 {
     flex: 0 0 75%;
     max-width: 75%;
@@ -129,3 +144,4 @@
 .texted {
     font-size: 16pt;
 }
+

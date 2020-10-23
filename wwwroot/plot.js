@@ -2,11 +2,18 @@
 local_ip = '192.168.31.80';
 dyns_ip = '85.143.113.155';
 
-ip = dyns_ip;
-var ndims;
-var xs = {};
+ip = local_ip;
+
+exclusionList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '(', ')', '*', '/', '+', '-', 'abs', 'acos', 'acosh', 'arg', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cbrt', 'conj', 'ceil', 'cos', 'cosh', 'cot', 'csc', 'exp', 'exp2', 'floor', 'hypot', 'imag', 'int', 'log', 'log2', 'log10', 'max', 'min', 'polar', 'pow', 'real', 'sec', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'];
+
+//var xs = {};
 var Darc = 0;
 var currentXs = ['x1', 'x2', 'x3'];
+var eqvarlist = [];
+var paramlist = [];
+
+var ndims;
+var equationTimeSeries = {}, lyapunovTimeSeries = {};
 
 // init popovers
 $(document).ready(function(){
@@ -23,6 +30,26 @@ $(document).ready(function(){
 });
 
 //-------------------------------------------------------
+function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
+    return arr;
+}
+  
+function removeItemAll(arr, value) {
+var i = 0;
+while (i < arr.length) {
+    if (arr[i] === value) {
+    arr.splice(i, 1);
+    } else {
+    ++i;
+    }
+}
+return arr;
+}
+
 function successAlert(state) {
     if (state){
         //add alert
@@ -39,13 +66,61 @@ function successAlert(state) {
     }
 }
 
-function newrow(){
-    var newx = '<div class="row justify-content-end no-gutters bg-white rounded shadow p-1 mb-1 ml-1"><div class="col col-20 p-1"><input type="text" class="form-control" id="x_0" placeholder="xi_0"></div><div class="col col-75 p-1"><input type="text" class="form-control" id="x" placeholder="dxi/dt"></div><div class="col col-05 p-1"><button class="remove btn btn-outline-light">&#10060;</button></div></div>';
-    count = 1;
-    $('input[id="x"]').each(function(i, elem){
+function newEq(){
+    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
+    count = 0;
+    $('.inputeq').each(function(i, elem){
         count++;
     });
-    return newx.split("xi").join('x'+count);
+    return newx.split("xi").join('x'+(count + 1));
+}
+
+function newParam(name){
+    var Param = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-4 pr-1"><input type="text" class="form-control inputparamname" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: end;" id="paraminame" value="name ="></div><div class="col col-8"><input type="text" class="form-control inputparam" id="parami" placeholder="значение"></div></div></div>';
+    /*
+    count = 1;
+    $('.inputparam').each(function(i, elem){
+        count++;
+    });
+    */
+    Param = Param.split("name").join(name);
+    Param = Param.split("parami").join("param" + name);
+    return Param;
+}
+
+function addParam(name){
+    $('#paraminput').append(newParam(name));
+}
+
+function deleteParam(name){
+    $('#param' + name).parent().parent().parent().remove();
+}
+
+function eqchange(element){
+    equation = element.value;
+    // change eqvar
+    eqvar = equation.slice(2, equation.indexOf(')/dt='));
+    element.id = eqvar;
+    eqvarlist.push(eqvar);
+    // look for params
+    equation = equation.slice(equation.indexOf(')/dt=') + 5);
+    exclusionList.forEach(function(item, i, exclusionList) {
+        equation = equation.split(item).join(' ');
+    });
+    equation = equation.replace(/\s{2,}/g, ' ');
+    params = equation.split(' ');
+    removeItemAll(params, '');
+    params.forEach(function(item) {
+        if (paramlist.indexOf(item) == -1) {
+            paramlist.push(item);
+            addParam(item);
+        }
+    });
+    eqvarlist.forEach(function(item) {
+        deleteParam(item);
+        removeItemAll(paramlist, item);
+    });
+    //alert(paramlist);
 }
 
 jQuery(function(){
@@ -58,12 +133,12 @@ jQuery(function(){
     jQuery("#Poincarecharts").hide();
     jQuery("#credits").hide();
     
-    document.getElementById("N").defaultValue = "1000";
+    document.getElementById("time").defaultValue = "1000";
     document.getElementById("dt").defaultValue = "0.01";
 
     jQuery("#draw").click(onDraw);
     jQuery('#addx').click(function(){
-        $('fieldset').append(newrow());
+        $('#maininput').append(newEq());
     });
     jQuery('#drawPoincare').click(function(){
         makePlotPoincare();
@@ -76,29 +151,33 @@ jQuery(function(){
         Darc = 0;
     });
     $(document).on('click', '.remove', function() {
-        $(this).parent().parent().remove();
+        $(this).parent().parent().parent().remove();
     });
     
     //example attractors
     {
         jQuery("#lorenz").click(function(){
-            params = ["10*(x2-x1)", "x1*(28-x3)-x2", "x1*x2-(8/3)*x3"]
-            setFields(3, params);
-            document.getElementById("N").value = "10000";
+            eqs = ["d(x)/dt=s*(y-x)", "d(y)/dt=x*(r-z)-y", "d(z)/dt=x*y-b*z"];
+            eqparams = ["10", "28", "8/3"];
+            setFields(3, eqs, 'main');
+            setFields(3, eqparams, 'params');
+            document.getElementById("time").value = "100";
             document.getElementById("dt").value = "0.01";
         })
 
         jQuery("#dequanli").click(function(){
-            params = ["40*(x2-x1)+0.16*x1*x3", "55*x1+20*x2-x1*x3", "1.833*x3+x1*x2-0.65*x1*x1"]
-            setFields(3, params);
-            document.getElementById("N").value = "10000";
+            eqs = ["d(x)/dt=a*(y-x)+delta*x*z", "d(y)/dt=ro*x+t*y-x*z", "d(z)/dt=beta*z+x*y-eps*y*x"];
+            eqparams = ["40", "0.16", "55", "20", "1.833", "0.65"];
+            setFields(3, eqs, 'main');
+            setFields(6, eqparams, 'params');
+            document.getElementById("time").value = "10";
             document.getElementById("dt").value = "0.001";
         })
 
         jQuery("#shilnikov").click(function(){
-            params = ["x2", "x3", "-0.87*x1-x2-0.4*x3+x1*x1"]
-            setFields(3, params);
-            document.getElementById("N").value = "100000";
+            eqs = ["d(x)/dt=y", "d(y)/dt=z", "d(z)/dt=-0.87*x-y-0.4*z+x*x"];
+            setFields(3, eqs, 'main');
+            document.getElementById("time").value = "10";
             document.getElementById("dt").value = "0.001";
         })
     }
@@ -118,7 +197,7 @@ jQuery(function(){
             s = this.id;
             $(this).addClass('active');
             $(this).siblings().removeClass('active');
-            makePlotXY(xs[this.id.split('/')[0]], xs[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
+            makePlotXY(equationTimeSeries[this.id.split('/')[0]], equationTimeSeries[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
         }
     });
 
@@ -149,9 +228,15 @@ jQuery(function(){
         jQuery("#charts").show();
     }
     
+    $(document).on('change', '.inputeq', function() {
+        eqchange(this);
+    });
+
+    /*
     $('#UploadModal').on('shown.bs.modal', function () {
         //$('#myInput').trigger('focus')
     })
+    */
 
     $('#submit-file').on("click",function(e){
 		e.preventDefault();
@@ -186,50 +271,77 @@ function setStarts(defval, n){
 
 function ensureFields(n){
     count = 0;
-    $('input[id="x"]').each(function(i, elem){
+    $('.inputeq').each(function(i, elem){
         count++;
     });
-    for(var i = 0; i < (n - count); i++){
-        $('fieldset').append(newrow());
+    extra = n - count;
+    for(var i = 0; i < extra; i++){
+        $('#maininput').append(newEq());
     }
 }
 
-function setFields(n, array){
-    ensureFields(n);
-    $('input[id="x"]').each(function(i, elem){
-        if (i < n) {elem.value = array[i];}
-    });
-    setStarts(0.1, 3);
+function setFields(n, array, type){
+    if (type == 'main'){
+        ensureFields(n);
+        $('.inputeq').each(function(i, elem){
+            if (i < n) {elem.value = array[i]; eqchange(elem)}
+        });
+        setStarts(0.1, 3);
+    } else if (type = 'params') {
+        $('.inputparam').each(function(i, elem){
+            if (i < n) {elem.value = array[i];}
+        });
+        setStarts(0.1, 3);
+    }
 }
 
 // web graph
 function onDraw()
 {
-    k0 = 0;
+    // make data
     k = 0;
-    var data = {};
-    jQuery('input[id="x"]').each(function(i, elem){
-        if ($(elem).val() != ""){
-            k++;
-            data['x' + (i + 1)] = $(elem).val();
-        }
-    });
-    jQuery('input[id="x_0"]').each(function(i, elem){
+    k0 = 0;
+    requestData = {};
+    requestData['request type'] = 0;
+    requestData['variables'] = eqvarlist.join(', ');
+    
+    start_values = [];
+    jQuery('.inputstart').each(function(i, elem){
         if ($(elem).val() != ""){
             k0++;
-            data['x' + (i + 1) + '_0'] = $(elem).val();
+            start_values.push($(elem).val());
         }   
     });
-    data['N'] = jQuery("#N").val();
-    data['dt'] = jQuery("#dt").val();
+    requestData['start values'] = start_values;
 
-    //console.log(data);
-    if (Object.values(data).length > 2 && k == k0){
+    functions = [];
+    jQuery('.inputeq').each(function(i, elem){
+        if ($(elem).val() != ""){
+            k++;
+            functions.push($(elem).val().slice(($(elem).val().indexOf(')/dt=') + 5)));
+        }
+    });
+    requestData['functions'] = functions;
+
+    additional_equations = [];
+    jQuery('.inputparam').each(function(i, elem){
+        if ($(elem).val() != ""){
+            nameeq = $($(elem).parent().parent().children()[0]).children()[0].value;
+            additional_equations.push(nameeq + $(elem).val());
+        }
+    });
+    requestData['additional equations'] = additional_equations.join('; ').split(' =').join(':=') + ';';
+
+    requestData['time'] = jQuery("#time").val();
+    requestData['dt'] = jQuery("#dt").val();
+
+    console.log(requestData);
+    if (Object.values(requestData).length > 2 && k == k0){
         successAlert(true);
-        data['type'] = 'main';
+        //requestData['request type'] = 'main';
         jQuery.post(
             'http://' + ip + ':5000',
-            data,
+            requestData,
             success
         );
     }
@@ -247,24 +359,26 @@ function success(data)
     //console.log(data);
     //console.log("success");
     //successAlert(false);
-    plot();
+    plot(JSON.parse(JSON.parse(data))[0], "web");
     jQuery("#charts").show();
 }
 
 //plot
 //--------------------------------------------------------------------------
 //global data var
-var dataarc = [];
-var n;
+//var dataarc = [];
+//var n;
 
 function plot(dataset, type) {
     if (dataset){
         processData(dataset, type);
     } else{
-        Plotly.d3.csv("output/result.csv", function(data){ processData(data, "web") } );
+        processData(dataset, "web");
+        //Plotly.d3.csv("output/result.csv", function(data){ processData(data, "web") } );
     }
 };
 
+/*
 function getData(dataset, type){
     
     xs = {};
@@ -313,7 +427,9 @@ function getData(dataset, type){
 
     return [n, ndims, xs, t, ls, lt];
 }
+*/
 
+/*
 function oldgetData(dataset, type){
     
     xs = {};
@@ -374,18 +490,35 @@ function oldgetData(dataset, type){
 
     return [n, ndims, xs, t, ls];
 }
+*/
+
+function getData(dataset, type){
+    
+    equationTimeSeries = {};
+    lyapunovTimeSeries = {};
+    
+    if (type == "web"){
+        //vars = dataset['variables'];
+        trajectoryData = dataset['trajectory'];
+        Object.keys(trajectoryData).forEach(function(item, i) {
+            equationTimeSeries[item] = trajectoryData[item];
+        });
+        eqvarlist.forEach(function(item, i) {
+            lyapunovTimeSeries['lambda' + (i + 1)] = dataset['series of spectrum lyapunov exponents']['lambda' + (i + 1)];
+        });
+    } else if (type == "local"){
+        return 0;
+    }
+
+    //return _equationTimeSeries, _lyapunovTimeSeries;
+}
 
 function processData(allRows, type) {
     
     //console.log(allRows);
 
-    dataarc = oldgetData(allRows, type);
-    n = dataarc[0];
-    ndims = dataarc[1];
-    xs = dataarc[2];
-    t = dataarc[3];
-    ls = dataarc[4];
-    lt = dataarc[5];
+    getData(allRows, type);
+    ndims = eqvarlist.length;
 
     //console.log(dataarc);
 
@@ -410,26 +543,26 @@ function processData(allRows, type) {
     }
 
     // make plots -----------------------------------------------
-    makePlotT(ndims, xs, t);
-    makePlotLyapunov(ndims, ls, lt);
-    makePlotPhase();
-    makePlot3D(xs['x1'], xs['x2'], xs['x3'], 'chartXY3D');
+    makePlotT(ndims, equationTimeSeries);
+    makePlotLyapunov(ndims, lyapunovTimeSeries);
+    makePlotPhase(equationTimeSeries);
+    makePlot3D(equationTimeSeries[eqvarlist[0]], equationTimeSeries[eqvarlist[1]], equationTimeSeries[eqvarlist[2]], 'chartXY3D');
     makePoincareUI();
     makePlotPoincare();
     //-----------------------------------------------------------
     successAlert(false);
 }
 
-function makePlotT(ndims, dims, t){
-    var plotDiv = document.getElementById("plot");
+function makePlotT(ndims, timeSeries){
+    var plotDiv = document.getElementById("chartXYt");
     
     traces = []
     
-    for (var i = 1; i <= ndims; i++) {
-        id = "x" + i
+    for (var i = 0; i < ndims; i++) {
+        id = eqvarlist[i];
         traces.push({
-            x: t,
-            y: dims[id],
+            x: timeSeries['t'],
+            y: timeSeries[id],
             name: id
         });
     }
@@ -445,17 +578,17 @@ function makePlotT(ndims, dims, t){
         });
 };
 
-function makePlotLyapunov(ndims, dims, t){
+function makePlotLyapunov(ndims, timeSeries){
     var plotDiv = document.getElementById("plot");
     
     traces = []
     
     for (var i = 1; i <= ndims; i++) {
         ticker = "λ" + i
-        id = "l" + i
+        id = "lambda" + i
         traces.push({
-            x: t,
-            y: dims[id],
+            x: timeSeries['t'],
+            y: timeSeries[id],
             name: ticker
         });
     }
@@ -475,7 +608,7 @@ function makePlotLyapunov(ndims, dims, t){
     var lisample = '<li class="list-group-item type">λ</li>';
     arrLyapunov  = []
     for(var i = 1; i <= ndims; i++){
-        arrLyapunov.push(ls['l' + i][n - 1]);
+        arrLyapunov.push(timeSeries['lambda' + i][-1]);
     }
     arrLyapunov.sort().reverse();
 
@@ -499,35 +632,35 @@ function makePlotLyapunov(ndims, dims, t){
     });
 };
 
-function makePlotPhase(){
+function makePlotPhase(timeSeries){
     $('.btngroupPhase').each(function(num, elem){
         $(elem).empty();
     });
     if (ndims == 2){
-        makePlotXY(xs['x1'], xs['x2'], 'chartXY');
+        makePlotXY(timeSeries[eqvarlist[0]], timeSeries[eqvarlist[1]], 'chartXY');
     }
     else {
-        var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-phase active" id="xi/xj">xixj</button>';
+        var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-phase active" id="xx/yy">xxyy</button>';
         $('.btngroupPhase').each(function(num, elem){
             btn = '';
             count = 0;
-            for(var i = 1; i <= ndims; i++){
-                for(var j = i + 1; j <= ndims; j++){
+            for(var i = 0; i < ndims; i++){
+                for(var j = i + 1; j < ndims; j++){
                     btncurr = btnsample;
                     if (num != count){
                         btncurr = btncurr.split(" active").join('');
                     }
-                    btncurr = btncurr.split("xi").join('x' + i);
-                    btncurr = btncurr.split("xj").join('x' + j);
+                    btncurr = btncurr.split("xx").join(eqvarlist[i]);
+                    btncurr = btncurr.split("yy").join(eqvarlist[j]);
                     btn += btncurr;
                     count++;
                 }
             }
             $(elem).append(btn);
         });
-        makePlotXY(xs['x1'], xs['x2'], 'chartXY');
-        makePlotXY(xs['x1'], xs['x3'], 'chartXZ');
-        makePlotXY(xs['x2'], xs['x3'], 'chartYZ');
+        makePlotXY(timeSeries[eqvarlist[0]], timeSeries[eqvarlist[1]], 'chartXY');
+        makePlotXY(timeSeries[eqvarlist[0]], timeSeries[eqvarlist[2]], 'chartXZ');
+        makePlotXY(timeSeries[eqvarlist[1]], timeSeries[eqvarlist[2]], 'chartYZ');
     }
 }
 
@@ -564,9 +697,9 @@ function makePoincareUI(){
                     if (num != count){
                         btncurr = btncurr.split(" active").join('');
                     }
-                    btncurr = btncurr.split("xi").join('x' + i);
-                    btncurr = btncurr.split("xj").join('x' + j);
-                    btncurr = btncurr.split("xk").join('x' + k);
+                    btncurr = btncurr.split("xi").join(eqvarlist[i]);
+                    btncurr = btncurr.split("xj").join(eqvarlist[j]);
+                    btncurr = btncurr.split("xk").join(eqvarlist[k]);
                     btn += btncurr;
                     count++;
                 }
@@ -579,7 +712,7 @@ function makePoincareUI(){
 function successPoincare(data){
     var data = JSON.parse(data);
     //console.log(data);
-    if ((data['N'] > 0) || (Darc == 0)){
+    if ((data['time'] > 0) || (Darc == 0)){
         inputD.value = data['D'];
         sliderD.value = data['D'];
         // get plane params
@@ -612,18 +745,23 @@ function successPoincare(data){
             pad: 1 
             }
         });
-        var M1 = Math.max(Math.min(...xs[currentXs[0]]), Math.max(...xs[currentXs[0]]));
-        var M2 = Math.max(Math.min(...xs[currentXs[1]]), Math.max(...xs[currentXs[1]]));
-        var M3 = Math.max(Math.min(...xs[currentXs[2]]), Math.max(...xs[currentXs[2]]));
+        var M1 = Math.max(Math.min(...equationTimeSeries[currentXs[0]]), Math.max(...equationTimeSeries[currentXs[0]]));
+        var M2 = Math.max(Math.min(...equationTimeSeries[currentXs[1]]), Math.max(...equationTimeSeries[currentXs[1]]));
+        var M3 = Math.max(Math.min(...equationTimeSeries[currentXs[2]]), Math.max(...equationTimeSeries[currentXs[2]]));
         var T = 1 * Math.max(M1, M2, M3);
         // 3D map
-        makePlotPoincare3D(xs[currentXs[0]], xs[currentXs[1]], xs[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
+        makePlotPoincare3D(equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
     }
 }
 
 function makePlotPoincare(){
-    n = dataarc[0];
-    xs = dataarc[2];
+    n = equationTimeSeries[eqvarlist[0]].length;
+    //xs = dataarc[2];
+    if (currentXs[0] == 'x1'){
+        currentXs[0] = eqvarlist[0];
+        currentXs[1] = eqvarlist[1];
+        currentXs[2] = eqvarlist[2];
+    }
 
     // get plane params
     var A = parseFloat(document.getElementById('inputA').value);
@@ -636,16 +774,17 @@ function makePlotPoincare(){
     
     // request data from server
     data = {
-        type: 'Poincare',
+        'request type': 'Poincare',
         N: n,
-        x1: xs[currentXs[0]],
-        x2: xs[currentXs[1]],
-        x3: xs[currentXs[2]],
+        x1: equationTimeSeries[currentXs[0]],
+        x2: equationTimeSeries[currentXs[1]],
+        x3: equationTimeSeries[currentXs[2]],
         A: A,
         B: B,
         C: C,
         D: D
     }
+    console.log(data);
     jQuery.post(
         'http://' + ip + ':5000',
         data,
