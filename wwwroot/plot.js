@@ -1,7 +1,6 @@
 // global vars
 local_ip = '192.168.31.80';
 dyns_ip = '85.143.113.155';
-
 ip = local_ip;
 
 exclusionList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '(', ')', '*', '/', '+', '-', 'abs', 'acos', 'acosh', 'arg', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cbrt', 'conj', 'ceil', 'cos', 'cosh', 'cot', 'csc', 'exp', 'exp2', 'floor', 'hypot', 'imag', 'int', 'log', 'log2', 'log10', 'max', 'min', 'polar', 'pow', 'real', 'sec', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'];
@@ -124,7 +123,7 @@ function eqchange(element){
 }
 
 jQuery(function(){
-    jQuery("#charts").hide();
+    //jQuery("#charts").hide();
     jQuery("#phasecharts").hide();
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
@@ -162,7 +161,7 @@ jQuery(function(){
             setFields(3, eqs, 'main');
             setFields(3, eqparams, 'params');
             document.getElementById("time").value = "100";
-            document.getElementById("dt").value = "0.01";
+            document.getElementById("dt").value = "0.001";
         })
 
         jQuery("#dequanli").click(function(){
@@ -365,9 +364,6 @@ function success(data)
 
 //plot
 //--------------------------------------------------------------------------
-//global data var
-//var dataarc = [];
-//var n;
 
 function plot(dataset, type) {
     if (dataset){
@@ -376,7 +372,7 @@ function plot(dataset, type) {
         processData(dataset, "web");
         //Plotly.d3.csv("output/result.csv", function(data){ processData(data, "web") } );
     }
-};
+}
 
 /*
 function getData(dataset, type){
@@ -514,13 +510,8 @@ function getData(dataset, type){
 }
 
 function processData(allRows, type) {
-    
-    //console.log(allRows);
-
     getData(allRows, type);
     ndims = eqvarlist.length;
-
-    //console.log(dataarc);
 
     jQuery("#lyapunovchart").show();
     jQuery("#Poincarecharts").show();
@@ -542,6 +533,12 @@ function processData(allRows, type) {
         }
     }
 
+    makePlots(ndims);
+    //-----------------------------------------------------------
+    successAlert(false);
+}
+
+function makePlots(ndims){
     // make plots -----------------------------------------------
     makePlotT(ndims, equationTimeSeries);
     makePlotLyapunov(ndims, lyapunovTimeSeries);
@@ -549,8 +546,6 @@ function processData(allRows, type) {
     makePlot3D(equationTimeSeries[eqvarlist[0]], equationTimeSeries[eqvarlist[1]], equationTimeSeries[eqvarlist[2]], 'chartXY3D');
     makePoincareUI();
     makePlotPoincare();
-    //-----------------------------------------------------------
-    successAlert(false);
 }
 
 function makePlotT(ndims, timeSeries){
@@ -566,9 +561,10 @@ function makePlotT(ndims, timeSeries){
             name: id
         });
     }
-    
+    var config = {responsive: true}
     Plotly.newPlot('chartXYt', traces, {
         displayModeBar: true,
+        config,
         margin: {
             l: 50,
             r: 50,
@@ -576,7 +572,7 @@ function makePlotT(ndims, timeSeries){
             t: 50,
             pad: 4}
         });
-};
+}
 
 function makePlotLyapunov(ndims, timeSeries){
     var plotDiv = document.getElementById("plot");
@@ -592,9 +588,10 @@ function makePlotLyapunov(ndims, timeSeries){
             name: ticker
         });
     }
-    
+    var config = {responsive: true}
     Plotly.newPlot('chartLyapunov', traces, {
         displayModeBar: true,
+        config,
         margin: {
             l: 50,
             r: 50,
@@ -604,13 +601,13 @@ function makePlotLyapunov(ndims, timeSeries){
         });
     
     //show exponents
-    eps = 1e-6;
+    eps = 1e-1;
     var lisample = '<li class="list-group-item type">λ</li>';
     arrLyapunov  = []
     for(var i = 1; i <= ndims; i++){
-        arrLyapunov.push(timeSeries['lambda' + i][-1]);
+        arrLyapunov.push(timeSeries['lambda' + i][timeSeries['lambda' + i].length - 1]);
     }
-    arrLyapunov.sort().reverse();
+    arrLyapunov.sort(function(a, b){return b - a});
 
     $('.list-group').each(function(num, elem){
         $(elem).empty();
@@ -630,9 +627,27 @@ function makePlotLyapunov(ndims, timeSeries){
         }
         $(elem).append(li);
     });
-};
+}
 
 function makePlotPhase(timeSeries){
+    
+    function makePlotXY(x, y, type){
+        var traces = [{
+            x: x,
+            y: y
+        }];
+        
+        Plotly.newPlot(type, traces, {
+            displayModeBar: true,
+            margin: {
+            t: 20, //top margin
+            l: 20, //left margin
+            r: 20, //right margin
+            b: 20 //bottom margin
+            }
+        });
+    }
+
     $('.btngroupPhase').each(function(num, elem){
         $(elem).empty();
     });
@@ -664,42 +679,76 @@ function makePlotPhase(timeSeries){
     }
 }
 
-function makePlotXY(x, y, type){
-var traces = [{
-    x: x,
-    y: y
-}];
+function makePlot3D(x, y, z, chartid){
 
-Plotly.newPlot(type, traces, {
-    displayModeBar: true,
-    margin: {
-    t: 20, //top margin
-    l: 20, //left margin
-    r: 20, //right margin
-    b: 20 //bottom margin
+    var trace = {
+        type: 'scatter3d',
+        mode: 'lines',
+        x: x,
+        y: y,
+        z: z,
+        opacity: 1,
+        line:{
+            color: '#000000',
+            size: 1
+        },
+        /*marker: {
+            color: '#000000',
+            size: 2,
+        },*/
+        name: 'flow',
+    };
+
+    data = [trace];
+    Plotly.newPlot(chartid, data,
+        {
+            height: 1000,
+            displayModeBar: true,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1}
+            }
+        );
+}
+
+/*
+function transpose(matrix) {
+    const rows = matrix.length, cols = matrix[0].length;
+    const grid = [];
+    for (let j = 0; j < cols; j++) {
+      grid[j] = Array(rows);
     }
-    });
-};
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        grid[j][i] = matrix[i][j];
+      }
+    }
+    return grid;
+}*/
 
+// Poincare --------------------------------------------------------------------------
 function makePoincareUI(){
     $('.btngroupPoincare').each(function(num, elem){
         $(elem).empty();
     });
     if (ndims == 1) return 0;
-    var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-Poincare active" id="xi/xj/xk">xixjxk</button>';
+    var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-Poincare active" id="xx/yy/zz">xxyyzz</button>';
     $('.btngroupPoincare').each(function(num, elem){
         btn = '';
         count = 0;
-        for(var i = 1; i <= ndims; i++){
-            for(var j = i + 1; j <= ndims; j++){
-                for(var k = j + 1; k <= ndims; k++){
+        for(var i = 0; i < ndims; i++){
+            for(var j = i + 1; j < ndims; j++){
+                for(var k = j + 1; k < ndims; k++){
                     btncurr = btnsample;
                     if (num != count){
                         btncurr = btncurr.split(" active").join('');
                     }
-                    btncurr = btncurr.split("xi").join(eqvarlist[i]);
-                    btncurr = btncurr.split("xj").join(eqvarlist[j]);
-                    btncurr = btncurr.split("xk").join(eqvarlist[k]);
+                    btncurr = btncurr.split("xx").join(eqvarlist[i]);
+                    btncurr = btncurr.split("yy").join(eqvarlist[j]);
+                    btncurr = btncurr.split("zz").join(eqvarlist[k]);
                     btn += btncurr;
                     count++;
                 }
@@ -790,57 +839,7 @@ function makePlotPoincare(){
         data,
         successPoincare
     );
-};
-
-function makePlot3D(x, y, z, chartid){
-
-    var trace = {
-        type: 'scatter3d',
-        mode: 'lines',
-        x: x,
-        y: y,
-        z: z,
-        opacity: 1,
-        line:{
-            color: '#000000',
-            size: 1
-        },
-        /*marker: {
-            color: '#000000',
-            size: 2,
-        },*/
-        name: 'flow',
-    };
-
-    data = [trace];
-    Plotly.newPlot(chartid, data,
-        {
-            height: 1000,
-            displayModeBar: true,
-            margin: {
-                l: 25,
-                r: 25,
-                b: 25,
-                t: 25,
-                pad: 1}
-            }
-        );
-};
-
-/*
-function transpose(matrix) {
-    const rows = matrix.length, cols = matrix[0].length;
-    const grid = [];
-    for (let j = 0; j < cols; j++) {
-      grid[j] = Array(rows);
-    }
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        grid[j][i] = matrix[i][j];
-      }
-    }
-    return grid;
-}*/
+}
 
 function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
     //var plotDiv = document.getElementById("plot");
@@ -978,7 +977,8 @@ function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
                 pad: 1}
             }
     );
-};
+}
+// -----------------------------------------------------------------------------------
 
 // save plot data
 function savetocsv() {

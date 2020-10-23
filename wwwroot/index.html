@@ -204,23 +204,21 @@
         </div>
         -->
 
-        <!--            chart XYt frame            -->
-        <div class="container-fluid" id="charts">
-            <div class="wrapper shadow p-3 mb-5 bg-white rounded ml-1">
-                <div id="chartXYt"></div>
-            </div>
-        </div>
-
         <!--            charts frame            -->
         <div class="container-fluid" id="charts" style="margin-bottom: 2em;">
+            <!--            chart XYt frame            -->
+            <div class="container-fluid shadow p-3 mb-5 bg-white rounded ml-1" style="width: 100%;">
+                <div id="chartXYt"></div>
+            </div>
 
             <!--            lyapunov chart frame            -->
             <div class="container-fluid" id="lyapunovchart">
                 <div class="row justify-content-start">
-                    <div class="col-35 justify-content-start align-self-center">
-                        <h1><span class="badge badge-primary badge-pill justify-content-start align-self-center">Beta</span> показатели Ляпунова</h1>
+                    <div class="col-3 justify-content-start align-self-center">
+                        <!--<h1><span class="badge badge-primary badge-pill justify-content-start align-self-center">Beta</span> показатели Ляпунова</h1>-->
+                        <h1> показатели Ляпунова </h1>
                     </div>
-                    <div class="col-65 justify-content-start align-self-center">
+                    <div class="col-9 justify-content-start align-self-center">
                         <ul class="list-group list-group-horizontal-lg m10 justify-content-start align-self-center">
                             
                         </ul>
@@ -233,6 +231,77 @@
                     </div>
                 </div>
             </div>
+
+                       
+            <!--            Lyapunov MAP frame            -->
+            <!--
+            <div class="container-fluid" id="LyapunovMap">
+                <div class="row justify-content-start align-self-center no-gutters">
+                    <div class="col-35">
+                        <h1><span class="badge badge-primary badge-pill align-self-bottom m10">Beta</span> Карта показателей Ляпунова</h1>
+                    </div>
+                    <div class="col-65 justify-content-center align-self-center">
+                        <div class="btn-group btngroupPoincare justify-content-center m10" role="group" aria-label="First group"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4 bg-white">
+                        <div class="col-12 m10">
+                            <div class="row justify-content-center align-self-center mb-2"><h4>параметры системы</h4></div>
+                            <div class="row align-self-center shadow rounded mb-1">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-start align-self-center mr-3 ml-3 mt-2">
+                                        <div class="col-15 justify-content-start align-self-center"><b>A =</b></div>
+                                        <div class="col-85">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="inputT" value="1">
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters justify-content-center align-self-center mb-2">
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTL" value="-10">
+                                        </div>
+                                        <div class="col-60 justify-content-center align-self-center">
+                                            <input type="range" class="planeparams" id="sliderT" style="width: 100%" value="1" step="0.1" min="-10" max="10">
+                                        </div>
+                                        <div class="col-20 justify-content-center align-self-center">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTR" value="10">
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    var sliderT = document.getElementById("sliderT");
+                                    var inputT = document.getElementById("inputT");
+                                    var inputTL = document.getElementById("inputTL");
+                                    var inputTR = document.getElementById("inputTR");
+            
+                                    inputT.innerHTML = sliderT.value;
+                                    sliderT.oninput = function() {
+                                        inputT.value = this.value;
+                                    }
+                                    inputT.oninput = function() {
+                                        sliderT.value = this.value;
+                                    }
+                                    inputTL.oninput = function() {
+                                        sliderT.min = this.value;
+                                    }
+                                    inputTR.oninput = function() {
+                                        sliderT.max = this.value;
+                                    }
+                                </script>
+                            </div>
+                            <div class="row justify-content-end align-self-center shadow rounded mb-1">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" id="drawLyapunovMap">Построить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2 zero-padding"></div>
+                    <div class="col-6 zero-padding">
+                        <div id="chartLyapunovMap" class="m10"></div>
+                    </div>
+                </div>
+            </div>
+            -->
 
             <!--            phase charts frame            -->
             <div class="container-fluid" id="phasecharts">
@@ -469,6 +538,8 @@
                     </div>
                 </div>
             </div>
+
+            
 
         </div>
 
