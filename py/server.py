@@ -73,6 +73,9 @@ def calc(data):
                 data[key] = eval(val)
         return data
 
+    def makeFloats2(data1, data2):
+        return [[eval(data1[0]), eval(data1[1])], [eval(data2[0]), eval(data2[1])]]
+
     def unPack(data, key):
         for i, val in enumerate(data[key]):
             data[key] = val
@@ -88,6 +91,11 @@ def calc(data):
     data = unPack(data, 'variables')
     data = unPack(data, 'additional equations')
     #print('data', data)
+    if data['request type'] == 1:
+        data = makeFloats(data, 'steps[]', 'array')
+        data['ranges[]'] = makeFloats2(data['ranges[0][]'], data['ranges[1][]'])
+        del data['ranges[0][]']
+        del data['ranges[1][]']
 
     # send json string
     value = json.dumps(data)
@@ -95,7 +103,7 @@ def calc(data):
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     p.stdin.write(value)
     p.stdin.flush()
-    print(value)
+    #print(value)
     # print('done')
 
     result = p.stdout.readline().strip()
@@ -133,6 +141,8 @@ class S(BaseHTTPRequestHandler):
         self._set_response()
         answer = 0
         if data['request type'][0] == '0':
+            answer = calc(data)[0]#[1:-1]
+        elif data['request type'][0] == '1':
             answer = calc(data)[0]#[1:-1]
         elif data['request type'][0] == 'Poincare':
             answer = Poincare(data)

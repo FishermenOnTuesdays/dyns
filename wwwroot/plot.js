@@ -13,6 +13,8 @@ var paramlist = [];
 
 var ndims;
 var equationTimeSeries = {}, lyapunovTimeSeries = {};
+selectedLyapunovMapParamList = [];
+
 
 // init popovers
 $(document).ready(function(){
@@ -89,10 +91,12 @@ function newParam(name){
 
 function addParam(name){
     $('#paraminput').append(newParam(name));
+    addParamLyapunovMap(name);
 }
 
 function deleteParam(name){
     $('#param' + name).parent().parent().parent().remove();
+    deleteParamLyapunovMap(name);
 }
 
 function eqchange(element){
@@ -229,6 +233,23 @@ jQuery(function(){
         eqchange(this);
     });
 
+    $(document).on('click', '.LyapunovMapCheckBox', function() {
+        if (selectedLyapunovMapParamList.length < 2){
+            if (selectedLyapunovMapParamList.indexOf(this.id.slice(19)) == -1){
+                selectedLyapunovMapParamList.push(this.id.slice(19));
+            } else {
+                removeItemOnce(selectedLyapunovMapParamList, this.id.slice(19));
+            }
+        } else {
+            if (selectedLyapunovMapParamList.indexOf(this.id.slice(19)) == -1){
+                alert("Можно выбрать только два параметра");
+                this.checked = false;
+            } else {
+                removeItemOnce(selectedLyapunovMapParamList, this.id.slice(19));
+            }
+        }
+    });
+
     // file
     $('#submit-file').on("click",function(e){
 		e.preventDefault();
@@ -252,6 +273,8 @@ jQuery(function(){
 		});
     });
 
+    // redundant
+    {
     /*
     function displayPlotData(results){		
         successAlert(true);
@@ -259,13 +282,12 @@ jQuery(function(){
         plot(results.data, "local");
         jQuery("#charts").show();
     }
-    */
 
-    /*
     $('#UploadModal').on('shown.bs.modal', function () {
         //$('#myInput').trigger('focus')
     })
     */
+    }
 
 });
 
@@ -552,6 +574,7 @@ function makePlot3D(x, y, z, chartid){
 }
 // -----------------------------------------------------------------------------------
 
+
 // Poincare --------------------------------------------------------------------------
 function makePlotPoincare(){
     n = equationTimeSeries[eqvarlist[0]].length;
@@ -621,144 +644,6 @@ function makePoincareUI(){
 
 function successPoincare(data){
 
-    function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
-        //var plotDiv = document.getElementById("plot");
-    
-        // base plane
-        var basePlane = [];
-        for(let x = 0; x <= 10; x++){
-            var line = []
-            for(let y = 0; y <= 10; y++)
-                line.push(0)
-            basePlane.push(line)
-        }
-    
-        // input plane
-        var inputPlane = {};
-        inputPlane['x'] = [], inputPlane['y'] = [], inputPlane['z'] = [];
-        for(let x = -T; x <= T; x+=(T/10)){
-            for(let y = -T; y <= T; y+=(T/10)){
-                z = -(A*x+B*y+D)/C;
-                inputPlane['x'].push(-(B*y+C*z+D)/A);
-                inputPlane['y'].push(-(A*x+C*z+D)/B);
-                inputPlane['z'].push(z);
-               
-            }
-            //inputPlane['x'].push(-(B*y+C*z+D)/A);
-            //inputPlane['y'].push(-(A*x+C*z+D)/B);
-            //inputPlane['z'].push(-(A*x+B*y+D)/C);
-        }
-    
-        {
-        /*
-        function getData() {
-            var basePlane = [];
-            for(let i = 0; i<10; i++)
-            basePlane.push(Array(10).fill().map(() => 0))
-            return basePlane;
-        }  
-    
-        var data = getData();
-        //console.log(data);
-        var base = {
-            z: basePlane,
-            showscale: false,
-            opacity: 0.1,
-            type: 'surface',
-            name: 'базовая плоскость'
-        };
-    
-        var input = {
-            z: inputPlane,
-            showscale: false,
-            opacity: 0.9,
-            type: 'surface',
-            name: 'данная плоскость'
-        };
-    
-        data = [base, input, trace];
-    
-        var input = {
-            opacity: 0.8,
-            color:'rgb(255,100,200)',
-            type: 'mesh3d',
-            x: inputPlane['x'],
-            y: inputPlane['y'],
-            z: inputPlane['z'],
-        };
-        */
-        }
-    
-        var input = {
-            type: "mesh3d",
-            x: inputPlane['x'],
-            y: inputPlane['y'],
-            z: inputPlane['z'],
-            opacity: 0.6,
-            //color:'rgb(254,254,254)'
-            color:'#99ccff'
-          };
-    
-        //data = [trace, input];
-    
-        var trace = {
-            type: 'scatter3d',
-            mode: 'lines',
-            x: X,
-            y: Y,
-            z: Z,
-            opacity: 1,
-            line:{
-                color: '#000000',
-                size: 1
-            },
-            /*
-            marker: {
-                color: '#000000',
-                size: 2,
-            },*/
-            name: 'flow',
-        };
-    
-        //dataset = transpose(dataset);
-        var intersection_trace = {
-            type: 'scatter3d',
-            mode: 'markers',
-            x: dataset['x'],
-            y: dataset['y'],
-            z: dataset['z'],
-            opacity: 1,
-            marker:{
-                color: '#1E90FF',
-                size: 3
-            },
-            /*
-            marker: {
-                color: '#000000',
-                size: 2,
-            },*/
-            name: 'intersection',
-        };
-    
-        data = [trace, input, intersection_trace];
-    
-        //clear div
-        $(type).empty();
-    
-        Plotly.newPlot(type, data,
-            {
-                height: document.getElementById(type).offsetWidth,
-                displayModeBar: true,
-                margin: {
-                    l: 25,
-                    r: 25,
-                    b: 25,
-                    t: 25,
-                    pad: 1}
-                }
-        );
-    }
-
     var data = JSON.parse(data);
     //console.log(data);
     if ((data['time'] > 0) || (Darc == 0)){
@@ -802,7 +687,99 @@ function successPoincare(data){
         makePlotPoincare3D(equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
     }
 }
+
+function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
+    //var plotDiv = document.getElementById("plot");
+
+    // base plane
+    var basePlane = [];
+    for(let x = 0; x <= 10; x++){
+        var line = []
+        for(let y = 0; y <= 10; y++)
+            line.push(0)
+        basePlane.push(line)
+    }
+
+    // input plane
+    var inputPlane = {};
+    inputPlane['x'] = [], inputPlane['y'] = [], inputPlane['z'] = [];
+    for(let x = -T; x <= T; x+=(T/10)){
+        for(let y = -T; y <= T; y+=(T/10)){
+            z = -(A*x+B*y+D)/C;
+            inputPlane['x'].push(-(B*y+C*z+D)/A);
+            inputPlane['y'].push(-(A*x+C*z+D)/B);
+            inputPlane['z'].push(z);  
+        }
+    }
+
+    var input = {
+        type: "mesh3d",
+        x: inputPlane['x'],
+        y: inputPlane['y'],
+        z: inputPlane['z'],
+        opacity: 0.6,
+        //color:'rgb(254,254,254)'
+        color:'#99ccff'
+    };
+
+    var trace = {
+        type: 'scatter3d',
+        mode: 'lines',
+        x: X,
+        y: Y,
+        z: Z,
+        opacity: 1,
+        line:{
+            color: '#000000',
+            size: 1
+        },
+        /*
+        marker: {
+            color: '#000000',
+            size: 2,
+        },*/
+        name: 'flow',
+    };
+
+    var intersection_trace = {
+        type: 'scatter3d',
+        mode: 'markers',
+        x: dataset['x'],
+        y: dataset['y'],
+        z: dataset['z'],
+        opacity: 1,
+        marker:{
+            color: '#1E90FF',
+            size: 3
+        },
+        /*
+        marker: {
+            color: '#000000',
+            size: 2,
+        },*/
+        name: 'intersection',
+    };
+
+    data = [trace, input, intersection_trace];
+
+    //clear div
+    $(type).empty();
+
+    Plotly.newPlot(type, data,
+        {
+            height: document.getElementById(type).offsetWidth,
+            displayModeBar: true,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1}
+            }
+    );
+}
 // -----------------------------------------------------------------------------------
+
 
 // Lyapunov --------------------------------------------------------------------------
 function makePlotLyapunov(ndims, timeSeries){
@@ -860,8 +837,138 @@ function makePlotLyapunov(ndims, timeSeries){
     });
 }
 
-function makeLyapunovMap(){
+newParamLyapunovMap = '<div class="row align-self-center shadow rounded mb-1" id="LyapunovMapParamT"> <div class="col-12 zero-padding"> <div class="row no-gutters justify-content-center align-self-center bg-light"> <div class="col-05 text-center my-auto"> <input type="checkbox" class="LyapunovMapCheckBox" id="LyapunovMapCheckBoxT"> </div> <div class="col-05 text-center my-auto"> <h4>T</h4> </div> <div class="col-80 justify-content-center align-self-center"> <div class="row no-gutters" style="width: 100%;"> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTL" value="-10"> </div> <div class="col-8 justify-content-center align-self-center"> <div id="sliderRangeLyapunovMapT"></div> </div> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTR" value="10"> </div> </div> </div> <div class="col-010 text-center my-auto"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTStep" value="0.1"> </div> </div> </div> <script> $(function() { $("#sliderRangeLyapunovMapT").slider({ range: true, min: -100, max: 100, values: [-10, 10], slide: function( event, ui ) { $("#inputTL").val(ui.values[0]); $("#inputTR").val(ui.values[1]); } }); $("#inputTL").val($("#sliderRangeLyapunovMapT").slider("values", 0)); $("#inputTR").val($("#sliderRangeLyapunovMapT").slider("values", 1)); }); </script> </div>'
+function addParamLyapunovMap(name){
+    paramLyapunovMap = newParamLyapunovMap.split("T").join(name);
+    $('#LyapunovMapParamList').append(paramLyapunovMap);
+}
+function deleteParamLyapunovMap(name){
+    $('#LyapunovMapParam' + name).remove();
+}
 
+function makeLyapunovMap(){
+    // make data
+    k = 0;
+    k0 = 0;
+    requestData = {};
+    requestData['request type'] = 1;
+    requestData['variables'] = eqvarlist.join(', ');
+    
+    start_values = [];
+    jQuery('.inputstart').each(function(i, elem){
+        if ($(elem).val() != ""){
+            k0++;
+            start_values.push($(elem).val());
+        }   
+    });
+    requestData['start values'] = start_values;
+
+    functions = [];
+    jQuery('.inputeq').each(function(i, elem){
+        if ($(elem).val() != ""){
+            k++;
+            functions.push($(elem).val().slice(($(elem).val().indexOf(')/dt=') + 5)));
+        }
+    });
+    requestData['functions'] = functions;
+
+    additional_equations = [];
+    jQuery('.inputparam').each(function(i, elem){
+        if ($(elem).val() != ""){
+            nameeq = $($(elem).parent().parent().children()[0]).children()[0].value;
+            additional_equations.push(nameeq + $(elem).val());
+        }
+    });
+    
+    temp_additional_equations = [];
+    paramcount = 0;
+    additional_equations.forEach(function(item, i) {
+        addeqvar = item.slice(0, item.indexOf(' ='));
+        if (selectedLyapunovMapParamList.indexOf(addeqvar) == -1){
+            temp_additional_equations.push(item);
+        } else{
+            paramcount++;
+        }
+    });
+    requestData['additional equations'] = temp_additional_equations.join('; ').split(' =').join(':=') + ';';
+
+    requestData['time'] = jQuery("#time").val();
+    requestData['dt'] = jQuery("#dt").val();
+
+    requestData['parameters'] = selectedLyapunovMapParamList;
+    requestData['ranges'] = [];
+    requestData['steps'] = [];
+    selectedLyapunovMapParamList.forEach(function(item, i) {
+        requestData['ranges'].push([parseFloat($('#input' + item + 'L').val()), parseFloat($('#input' + item + 'R').val())]);
+        requestData['steps'].push(parseFloat($('#input' + item + 'Step').val()));
+    });
+
+    console.log(requestData);
+    if (Object.values(requestData).length > 2 && k == k0 && (paramcount == 2)){
+        successAlert(true);
+        //requestData['request type'] = 'main';
+        jQuery.post(
+            'http://' + ip + ':5000',
+            requestData,
+            successLyapunovMap
+        );
+    }
+    else{
+        //var code = jQuery(".code");
+        //var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕВЕРНЫЙ ФОРМАТ ЗНАЧЕНИЙ</div>');
+        //code.prepend(d);
+        //$('#navbarDropdownMenuLink').popover('show');
+        //jQuery("#error_alert").delay(1000).fadeOut(100);
+        alert('ошибочка у вас');
+    }
+}
+
+function successLyapunovMap(data){
+    function getLyapunovMapData(dataset){
+    
+        resData = {};
+        resData['x'] = [];
+        resData['y'] = [];
+        resData['lyap'] = [];
+
+        dataset.forEach(function(item, i) {
+            resData['x'].push(item[0][0]);
+            resData['y'].push(item[0][1]);
+            resData['lyap'].push(item[1]);
+        });
+    
+        return resData;
+    }
+    //LyapunovMapData = JSON.parse(JSON.parse(data))[0];
+    LyapunovMapData = getLyapunovMapData(JSON.parse(JSON.parse(data))[0]);
+    drawLyapunovMap(LyapunovMapData['x'], LyapunovMapData['y'], LyapunovMapData['lyap']);
+}
+
+function drawLyapunovMap(x, y, z){
+    var data = [{
+        z: z,
+		x: x,
+		y: y,
+        type: 'contour',
+        line:{
+          smoothing: 0.85
+        },
+        xaxis: 'p1',
+        yaxis: 'p2'
+      }];
+      
+      Plotly.newPlot('chartLyapunovMap', data,
+        {
+            height: document.getElementById('chartLyapunovMap').offsetWidth,
+            displayModeBar: true,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1}
+            }
+    );
 }
 // -----------------------------------------------------------------------------------
 
