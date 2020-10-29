@@ -103,13 +103,12 @@ def calc(data):
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     p.stdin.write(value)
     p.stdin.flush()
-    #print(value)
     # print('done')
 
     result = p.stdout.readline().strip()
     #print('result = ', result.decode('utf-8'))
     ans.append(result.decode('utf-8'))
-
+    print('data received')
     return ans
 
 

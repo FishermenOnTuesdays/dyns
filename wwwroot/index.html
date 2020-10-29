@@ -229,12 +229,10 @@
                     <div class="col-35">
                         <h1><span class="badge badge-primary badge-pill align-self-bottom m10">Beta</span> Карта показателей Ляпунова</h1>
                     </div>
-                    <div class="col-65 justify-content-center align-self-center">
-                        <div class="btn-group btngroupPoincare justify-content-center m10" role="group" aria-label="First group"></div>
-                    </div>
                 </div>
 
                 <div class="row">
+                    <!--<div class="col-1 zero-padding"></div>-->
                     <div class="col-4 bg-white">
                         <div class="col-12 m10" id="LyapunovMapParamList">
                             <div class="row justify-content-center align-self-center"><h4>параметры системы</h4></div>
@@ -262,22 +260,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <script>
-                                    $(function() {
-                                        $("#sliderRangeLyapunovMap").slider({
-                                            range: true,
-                                            min: -100,
-                                            max: 100,
-                                            values: [-10, 10],
-                                            slide: function( event, ui ) {
-                                                $("#inputTL").val(ui.values[0]);
-                                                $("#inputTR").val(ui.values[1]);
-                                            }
-                                        });
-                                        $("#inputTL").val($("#sliderRangeLyapunovMap").slider("values", 0));
-                                        $("#inputTR").val($("#sliderRangeLyapunovMap").slider("values", 1));
-                                    });
-                                </script>
                             </div>
                             <!--    
                             <div class="row align-self-center shadow rounded mb-1" id="LyapunovMapParamT">
@@ -332,9 +314,106 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 zero-padding"></div>
-                    <div class="col-5 zero-padding">
+                    <div class="col-2 zero-padding"></div>
+                    <div class="col-6 zero-padding">
                         <div id="chartLyapunovMap" class="m10"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!--            Bifurcation Diagram frame            -->
+            <div class="container-fluid" id="BifurcationDiagram">
+                <div class="row justify-content-start align-self-center no-gutters">
+                    <div class="col-35">
+                        <h1><span class="badge badge-primary badge-pill align-self-bottom m10">Beta</span> Бифуркационная диаграмма</h1>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!--<div class="col-1 zero-padding"></div>-->
+                    <div class="col-4 bg-white">
+                        <div class="col-12 m10" id="BifurcationDiagramParamList">
+                            <div class="row justify-content-center align-self-center"><h4>параметры системы</h4></div>
+                            <!-- slider sample -->
+                            <div class="row align-self-center shadow rounded mb-1">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-center   align-self-center bg-light">
+                                        <div class="col-010 text-center">
+                                            <h6>параметр</h6>
+                                        </div>
+                                        <div class="col-80 justify-content-center align-self-center">
+                                            <div class="row no-gutters" style="width: 100%;">
+                                                <div class="col-2 text-center">
+                                                    <h6>начало</h6>
+                                                </div>
+                                                <div class="col-8 justify-content-center align-self-center">
+                                                </div>
+                                                <div class="col-2 text-center">
+                                                    <h6>конец</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-010 text-center">
+                                            <h6>шаг</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--    
+                            <div class="row align-self-center shadow rounded mb-1" id="BifurcationDiagramT">
+                                <div class="col-12 zero-padding">
+                                    <div class="row no-gutters justify-content-center   align-self-center bg-light">
+                                        <div class="col-05 text-center my-auto">
+                                            <input type="checkbox" class="BifurcationDiagramCheckBox" id="BifurcationDiagramCheckBoxT">
+                                        </div>
+                                        <div class="col-05 text-center my-auto">
+                                            <h4>T</h4>
+                                        </div>
+                                        <div class="col-80 justify-content-center align-self-center">
+                                            <div class="row no-gutters" style="width: 100%;">
+                                                <div class="col-2 justify-content-center align-self-center">
+                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTL" value="-10">
+                                                </div>
+                                                <div class="col-8 justify-content-center align-self-center">
+                                                    <div id="sliderRangeBifurcationDiagramT"></div>
+                                                </div>
+                                                <div class="col-2 justify-content-center align-self-center">
+                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTR" value="10">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-010 text-center my-auto">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTStep" value="0.1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    $(function() {
+                                        $("#sliderRangeBifurcationDiagramT").slider({
+                                            range: true,
+                                            min: -100,
+                                            max: 100,
+                                            values: [-10, 10],
+                                            slide: function( event, ui ) {
+                                                $("#BifurcationDiagraminputTL").val(ui.values[0]);
+                                                $("#BifurcationDiagraminputTR").val(ui.values[1]);
+                                            }
+                                        });
+                                        $("#BifurcationDiagraminputTL").val($("#sliderRangeBifurcationDiagramT").slider("values", 0));
+                                        $("#BifurcationDiagraminputTR").val($("#sliderRangeBifurcationDiagramT").slider("values", 1));
+                                    });
+                                </script>
+                            </div>
+                            -->
+                        </div>
+                        <div class="col-12 m10">
+                            <div class="row justify-content-end align-self-center shadow rounded mb-1">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" id="drawBifurcationDiagram">Построить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8 zero-padding">
+                        <div id="chartBifurcationDiagram" class="m10"></div>
                     </div>
                 </div>
             </div>
