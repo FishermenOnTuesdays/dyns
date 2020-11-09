@@ -1,5 +1,5 @@
 // global vars
-local_ip = '192.168.31.80';
+local_ip = 'localhost';
 dyns_ip = '85.143.113.155';
 ip = local_ip;
 
@@ -626,15 +626,9 @@ function makePlotPoincare(){
     
     // request data from server
     data = {
-        'request type': 'Poincare',
-        N: n,
-        x1: equationTimeSeries[currentXs[0]],
-        x2: equationTimeSeries[currentXs[1]],
-        x3: equationTimeSeries[currentXs[2]],
-        A: A,
-        B: B,
-        C: C,
-        D: D
+        'request type': 2,
+        'trajectory': [equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]]],
+        'PlaneEquation': [A, B, C, D]
     }
     console.log(data);
     jQuery.post(
