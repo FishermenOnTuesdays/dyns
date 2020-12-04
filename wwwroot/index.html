@@ -48,15 +48,17 @@
                                         <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
                                     </div>
                                 </li>
-    
+                                
                                 <!-- Button trigger modal -->
+                                <!--
                                 <li class="nav-item active align-items-center m05">
                                     <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" data-toggle="modal" data-target="#UploadModal">
                                         Открыть CSV
                                     </button>
                                 </li>
-    
+                                -->
                                 <!-- Modal -->
+                                <!--
                                 <div class="modal fade" id="UploadModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -75,16 +77,17 @@
                                             </form>
                                         </div>
                                         <div class="modal-footer">
-                                        <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>-->
                                         <button type="submit" id="submit-file" class="btn btn-primary" data-dismiss="modal">Загрузить</button>
                                         </div>
                                     </div>
                                     </div>
                                 </div>
-    
+                                -->
+                                <!--
                                 <li class="nav-item active align-items-center m05">
                                     <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" onclick="savetocsv()">Скачать CSV</button> 
                                 </li>
+                                -->
                             </ul>
                             <!--<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>-->
                         </div>
@@ -156,6 +159,31 @@
                                 </div>
                                 -->
                             </fieldset>
+                        </div>
+                    </div>
+
+                    <!--            input frame            -->
+                    <div class="row m10">
+                        <div class="col-12 p-0 pr-1">
+                            <!--            main input frame            -->
+                            <fieldset class="shadow p-2 rounded bg-primary justify-content-center" id="eqinput">
+                                <div class="row justify-content-start p-1 ml-1">
+                                    <div class="col col-12 p-1 h5 text-white">уравнения</div>
+                                </div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
+                                        <div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                    </div>
+                                </div>
+                            </fieldset>
+    
+                            <!--            add eq button            -->
+                            <div class="row justify-content-center mt-2">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-dark btn-block" id="addeq">добавить уравнение</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
     

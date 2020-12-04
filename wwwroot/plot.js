@@ -3,13 +3,14 @@ local_ip = 'localhost';
 dyns_ip = '85.143.113.155';
 ip = local_ip;
 
-exclusionList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '(', ')', '*', '/', '+', '-', 'abs', 'acos', 'acosh', 'arg', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cbrt', 'conj', 'ceil', 'cos', 'cosh', 'cot', 'csc', 'exp', 'exp2', 'floor', 'hypot', 'imag', 'int', 'log', 'log2', 'log10', 'max', 'min', 'polar', 'pow', 'real', 'sec', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'];
+exclusionList = ['Math.pow', ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '^' , '.', '(', ')', '*', '/', '+', '-', 'abs', 'acos', 'acosh', 'arg', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cbrt', 'conj', 'ceil', 'cos', 'cosh', 'cot', 'csc', 'exp', 'exp2', 'floor', 'hypot', 'imag', 'int', 'log', 'log2', 'log10', 'max', 'min', 'polar', 'pow', 'real', 'sec', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'];
 
 //var xs = {};
 var Darc = 0;
 var currentXs = ['x1', 'x2', 'x3'];
-var eqvarlist = [];
-var paramlist = [];
+var ODEvarlist = [];
+var ODEparamlist = [];
+var ODEEqParams = {};
 
 var ndims;
 var equationTimeSeries = {}, lyapunovTimeSeries = {};
@@ -38,8 +39,7 @@ function removeItemOnce(arr, value) {
         arr.splice(index, 1);
     }
     return arr;
-}
-  
+} 
 function removeItemAll(arr, value) {
 var i = 0;
 while (i < arr.length) {
@@ -51,84 +51,17 @@ while (i < arr.length) {
 }
 return arr;
 }
-
-function successAlert(state) {
-    if (state){
-        //add alert
-        //var success_alert_html = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
-        //jQuery(".code").prepend(success_alert_html);
-        //add spinner to button
-        var spinner_html = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
-        jQuery("#draw").text("");
-        jQuery("#draw").append(spinner_html);
-    } else{
-        //jQuery("#success_alert").delay(500).fadeOut(100);
-        jQuery("#draw").empty();
-        jQuery("#draw").text("Построить графики");
+function rangeFloatArray(start, end, step) {
+    var array = [];
+    val = start;
+    while (val < end){
+        array.push(val);
+        val += step;
     }
+    return array
 }
 
-function newEq(){
-    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
-    count = 0;
-    $('.inputeq').each(function(i, elem){
-        count++;
-    });
-    return newx.split("xi").join('x'+(count + 1));
-}
-
-function newParam(name){
-    var Param = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-4 pr-1"><input type="text" class="form-control inputparamname" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: end;" id="paraminame" value="name ="></div><div class="col col-8"><input type="text" class="form-control inputparam" id="parami" placeholder="значение"></div></div></div>';
-    /*
-    count = 1;
-    $('.inputparam').each(function(i, elem){
-        count++;
-    });
-    */
-    Param = Param.split("name").join(name);
-    Param = Param.split("parami").join("param" + name);
-    return Param;
-}
-
-function addParam(name){
-    $('#paraminput').append(newParam(name));
-    addParamLyapunovMap(name);
-    addParamLBifurcationDiagram(name);
-}
-
-function deleteParam(name){
-    $('#param' + name).parent().parent().parent().remove();
-    deleteParamLyapunovMap(name);
-    deleteParamBifurcationDiagram(name);
-}
-
-function eqchange(element){
-    equation = element.value;
-    // change eqvar
-    eqvar = equation.slice(2, equation.indexOf(')/dt='));
-    element.id = eqvar;
-    eqvarlist.push(eqvar);
-    // look for params
-    equation = equation.slice(equation.indexOf(')/dt=') + 5);
-    exclusionList.forEach(function(item, i, exclusionList) {
-        equation = equation.split(item).join(' ');
-    });
-    equation = equation.replace(/\s{2,}/g, ' ');
-    params = equation.split(' ');
-    removeItemAll(params, '');
-    params.forEach(function(item) {
-        if (paramlist.indexOf(item) == -1) {
-            paramlist.push(item);
-            addParam(item);
-        }
-    });
-    eqvarlist.forEach(function(item) {
-        deleteParam(item);
-        removeItemAll(paramlist, item);
-    });
-    //alert(paramlist);
-}
-
+// UI
 jQuery(function(){
     //jQuery("#charts").hide();
     jQuery("#phasecharts").hide();
@@ -136,16 +69,18 @@ jQuery(function(){
     jQuery("#phasechart3").hide();
     jQuery("#3dcharts").hide();
     jQuery("#lyapunovchart").hide();
+    jQuery("#LyapunovMap").hide();
+    jQuery("#BifurcationDiagram").hide();
     jQuery("#Poincarecharts").hide();
     jQuery("#credits").hide();
     
-    document.getElementById("time").defaultValue = "1000";
+    document.getElementById("time").defaultValue = "100";
     document.getElementById("dt").defaultValue = "0.01";
 
     // btns
     jQuery("#draw").click(onDraw);
     jQuery('#addx').click(function(){
-        $('#maininput').append(newEq());
+        $('#maininput').append(newODE());
     });
     jQuery('#drawPoincare').click(function(){
         makePlotPoincare();
@@ -163,7 +98,10 @@ jQuery(function(){
     jQuery('#drawBifurcationDiagram').click(function(){
         makeBifurcationDiagram();
     });
-    
+    jQuery('#addeq').click(function(){
+        $('#eqinput').append(newEq());
+    });
+
     $(document).on('click', '.remove', function() {
         $(this).parent().parent().parent().remove();
     });
@@ -236,7 +174,7 @@ jQuery(function(){
     });
 
     $(document).on('change', '.inputeq', function() {
-        eqchange(this);
+        ODEchange(this);
     });
 
     $(document).on('click', '.LyapunovMapCheckBox', function() {
@@ -258,21 +196,21 @@ jQuery(function(){
 
     $(document).on('click', '.BifurcationDiagramCheckBox', function() {
         if (selectedBifurcationDiagramParamList.length < 1){
-            if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(19)) == -1){
-                selectedBifurcationDiagramParamList.push(this.id.slice(19));
+            if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(26)) == -1){
+                selectedBifurcationDiagramParamList.push(this.id.slice(26));
             } else {
-                removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(19));
+                removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(26));
             }
         } else {
-            if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(19)) == -1){
+            if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(26)) == -1){
                 alert("Можно выбрать только один параметр");
                 this.checked = false;
             } else {
-                removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(19));
+                removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(26));
             }
         }
     });
-
+    
     // file
     $('#submit-file').on("click",function(e){
 		e.preventDefault();
@@ -320,7 +258,6 @@ function setStarts(defval, n){
         if (i < n) {elem.value = defval;}
     });
 }
-
 function ensureFields(n){
     count = 0;
     $('.inputeq').each(function(i, elem){
@@ -328,15 +265,14 @@ function ensureFields(n){
     });
     extra = n - count;
     for(var i = 0; i < extra; i++){
-        $('#maininput').append(newEq());
+        $('#maininput').append(newODE());
     }
 }
-
 function setFields(n, array, type){
     if (type == 'main'){
         ensureFields(n);
         $('.inputeq').each(function(i, elem){
-            if (i < n) {elem.value = array[i]; eqchange(elem)}
+            if (i < n) {elem.value = array[i]; ODEchange(elem)}
         });
         setStarts(0.1, 3);
     } else if (type = 'params') {
@@ -347,6 +283,115 @@ function setFields(n, array, type){
     }
 }
 
+function successAlert(state) {
+    if (state){
+        //add alert
+        //var success_alert_html = jQuery('<div id="success_alert" class="alert alert-warning text_center m10" role="alert">ОБРАБОТКА</div>');
+        //jQuery(".code").prepend(success_alert_html);
+        //add spinner to button
+        var spinner_html = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
+        jQuery("#draw").text("");
+        jQuery("#draw").append(spinner_html);
+    } else{
+        //jQuery("#success_alert").delay(500).fadeOut(100);
+        jQuery("#draw").empty();
+        jQuery("#draw").text("Построить графики");
+    }
+}
+function newODE(){
+    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
+    count = 0;
+    $('.inputeq').each(function(i, elem){
+        count++;
+    });
+    return newx.split("xi").join('x'+(count + 1));
+}
+function newParam(name){
+    var Param = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-4 pr-1"><input type="text" class="form-control inputparamname" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: end;" id="paraminame" value="name ="></div><div class="col col-8"><input type="text" class="form-control inputparam" id="parami" placeholder="значение"></div></div></div>';
+    /*
+    count = 1;
+    $('.inputparam').each(function(i, elem){
+        count++;
+    });
+    */
+    Param = Param.split("name").join(name);
+    Param = Param.split("parami").join("param" + name);
+    return Param;
+}
+function addParam(name){
+    $('#paraminput').append(newParam(name));
+    addParamLyapunovMap(name);
+    addParamLBifurcationDiagram(name);
+}
+function deleteParam(name){
+    $('#param' + name).parent().parent().parent().remove();
+    deleteParamLyapunovMap(name);
+    deleteParamBifurcationDiagram(name);
+}
+function ODEchange(element){
+    equation = element.value;
+    // change eqvar
+    eqvar = equation.slice(2, equation.indexOf(')/dt='));
+    element.id = eqvar;
+    if (ODEvarlist.indexOf(eqvar) == -1)
+        ODEvarlist.push(eqvar);
+    // look for params
+    equation = equation.slice(equation.indexOf(')/dt=') + 5);
+    exclusionList.forEach(function(item, i, exclusionList) {
+        equation = equation.split(item).join(' ');
+    });
+    equation = equation.replace(/\s{2,}/g, ' ');
+    params = equation.split(' ');
+    removeItemAll(params, '');
+    // check if some param is removed
+    if (eqvar in ODEEqParams){
+        outerParams = [];
+        ODEvarlist.forEach(function(variable) {
+            if (variable != eqvar) {
+                ODEEqParams[variable].forEach(function(varparam) {
+                    if (outerParams.indexOf(varparam) == -1)
+                        outerParams.push(varparam);
+                });
+            }
+        });
+        ODEEqParams[eqvar].forEach(function(eqvarparam) {
+            if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
+                deleteParam(eqvarparam);
+                removeItemAll(ODEparamlist, eqvarparam);
+            }
+        });
+        ODEparamlist.forEach(function(eqvarparam) {
+            if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
+                deleteParam(eqvarparam);
+                removeItemAll(ODEparamlist, eqvarparam);
+            }
+        });
+        ODEEqParams[eqvar] = params;
+    } else {
+        ODEEqParams[eqvar] = params;
+    }
+
+    params.forEach(function(item) {
+        if (ODEparamlist.indexOf(item) == -1) {
+            ODEparamlist.push(item);
+            addParam(item);
+        }
+    });
+    ODEvarlist.forEach(function(item) {
+        deleteParam(item);
+        removeItemAll(ODEparamlist, item);
+    });
+    //alert(paramlist);
+}
+function newEq(){
+    var neweq = '<div class="bg-white rounded shadow p-1 mb-1"> <div class="row no-gutters" style="width:100%;"> <div class="col col-95"><input type="text" class="form-control eq" id="eqi" placeholder="variable = ..." value=""></div> <div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div> </div> </div>';
+    count = 0;
+    $('.eq').each(function(i, elem){
+        count++;
+    });
+    return neweq.split("eqi").join('eq'+(count + 1));
+}
+
 // web graph
 function onDraw()
 {
@@ -355,7 +400,7 @@ function onDraw()
     k0 = 0;
     requestData = {};
     requestData['request type'] = 0;
-    requestData['variables'] = eqvarlist.join(', ');
+    requestData['variables'] = ODEvarlist.join(', ');
     
     start_values = [];
     jQuery('.inputstart').each(function(i, elem){
@@ -405,7 +450,6 @@ function onDraw()
         jQuery("#error_alert").delay(1000).fadeOut(100);
     }
 }
-
 function success(data)
 {
     //console.log(data);
@@ -414,7 +458,6 @@ function success(data)
     plot(JSON.parse(JSON.parse(data))[0], "web");
     jQuery("#charts").show();
 }
-
 function plot(dataset, type) {
     if (dataset){
         processData(dataset, type);
@@ -423,7 +466,6 @@ function plot(dataset, type) {
         //Plotly.d3.csv("output/result.csv", function(data){ processData(data, "web") } );
     }
 }
-
 function getData(dataset, type){
     
     var _equationTimeSeries = {};
@@ -435,7 +477,7 @@ function getData(dataset, type){
         Object.keys(trajectoryData).forEach(function(item, i) {
             _equationTimeSeries[item] = trajectoryData[item];
         });
-        eqvarlist.forEach(function(item, i) {
+        ODEvarlist.forEach(function(item, i) {
             _lyapunovTimeSeries['lambda' + (i + 1)] = dataset['series of spectrum lyapunov exponents']['lambda' + (i + 1)];
         });
         return [_equationTimeSeries, _lyapunovTimeSeries];
@@ -449,15 +491,16 @@ function getData(dataset, type){
         return 0;
     }
 }
-
 function processData(allRows, type) {
     _data = getData(allRows, type);
     equationTimeSeries = _data[0];
     lyapunovTimeSeries = _data[1];
-    ndims = eqvarlist.length;
+    ndims = ODEvarlist.length;
 
     jQuery("#lyapunovchart").show();
     jQuery("#Poincarecharts").show();
+    jQuery("#LyapunovMap").show();
+    jQuery("#BifurcationDiagram").show();
     jQuery("#credits").show();
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
@@ -487,24 +530,102 @@ function makePlots(ndims){
     makePlotT(ndims, equationTimeSeries);
     makePlotLyapunov(ndims, lyapunovTimeSeries);
     makePlotPhase(equationTimeSeries);
-    makePlot3D(equationTimeSeries[eqvarlist[0]], equationTimeSeries[eqvarlist[1]], equationTimeSeries[eqvarlist[2]], 'chartXY3D');
+    makePlot3D(equationTimeSeries[ODEvarlist[0]], equationTimeSeries[ODEvarlist[1]], equationTimeSeries[ODEvarlist[2]], 'chartXY3D');
     makePoincareUI();
     makePlotPoincare();
+    //makeEqPlot();
 }
-
 function makePlotT(ndims, timeSeries){
     var plotDiv = document.getElementById("chartXYt");
     
     traces = []
     
     for (var i = 0; i < ndims; i++) {
-        id = eqvarlist[i];
+        id = ODEvarlist[i];
         traces.push({
             x: timeSeries['t'],
             y: timeSeries[id],
             name: id
         });
     }
+
+    // add equation plots
+    var EqTimeSeries = {};
+    // find eq vars and params
+    var EqVars = [];
+    var EqParams = [];
+    var EqEqs = [];
+    $('.eq').each(function(i, elem){
+        var currentLine = $(elem).val();
+        var currentVar = currentLine.slice(0, currentLine.indexOf('='));
+        if (currentVar.slice(-1)[0] == ' ') {
+            currentVar = currentVar.slice(0, currentVar.length - 1);
+        }
+        EqTimeSeries[currentVar] = [];
+        EqVars.push(currentVar);
+        var currentEq = currentLine.slice(currentLine.indexOf('=') + 1);
+        EqEqs.push(currentEq);
+        exclusionList.forEach(function(item, i, exclusionList) {
+            currentEq = currentEq.split(item).join(' ');
+        });
+        currentEq = currentEq.replace(/\s{2,}/g, ' ');
+        var currentEqParams = currentEq.split(' ');
+        removeItemAll(currentEqParams, '');
+        EqParams.push(currentEqParams);
+    });
+
+    // check inner dependecies
+    var EqDepends = [];
+    EqParams.forEach(function(EqParamList, i) {
+        var currentEqDepends = [];
+        EqParamList.forEach(function(variable) {
+            if (ODEvarlist.indexOf(variable) == -1){
+                currentEqDepends.push(variable);
+            }
+        });
+        EqDepends.push(currentEqDepends);
+    });
+
+    var seriesLen = timeSeries['t'].length;
+    var seriesdt = timeSeries['t'][1] = timeSeries['t'][0];
+    //make timeSeries for eqs w/o dependecies
+    EqDepends.forEach(function(currentEqDepends, i) {
+        if (currentEqDepends.length == 0){
+            for (var j = 0; j < seriesLen; j++){
+                var currentEq = EqEqs[i];
+                EqParams[i].forEach(function(item, i) {
+                    currentEq = currentEq.split(item).join(timeSeries[item][j]);
+                });
+                EqTimeSeries[EqVars[i]].push(eval(currentEq));
+            }
+        }
+    });
+    //make timeSeries for eqs w dependecies
+    EqDepends.forEach(function(currentEqDepends, i) {
+        if (currentEqDepends.length != 0){
+            for (var j = 0; j < seriesLen; j++){
+                var currentEq = EqEqs[i];
+                EqParams[i].forEach(function(item, i) {
+                    if (item in timeSeries) {
+                        currentEq = currentEq.split(item).join(timeSeries[item][j]);
+                    } else {
+                        currentEq = currentEq.split(item).join(EqTimeSeries[item][j]);
+                    }
+                });
+                EqTimeSeries[EqVars[i]].push(eval(currentEq));
+            }
+        }
+    });
+
+    for (var i = 0; i < EqVars.length; i++) {
+        id = EqVars[i];
+        traces.push({
+            x: timeSeries['t'],
+            y: EqTimeSeries[id],
+            name: id
+        });
+    }
+
     var config = {responsive: true}
     Plotly.newPlot('chartXYt', traces, {
         displayModeBar: true,
@@ -517,7 +638,6 @@ function makePlotT(ndims, timeSeries){
             pad: 4}
         });
 }
-
 function makePlotPhase(timeSeries){
     
     function makePlotXY(x, y, type){
@@ -541,7 +661,7 @@ function makePlotPhase(timeSeries){
         $(elem).empty();
     });
     if (ndims == 2){
-        makePlotXY(timeSeries[eqvarlist[0]], timeSeries[eqvarlist[1]], 'chartXY');
+        makePlotXY(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[1]], 'chartXY');
     }
     else {
         var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-phase active" id="xx/yy">xxyy</button>';
@@ -554,20 +674,19 @@ function makePlotPhase(timeSeries){
                     if (num != count){
                         btncurr = btncurr.split(" active").join('');
                     }
-                    btncurr = btncurr.split("xx").join(eqvarlist[i]);
-                    btncurr = btncurr.split("yy").join(eqvarlist[j]);
+                    btncurr = btncurr.split("xx").join(ODEvarlist[i]);
+                    btncurr = btncurr.split("yy").join(ODEvarlist[j]);
                     btn += btncurr;
                     count++;
                 }
             }
             $(elem).append(btn);
         });
-        makePlotXY(timeSeries[eqvarlist[0]], timeSeries[eqvarlist[1]], 'chartXY');
-        makePlotXY(timeSeries[eqvarlist[0]], timeSeries[eqvarlist[2]], 'chartXZ');
-        makePlotXY(timeSeries[eqvarlist[1]], timeSeries[eqvarlist[2]], 'chartYZ');
+        makePlotXY(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[1]], 'chartXY');
+        makePlotXY(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[2]], 'chartXZ');
+        makePlotXY(timeSeries[ODEvarlist[1]], timeSeries[ODEvarlist[2]], 'chartYZ');
     }
 }
-
 function makePlot3D(x, y, z, chartid){
 
     var trace = {
@@ -607,12 +726,12 @@ function makePlot3D(x, y, z, chartid){
 
 // Poincare --------------------------------------------------------------------------
 function makePlotPoincare(){
-    n = equationTimeSeries[eqvarlist[0]].length;
+    n = equationTimeSeries[ODEvarlist[0]].length;
     //xs = dataarc[2];
     if (currentXs[0] == 'x1'){
-        currentXs[0] = eqvarlist[0];
-        currentXs[1] = eqvarlist[1];
-        currentXs[2] = eqvarlist[2];
+        currentXs[0] = ODEvarlist[0];
+        currentXs[1] = ODEvarlist[1];
+        currentXs[2] = ODEvarlist[2];
     }
 
     // get plane params
@@ -626,9 +745,9 @@ function makePlotPoincare(){
     
     // request data from server
     data = {
-        'request type': 2,
+        'request type': 3,
         'trajectory': [equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]]],
-        'PlaneEquation': [A, B, C, D]
+        'plane equation': [A, B, C, D]
     }
     console.log(data);
     jQuery.post(
@@ -637,7 +756,6 @@ function makePlotPoincare(){
         successPoincare
     );
 }
-
 function makePoincareUI(){
     $('.btngroupPoincare').each(function(num, elem){
         $(elem).empty();
@@ -654,9 +772,9 @@ function makePoincareUI(){
                     if (num != count){
                         btncurr = btncurr.split(" active").join('');
                     }
-                    btncurr = btncurr.split("xx").join(eqvarlist[i]);
-                    btncurr = btncurr.split("yy").join(eqvarlist[j]);
-                    btncurr = btncurr.split("zz").join(eqvarlist[k]);
+                    btncurr = btncurr.split("xx").join(ODEvarlist[i]);
+                    btncurr = btncurr.split("yy").join(ODEvarlist[j]);
+                    btncurr = btncurr.split("zz").join(ODEvarlist[k]);
                     btn += btncurr;
                     count++;
                 }
@@ -665,11 +783,40 @@ function makePoincareUI(){
         $(elem).append(btn);
     });
 }
-
 function successPoincare(data){
 
-    var data = JSON.parse(data);
-    //console.log(data);
+    var data = JSON.parse(JSON.parse(data));
+    // get plane params
+    var A = parseFloat(document.getElementById('inputA').value);
+    var B = parseFloat(document.getElementById('inputB').value);
+    var C = parseFloat(document.getElementById('inputC').value);
+    var D = parseFloat(document.getElementById('inputD').value);
+    // Poincare 2D map
+    var traces = [{
+        x: data['intersections2D'][0],
+        y: data['intersections2D'][1],
+        mode: 'markers'
+    }];
+    
+    Plotly.newPlot('chartPoincare2D', traces, {
+        height: document.getElementById('chartPoincare2D').offsetWidth,
+        displayModeBar: true,
+        margin: {
+        t: 25, //top margin
+        l: 25, //left margin
+        r: 25, //right margin
+        b: 25, //bottom margin
+        pad: 1 
+        }
+    });
+    var M1 = Math.max(Math.min(...equationTimeSeries[currentXs[0]]), Math.max(...equationTimeSeries[currentXs[0]]));
+    var M2 = Math.max(Math.min(...equationTimeSeries[currentXs[1]]), Math.max(...equationTimeSeries[currentXs[1]]));
+    var M3 = Math.max(Math.min(...equationTimeSeries[currentXs[2]]), Math.max(...equationTimeSeries[currentXs[2]]));
+    var T = 1 * Math.max(M1, M2, M3);
+    // 3D map
+    makePlotPoincare3D(equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
+    // trash
+    /*
     if ((data['time'] > 0) || (Darc == 0)){
         inputD.value = data['D'];
         sliderD.value = data['D'];
@@ -710,8 +857,8 @@ function successPoincare(data){
         // 3D map
         makePlotPoincare3D(equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
     }
+    */
 }
-
 function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
     //var plotDiv = document.getElementById("plot");
 
@@ -768,9 +915,9 @@ function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
     var intersection_trace = {
         type: 'scatter3d',
         mode: 'markers',
-        x: dataset['x'],
-        y: dataset['y'],
-        z: dataset['z'],
+        x: dataset['intersections3D'][0],
+        y: dataset['intersections3D'][1],
+        z: dataset['intersections3D'][2],
         opacity: 1,
         marker:{
             color: '#1E90FF',
@@ -860,16 +1007,14 @@ function makePlotLyapunov(ndims, timeSeries){
         $(elem).append(li);
     });
 }
-
-newParamLyapunovMap = '<div class="row align-self-center shadow rounded mb-1" id="LyapunovMapParamT"> <div class="col-12 zero-padding"> <div class="row no-gutters justify-content-center align-self-center bg-light"> <div class="col-05 text-center my-auto"> <input type="checkbox" class="LyapunovMapCheckBox" id="LyapunovMapCheckBoxT"> </div> <div class="col-05 text-center my-auto"> <h4>T</h4> </div> <div class="col-80 justify-content-center align-self-center"> <div class="row no-gutters" style="width: 100%;"> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTL" value="-10"> </div> <div class="col-8 justify-content-center align-self-center"> <div id="sliderRangeLyapunovMapT"></div> </div> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTR" value="10"> </div> </div> </div> <div class="col-010 text-center my-auto"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTStep" value="1"> </div> </div> </div> <script> $(function() { $("#sliderRangeLyapunovMapT").slider({ range: true, min: -100, max: 100, values: [-10, 10], slide: function( event, ui ) { $("#inputTL").val(ui.values[0]); $("#inputTR").val(ui.values[1]); } }); $("#inputTL").val($("#sliderRangeLyapunovMapT").slider("values", 0)); $("#inputTR").val($("#sliderRangeLyapunovMapT").slider("values", 1)); }); </script> </div>'
 function addParamLyapunovMap(name){
+    newParamLyapunovMap = '<div class="row align-self-center shadow rounded mb-1" id="LyapunovMapParamT"> <div class="col-12 zero-padding"> <div class="row no-gutters justify-content-center align-self-center bg-light"> <div class="col-05 text-center my-auto"> <input type="checkbox" class="LyapunovMapCheckBox" id="LyapunovMapCheckBoxT"> </div> <div class="col-05 text-center my-auto"> <h4>T</h4> </div> <div class="col-80 justify-content-center align-self-center"> <div class="row no-gutters" style="width: 100%;"> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTL" value="-10"> </div> <div class="col-8 justify-content-center align-self-center"> <div id="sliderRangeLyapunovMapT"></div> </div> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTR" value="10"> </div> </div> </div> <div class="col-010 text-center my-auto"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTStep" value="1"> </div> </div> </div> <script> $(function() { $("#sliderRangeLyapunovMapT").slider({ range: true, min: -100, max: 100, values: [-10, 10], slide: function( event, ui ) { $("#inputTL").val(ui.values[0]); $("#inputTR").val(ui.values[1]); } }); $("#inputTL").val($("#sliderRangeLyapunovMapT").slider("values", 0)); $("#inputTR").val($("#sliderRangeLyapunovMapT").slider("values", 1)); }); </script> </div>';
     paramLyapunovMap = newParamLyapunovMap.split("T").join(name);
     $('#LyapunovMapParamList').append(paramLyapunovMap);
 }
 function deleteParamLyapunovMap(name){
     $('#LyapunovMapParam' + name).remove();
 }
-
 function successAlertLyapunovMap(state) {
     if (state){
         //add alert
@@ -885,7 +1030,6 @@ function successAlertLyapunovMap(state) {
         jQuery("#drawLyapunovMap").text("Построить");
     }
 }
-
 function makeLyapunovMap(){
     
     // make data
@@ -893,7 +1037,7 @@ function makeLyapunovMap(){
     k0 = 0;
     requestData = {};
     requestData['request type'] = 1;
-    requestData['variables'] = eqvarlist.join(', ');
+    requestData['variables'] = ODEvarlist.join(', ');
     
     start_values = [];
     jQuery('.inputstart').each(function(i, elem){
@@ -963,7 +1107,6 @@ function makeLyapunovMap(){
         alert('ошибочка у вас');
     }
 }
-
 function successLyapunovMap(data){
     function getLyapunovMapData(dataset){
     
@@ -985,7 +1128,6 @@ function successLyapunovMap(data){
     LyapunovMapData = getLyapunovMapData(JSON.parse(JSON.parse(data))[0]);
     drawLyapunovMap(LyapunovMapData['x'], LyapunovMapData['y'], LyapunovMapData['lyap']);
 }
-
 function drawLyapunovMap(x, y, z){
     var data = [{
         z: z,
@@ -1042,15 +1184,14 @@ function drawLyapunovMap(x, y, z){
 // -----------------------------------------------------------------------------------
 
 // Bifurcation Diagram ---------------------------------------------------------------
-newParamBifurcationDiagram = '<div class="row align-self-center shadow rounded mb-1" id="BifurcationDiagramParamT"> <div class="col-12 zero-padding"> <div class="row no-gutters justify-content-center align-self-center bg-light"> <div class="col-05 text-center my-auto"> <input type="checkbox" class="BifurcationDiagramCheckBox" id="BifurcationDiagramCheckBoxT"> </div> <div class="col-05 text-center my-auto"> <h4>T</h4> </div> <div class="col-80 justify-content-center align-self-center"> <div class="row no-gutters" style="width: 100%;"> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTL" value="-10"> </div> <div class="col-8 justify-content-center align-self-center"> <div id="sliderRangeBifurcationDiagramT"></div> </div> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTR" value="10"> </div> </div> </div> <div class="col-010 text-center my-auto"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTStep" value="0.1"> </div> </div> </div> <script> $(function() { $("#sliderRangeBifurcationDiagramT").slider({ range: true, min: -100, max: 100, values: [-10, 10], slide: function( event, ui ) { $("#BifurcationDiagraminputTL").val(ui.values[0]); $("#BifurcationDiagraminputTR").val(ui.values[1]); } }); $("#BifurcationDiagraminputTL").val($("#sliderRangeBifurcationDiagramT").slider("values", 0)); $("#BifurcationDiagraminputTR").val($("#sliderRangeBifurcationDiagramT").slider("values", 1)); }); </script> </div>'
 function addParamLBifurcationDiagram(name){
+    newParamBifurcationDiagram = '<div class="row align-self-center shadow rounded mb-1" id="BifurcationDiagramParamT"> <div class="col-12 zero-padding"> <div class="row no-gutters justify-content-center align-self-center bg-light"> <div class="col-05 text-center my-auto"> <input type="checkbox" class="BifurcationDiagramCheckBox" id="BifurcationDiagramCheckBoxT"> </div> <div class="col-05 text-center my-auto"> <h4>T</h4> </div> <div class="col-80 justify-content-center align-self-center"> <div class="row no-gutters" style="width: 100%;"> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTL" value="-10"> </div> <div class="col-8 justify-content-center align-self-center"> <div id="sliderRangeBifurcationDiagramT"></div> </div> <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTR" value="10"> </div> </div> </div> <div class="col-010 text-center my-auto"> <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTStep" value="0.1"> </div> </div> </div> <script> $(function() { $("#sliderRangeBifurcationDiagramT").slider({ range: true, min: -100, max: 100, values: [-10, 10], slide: function( event, ui ) { $("#BifurcationDiagraminputTL").val(ui.values[0]); $("#BifurcationDiagraminputTR").val(ui.values[1]); } }); $("#BifurcationDiagraminputTL").val($("#sliderRangeBifurcationDiagramT").slider("values", 0)); $("#BifurcationDiagraminputTR").val($("#sliderRangeBifurcationDiagramT").slider("values", 1)); }); </script> </div>';
     paramBifurcationDiagram = newParamBifurcationDiagram.split("T").join(name);
     $('#BifurcationDiagramParamList').append(paramBifurcationDiagram);
 }
 function deleteParamBifurcationDiagram(name){
     $('#BifurcationDiagramParam' + name).remove();
 }
-
 function successAlertBifurcationDiagram(state) {
     if (state){
         //add alert
@@ -1066,7 +1207,7 @@ function successAlertBifurcationDiagram(state) {
         jQuery("#drawBifurcationDiagram").text("Построить");
     }
 }
-
+var BifurcationDiagramRange = [-10, 10];
 function makeBifurcationDiagram(){
     
     // make data
@@ -1074,7 +1215,7 @@ function makeBifurcationDiagram(){
     k0 = 0;
     requestData = {};
     requestData['request type'] = 2;
-    requestData['variables'] = eqvarlist.join(', ');
+    requestData['variables'] = ODEvarlist.join(', ');
     
     start_values = [];
     jQuery('.inputstart').each(function(i, elem){
@@ -1117,15 +1258,14 @@ function makeBifurcationDiagram(){
     requestData['time'] = jQuery("#time").val();
     requestData['dt'] = jQuery("#dt").val();
 
-    requestData['parameters'] = selectedBifurcationDiagramParamList[0];
-    selectedBifurcationDiagramParamList.forEach(function(item, i) {
-        requestData['ranges'] = [parseFloat($('#input' + item + 'L').val()), parseFloat($('#input' + item + 'R').val())];
-        requestData['steps'] = parseFloat($('#input' + item + 'Step').val());
-    });
+    requestData['parameter'] = selectedBifurcationDiagramParamList[0];
+    requestData['range'] = [parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'L').val()), parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'R').val())];
+    requestData['step'] = parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'Step').val());
+    BifurcationDiagramRange = [parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'L').val()), parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'R').val()), parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'Step').val())];
 
     console.log(requestData);
     if (Object.values(requestData).length > 2 && k == k0 && (paramcount == 1)){
-        successAlertLyapunovMap(true);
+        successAlertBifurcationDiagram(true);
         //requestData['request type'] = 'main';
         jQuery.post(
             'http://' + ip + ':5000',
@@ -1142,81 +1282,51 @@ function makeBifurcationDiagram(){
         alert('такх, ошибочка у вас');
     }
 }
-
 function successBifurcationDiagram(data){
-    function getLyapunovMapData(dataset){
-    
-        resData = {};
-        resData['x'] = [];
-        resData['y'] = [];
-        resData['lyap'] = [];
-
-        dataset.forEach(function(item, i) {
-            resData['x'].push(item[0][0]);
-            resData['y'].push(item[0][1]);
-            resData['lyap'].push(item[1]);
-        });
-    
-        return resData;
+    if (data.length < 10){
+        alert('что-то пошло не так');
     }
-    successAlertLyapunovMap(false);
-    //LyapunovMapData = JSON.parse(JSON.parse(data))[0];
-    LyapunovMapData = getLyapunovMapData(JSON.parse(JSON.parse(data))[0]);
-    drawLyapunovMap(LyapunovMapData['x'], LyapunovMapData['y'], LyapunovMapData['lyap']);
+    BifurcationData = JSON.parse(JSON.parse(data));
+    //BifurcationPoints = [].concat(...BifurcationData['BifurcationMap']);
+    successAlertBifurcationDiagram(false);
+
+    drawBifurcationDiagram(BifurcationData['BifurcationMap']);
 }
+function drawBifurcationDiagram(data){
 
-function drawBifurcationDiagram(x, y, z){
-    var data = [{
-        z: z,
-		x: x,
-		y: y,
-        type: 'contour',
-        line:{
-          smoothing: 0.85
+    y = [];
+    x = [];
+    rangex = rangeFloatArray(BifurcationDiagramRange[0], BifurcationDiagramRange[1], BifurcationDiagramRange[2]);
+    data.forEach(function(traj, i, data) {
+        traj.forEach(function(dot) {
+            x.push(rangex[i]);
+            y.push(dot);
+        });
+    });
+
+    traces = [
+        {
+            mode: 'markers',
+            x: x,
+            y: y,
+            marker: {
+                size: 2,
+                color: 'black'
+            }
         }
-      }];
+    ];
 
-      var layout = {
-        height: (document.getElementById('chartLyapunovMap').offsetWidth * 0.8),
+    var config = {responsive: true}
+    Plotly.newPlot('chartBifurcationDiagram', traces, {
         displayModeBar: true,
+        config,
         margin: {
             l: 50,
-            r: 25,
+            r: 50,
             b: 50,
-            t: 25,
-            pad: 2},
-        /*title: {
-            text:'Plot Title',
-            font: {
-                family: 'Courier New, monospace',
-                size: 24
-            },
-            xref: 'paper',
-            x: 0.05,
-            },*/
-        xaxis: {
-          title: {
-            text: selectedLyapunovMapParamList[0],
-            font: {
-              //family: 'Courier New, monospace',
-              size: 24,
-              //color: '#7f7f7f'
-            }
-          },
-        },
-        yaxis: {
-          title: {
-            text: selectedLyapunovMapParamList[1],
-            font: {
-              //family: 'Courier New, monospace',
-              size: 24,
-              //color: '#7f7f7f'
-            }
-          }
-        }
-      };
-      
-      Plotly.newPlot('chartLyapunovMap', data, layout);
+            t: 50,
+            pad: 4}
+        });
 }
 // -----------------------------------------------------------------------------------
 

@@ -141,6 +141,11 @@
     max-width: 90%;
 }
 
+.col-95 {
+    flex: 0 0 95%;
+    max-width: 95%;
+}
+
 .texted {
     font-size: 16pt;
 }

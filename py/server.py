@@ -3,9 +3,12 @@ import logging
 from urllib.parse import parse_qs
 import json
 from subprocess import Popen, PIPE
+import time
+from numba import jit, njit
+import numpy as np
 import os
 
-
+'''
 def Poincare(data):
     p = Popen(['..\cpp\Poincare.exe'], shell=True, stdout=PIPE, stdin=PIPE)
 
@@ -61,39 +64,91 @@ def Poincare(data):
     # print(answer)
     # print(out)
     return answer
+'''
+
+starting_time = 0
 
 
-def calc(data):
-
-    def makeFloats(data, key, type):
-        for i, val in enumerate(data[key]):
-            if type == 'array':
-                data[key][i] = eval(val)
-            elif type == 'val':
-                data[key] = eval(val)
-        return data
-
-    def makeFloats2(data1, data2):
-        return [[eval(data1[0]), eval(data1[1])], [eval(data2[0]), eval(data2[1])]]
-
-    def unPack(data, key):
-        for i, val in enumerate(data[key]):
-            data[key] = val
-        return data
-
+def Poincare(data):
+    global starting_time
     p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
     ans = []
     # make floats
-    data = makeFloats(data, 'request type', 'val')
-    data = makeFloats(data, 'start values[]', 'array')
-    data = makeFloats(data, 'time', 'val')
-    data = makeFloats(data, 'dt', 'val')
-    data = unPack(data, 'variables')
-    data = unPack(data, 'additional equations')
-    #print('data', data)
+    data['request type'] = int(data['request type'][0])
+    data['plane equation[]'] = np.array(data['plane equation[]']).astype(np.float).tolist()
+    data['trajectory[]'] = np.array(
+        [data['trajectory[0][]'], data['trajectory[1][]'], data['trajectory[2][]']]
+    ).astype(np.float).transpose().tolist()
+    del data['trajectory[0][]']
+    del data['trajectory[1][]']
+    del data['trajectory[2][]']
+    #print('fixed data at', time.time() - starting_time, 'seconds')
+
+    # send json string
+    value = json.dumps(data)
+    # print(value)
+    text_file = open("send.txt", "w")
+    text_file.write(value)
+    text_file.close()
+    value = bytes(value, 'UTF-8')  # Needed in Python 3.
+    p.stdin.write(value)
+    p.stdin.flush()
+    # print('done')
+
+    res = p.stdout.readline().strip()
+    # print('result = ', result.decode('utf-8'))
+    res = json.loads(res.decode('utf-8'))[0]
+    res['intersections2D'] = np.array(res['intersections2D']).astype(np.float).transpose().tolist()
+    res['intersections3D'] = np.array(res['intersections3D']).astype(np.float).transpose().tolist()
+    #print('solved at', time.time() - starting_time, 'seconds')
+    return json.dumps(res)
+
+def Bifurcation(data):
+    p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
+    ans = []
+    # make numeric
+    data['request type'] = int(data['request type'][0])
+    data['start values[]'] = np.array(data['start values[]']).astype(np.float).tolist()
+    data['time'] = float(data['time'][0])
+    data['dt'] = float(data['dt'][0])
+    data['variables'] = data['variables'][0]
+    data['additional equations'] = data['additional equations'][0]
+    data['parameter'] = data['parameter'][0]
+    data['range[]'] = np.array(data['range[]']).astype(np.float).tolist()
+    data['step'] = float(data['step'][0])
+
+
+    # send json string
+    value = json.dumps(data)
+
+    value = bytes(value, 'UTF-8')  # Needed in Python 3.
+    print(value)
+    p.stdin.write(value)
+    p.stdin.flush()
+    # print('done')
+    start = time.time()
+
+    result = p.stdout.readline().strip()
+    # print('result = ', result.decode('utf-8'))
+    ans = result.decode('utf-8')
+    #print('solved in', time.time() - start, 'seconds')
+    return ans
+
+
+def calc(data):
+    p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
+    ans = []
+    # make numeric
+    data['request type'] = int(data['request type'][0])
+    data['start values[]'] = np.array(data['start values[]']).astype(np.float).tolist()
+    data['time'] = float(data['time'][0])
+    data['dt'] = float(data['dt'][0])
+    data['variables'] = data['variables'][0]
+    data['additional equations'] = data['additional equations'][0]
+    # print('data', data)
     if data['request type'] == 1:
-        data = makeFloats(data, 'steps[]', 'array')
-        data['ranges[]'] = makeFloats2(data['ranges[0][]'], data['ranges[1][]'])
+        data['steps[]'] = np.array(data['steps[]']).astype(np.float).tolist()
+        data['ranges[]'] = np.array([data['ranges[0][]'], data['ranges[1][]']]).astype(np.float).tolist()
         del data['ranges[0][]']
         del data['ranges[1][]']
 
@@ -104,11 +159,12 @@ def calc(data):
     p.stdin.write(value)
     p.stdin.flush()
     # print('done')
+    start = time.time()
 
     result = p.stdout.readline().strip()
-    #print('result = ', result.decode('utf-8'))
+    # print('result = ', result.decode('utf-8'))
     ans.append(result.decode('utf-8'))
-    print('data received')
+    #print('solved in', time.time() - start, 'seconds')
     return ans
 
 
@@ -126,30 +182,34 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
 
     def do_POST(self):
+        global starting_time
+        starting_time = time.time()
+        #print('started', time.time() - starting_time, 'seconds')
         content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
         post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-        #print(post_data)
-        # print('in', self.headers)
-        # logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-        #             str(self.path), str(self.headers), post_data.decode('utf-8'))
+        #print('read post data in', time.time() - starting_time, 'seconds')
         data = parse_qs(post_data.decode('utf-8'))
-        #print(data)
-
-        # print(post_data.decode('utf-8'))
-
         self._set_response()
+        #print('parced post data at', time.time() - starting_time, 'seconds')
         answer = 0
         if data['request type'][0] == '0':
-            answer = calc(data)[0]#[1:-1]
+            print('trajectory request')
+            answer = calc(data)[0]  # [1:-1]
         elif data['request type'][0] == '1':
-            answer = calc(data)[0]#[1:-1]
-        elif data['request type'][0] == 'Poincare':
+            print('Lyapunov map request')
+            answer = calc(data)[0]  # [1:-1]
+        elif data['request type'][0] == '2':
+            print('Bifurcation request')
+            answer = Bifurcation(data)
+        elif data['request type'][0] == '3':
+            print('Poincare request')
             answer = Poincare(data)
         json_string = json.dumps(answer)
         # print('json')
         # print(json_string.encode(encoding='utf_8'))
         self.wfile.write(json_string.encode(encoding='utf_8'))
         # self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        print('done in', time.time() - starting_time, 'seconds')
 
 
 def run(server_class=HTTPServer, handler_class=S, port=5000):
