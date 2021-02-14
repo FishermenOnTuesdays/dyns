@@ -4,9 +4,9 @@ from urllib.parse import parse_qs
 import json
 from subprocess import Popen, PIPE
 import time
-from numba import jit, njit
+# from numba import jit, njit
 import numpy as np
-import os
+# import os
 
 '''
 def Poincare(data):

@@ -74,7 +74,7 @@ jQuery(function(){
     jQuery("#Poincarecharts").hide();
     jQuery("#credits").hide();
     
-    document.getElementById("time").defaultValue = "100";
+    document.getElementById("time").defaultValue = "10";
     document.getElementById("dt").defaultValue = "0.01";
 
     // btns
@@ -103,6 +103,8 @@ jQuery(function(){
     });
 
     $(document).on('click', '.remove', function() {
+        removedODEVar = $(this).parent().parent().children('.col-75').children('.inputeq')[0].id;
+        removeItemOnce(ODEvarlist, removedODEVar);
         $(this).parent().parent().parent().remove();
     });
     
@@ -499,9 +501,7 @@ function processData(allRows, type) {
     ndims = ODEvarlist.length;
 
     jQuery("#lyapunovchart").show();
-    jQuery("#Poincarecharts").show();
     jQuery("#LyapunovMap").show();
-    jQuery("#BifurcationDiagram").show();
     jQuery("#credits").show();
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
@@ -512,11 +512,13 @@ function processData(allRows, type) {
         jQuery("#phasechart2").hide();
         jQuery("#phasechart3").hide();
         jQuery("#phasecharts").show();
-        jQuery("#3dcharts").show();
         if (ndims > 2){
             jQuery("#btngroup1").show();
             jQuery("#phasechart2").show();
             jQuery("#phasechart3").show();
+            jQuery("#3dcharts").show();
+            jQuery("#BifurcationDiagram").show();
+            jQuery("#Poincarecharts").show();
         }
     }
 
@@ -558,21 +560,23 @@ function makePlotT(ndims, timeSeries){
     var EqEqs = [];
     $('.eq').each(function(i, elem){
         var currentLine = $(elem).val();
-        var currentVar = currentLine.slice(0, currentLine.indexOf('='));
-        if (currentVar.slice(-1)[0] == ' ') {
-            currentVar = currentVar.slice(0, currentVar.length - 1);
+        if (currentLine != ''){
+            var currentVar = currentLine.slice(0, currentLine.indexOf('='));
+            if (currentVar.slice(-1)[0] == ' ') {
+                currentVar = currentVar.slice(0, currentVar.length - 1);
+            }
+            EqTimeSeries[currentVar] = [];
+            EqVars.push(currentVar);
+            var currentEq = currentLine.slice(currentLine.indexOf('=') + 1);
+            EqEqs.push(currentEq);
+            exclusionList.forEach(function(item, i, exclusionList) {
+                currentEq = currentEq.split(item).join(' ');
+            });
+            currentEq = currentEq.replace(/\s{2,}/g, ' ');
+            var currentEqParams = currentEq.split(' ');
+            removeItemAll(currentEqParams, '');
+            EqParams.push(currentEqParams);
         }
-        EqTimeSeries[currentVar] = [];
-        EqVars.push(currentVar);
-        var currentEq = currentLine.slice(currentLine.indexOf('=') + 1);
-        EqEqs.push(currentEq);
-        exclusionList.forEach(function(item, i, exclusionList) {
-            currentEq = currentEq.split(item).join(' ');
-        });
-        currentEq = currentEq.replace(/\s{2,}/g, ' ');
-        var currentEqParams = currentEq.split(' ');
-        removeItemAll(currentEqParams, '');
-        EqParams.push(currentEqParams);
     });
 
     // check inner dependecies
