@@ -66,12 +66,17 @@ def Poincare(data):
     return answer
 '''
 
+
+def Solver():
+    return Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
+
+
 starting_time = 0
 
 
 def Poincare(data):
     global starting_time
-    p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
+    solver = Solver()
     ans = []
     # make floats
     data['request type'] = int(data['request type'][0])
@@ -82,78 +87,136 @@ def Poincare(data):
     del data['trajectory[0][]']
     del data['trajectory[1][]']
     del data['trajectory[2][]']
-    #print('fixed data at', time.time() - starting_time, 'seconds')
+    # print('fixed data at', time.time() - starting_time, 'seconds')
 
     # send json string
     value = json.dumps(data)
     # print(value)
-    text_file = open("send.txt", "w")
-    text_file.write(value)
-    text_file.close()
+    # text_file = open("send.txt", "w")
+    # text_file.write(value)
+    # text_file.close()
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
-    p.stdin.write(value)
-    p.stdin.flush()
+    solver.stdin.write(value)
+    solver.stdin.flush()
     # print('done')
 
-    res = p.stdout.readline().strip()
+    res = solver.stdout.readline().strip()
     # print('result = ', result.decode('utf-8'))
     res = json.loads(res.decode('utf-8'))[0]
     res['intersections2D'] = np.array(res['intersections2D']).astype(np.float).transpose().tolist()
     res['intersections3D'] = np.array(res['intersections3D']).astype(np.float).transpose().tolist()
-    #print('solved at', time.time() - starting_time, 'seconds')
+    # print('solved at', time.time() - starting_time, 'seconds')
     return json.dumps(res)
 
-def Bifurcation(data):
-    p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
+
+def Bifurcation(requestData):
+    solver = Solver()
     ans = []
     # make numeric
-    data['request type'] = int(data['request type'][0])
-    data['start values[]'] = np.array(data['start values[]']).astype(np.float).tolist()
-    data['time'] = float(data['time'][0])
-    data['dt'] = float(data['dt'][0])
-    data['variables'] = data['variables'][0]
-    data['additional equations'] = data['additional equations'][0]
-    data['parameter'] = data['parameter'][0]
-    data['range[]'] = np.array(data['range[]']).astype(np.float).tolist()
-    data['step'] = float(data['step'][0])
+    requestData['request type'] = int(requestData['request type'][0])
+    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
+    requestData['time'] = float(requestData['time'][0])
+    requestData['dt'] = float(requestData['dt'][0])
+    requestData['variables'] = requestData['variables'][0]
+    requestData['additional equations'] = requestData['additional equations'][0]
 
+    requestData['parameter'] = requestData['parameter'][0]
+    requestData['range[]'] = np.array(requestData['range[]']).astype(np.float).tolist()
+    requestData['step'] = float(requestData['step'][0])
 
     # send json string
-    value = json.dumps(data)
-
-    value = bytes(value, 'UTF-8')  # Needed in Python 3.
+    value = json.dumps(requestData)
     print(value)
-    p.stdin.write(value)
-    p.stdin.flush()
+    solver.stdin.write(bytes(value, 'UTF-8'))
+    solver.stdin.flush()
     # print('done')
-    start = time.time()
-
-    result = p.stdout.readline().strip()
+    # start = time.time()
+    result = solver.stdout.readline().strip()
     # print('result = ', result.decode('utf-8'))
     ans = result.decode('utf-8')
-    #print('solved in', time.time() - start, 'seconds')
+    # print('solved in', time.time() - start, 'seconds')
     return ans
 
 
-def calc(data):
+def Trajectory(requestData):
+    solver = Solver()
+    ans = []
+    # remove additional fairings
+    # make numeric
+    requestData['request type'] = int(requestData['request type'][0])
+    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
+    requestData['time'] = float(requestData['time'][0])
+    requestData['dt'] = float(requestData['dt'][0])
+    #
+    requestData['variables'] = requestData['variables'][0]
+    requestData['additional equations'] = requestData['additional equations'][0]
+    if requestData['additional equations'] == ';':
+        requestData['additional equations'] = ''
+    # send json string
+    value = json.dumps(requestData)
+    print(value)
+    solver.stdin.write(bytes(value, 'UTF-8'))
+    solver.stdin.flush()
+    # start = time.time()
+    result = solver.stdout.readline().strip()
+    # print('result = ', result.decode('utf-8'))
+    ans.append(result.decode('utf-8'))
+    # print('solved in', time.time() - start, 'seconds')
+    return ans
+
+
+def LyapunovMap(requestData):
+    solver = Solver()
+    ans = []
+    # remove additional fairings
+    # make numeric
+    requestData['request type'] = int(requestData['request type'][0])
+    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
+    requestData['time'] = float(requestData['time'][0])
+    requestData['dt'] = float(requestData['dt'][0])
+    #
+    requestData['variables'] = requestData['variables'][0]
+    if requestData['additional equations'] == ';':
+        requestData['additional equations'] = ''
+    requestData['steps[]'] = np.array(requestData['steps[]']).astype(np.float).tolist()
+    requestData['ranges[]'] = np.array([requestData['ranges[0][]'], requestData['ranges[1][]']]).astype(
+        np.float).tolist()
+    del requestData['ranges[0][]']
+    del requestData['ranges[1][]']
+    # send json string
+    value = json.dumps(requestData)
+    print(value)
+    solver.stdin.write(bytes(value, 'UTF-8'))
+    solver.stdin.flush()
+    # start = time.time()
+    result = solver.stdout.readline().strip()
+    # print('result = ', result.decode('utf-8'))
+    ans.append(result.decode('utf-8'))
+    # print('solved in', time.time() - start, 'seconds')
+    return ans
+
+
+'''
+def calc(requestData):
     p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
     ans = []
     # make numeric
-    data['request type'] = int(data['request type'][0])
-    data['start values[]'] = np.array(data['start values[]']).astype(np.float).tolist()
-    data['time'] = float(data['time'][0])
-    data['dt'] = float(data['dt'][0])
-    data['variables'] = data['variables'][0]
-    data['additional equations'] = data['additional equations'][0]
+    requestData['request type'] = int(requestData['request type'][0])
+    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
+    requestData['time'] = float(requestData['time'][0])
+    requestData['dt'] = float(requestData['dt'][0])
+    requestData['variables'] = requestData['variables'][0]
+    if requestData['additional equations'] == ';':
+        requestData['additional equations'] = ''
     # print('data', data)
-    if data['request type'] == 1:
-        data['steps[]'] = np.array(data['steps[]']).astype(np.float).tolist()
-        data['ranges[]'] = np.array([data['ranges[0][]'], data['ranges[1][]']]).astype(np.float).tolist()
-        del data['ranges[0][]']
-        del data['ranges[1][]']
+    if requestData['request type'] == 1:
+        requestData['steps[]'] = np.array(requestData['steps[]']).astype(np.float).tolist()
+        requestData['ranges[]'] = np.array([requestData['ranges[0][]'], requestData['ranges[1][]']]).astype(np.float).tolist()
+        del requestData['ranges[0][]']
+        del requestData['ranges[1][]']
 
     # send json string
-    value = json.dumps(data)
+    value = json.dumps(requestData)
     print(value)
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     p.stdin.write(value)
@@ -166,6 +229,7 @@ def calc(data):
     ans.append(result.decode('utf-8'))
     #print('solved in', time.time() - start, 'seconds')
     return ans
+'''
 
 
 class S(BaseHTTPRequestHandler):
@@ -184,20 +248,20 @@ class S(BaseHTTPRequestHandler):
     def do_POST(self):
         global starting_time
         starting_time = time.time()
-        #print('started', time.time() - starting_time, 'seconds')
+        # print('started', time.time() - starting_time, 'seconds')
         content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
         post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-        #print('read post data in', time.time() - starting_time, 'seconds')
+        # print('read post data in', time.time() - starting_time, 'seconds')
         data = parse_qs(post_data.decode('utf-8'))
         self._set_response()
-        #print('parced post data at', time.time() - starting_time, 'seconds')
+        # print('parced post data at', time.time() - starting_time, 'seconds')
         answer = 0
         if data['request type'][0] == '0':
             print('trajectory request')
-            answer = calc(data)[0]  # [1:-1]
+            answer = Trajectory(data)[0]  # [1:-1]
         elif data['request type'][0] == '1':
             print('Lyapunov map request')
-            answer = calc(data)[0]  # [1:-1]
+            answer = LyapunovMap(data)[0]  # [1:-1]
         elif data['request type'][0] == '2':
             print('Bifurcation request')
             answer = Bifurcation(data)

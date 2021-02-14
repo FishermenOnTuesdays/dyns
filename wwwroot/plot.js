@@ -428,6 +428,7 @@ function onDraw()
         }
     });
     requestData['additional equations'] = additional_equations.join('; ').split(' =').join(':=') + ';';
+    //if (requestData['additional equations'] == ';') requestData['additional equations'] = ';';
 
     requestData['time'] = jQuery("#time").val();
     requestData['dt'] = jQuery("#dt").val();
@@ -532,7 +533,7 @@ function makePlots(ndims){
     makePlotPhase(equationTimeSeries);
     makePlot3D(equationTimeSeries[ODEvarlist[0]], equationTimeSeries[ODEvarlist[1]], equationTimeSeries[ODEvarlist[2]], 'chartXY3D');
     makePoincareUI();
-    makePlotPoincare();
+    if (ndims >= 3) makePlotPoincare();
     //makeEqPlot();
 }
 function makePlotT(ndims, timeSeries){
@@ -742,7 +743,7 @@ function makePlotPoincare(){
     if (Darc == 0){
         var D = parseFloat(document.getElementById('inputD').value);
     } else var D = Darc;
-    
+
     // request data from server
     data = {
         'request type': 3,
