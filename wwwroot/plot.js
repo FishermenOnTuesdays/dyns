@@ -68,6 +68,7 @@ jQuery(function(){
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
     jQuery("#3dcharts").hide();
+    //jQuery("#3DStreamtubeCharts").hide();
     jQuery("#lyapunovchart").hide();
     jQuery("#LyapunovMap").hide();
     jQuery("#BifurcationDiagram").hide();
@@ -517,6 +518,7 @@ function processData(allRows, type) {
             jQuery("#phasechart2").show();
             jQuery("#phasechart3").show();
             jQuery("#3dcharts").show();
+            jQuery("#3DStreamtubeCharts").show();
             jQuery("#BifurcationDiagram").show();
             jQuery("#Poincarecharts").show();
         }
@@ -715,7 +717,7 @@ function makePlot3D(x, y, z, chartid){
     data = [trace];
     Plotly.newPlot(chartid, data,
         {
-            height: 1000,
+            height: 750,
             displayModeBar: true,
             margin: {
                 l: 25,
@@ -1335,7 +1337,68 @@ function drawBifurcationDiagram(data){
 }
 // -----------------------------------------------------------------------------------
 
+/*
+// 3D Streamtube ---------------------------------------------------------------------
+{
+    Plotly.d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/streamtube-basic.csv', function(err, rowss){
 
+    function unpack(rows, key) {
+        return rows.map(function(row) { return row[key]; });
+    }
+
+    rows = {};
+    rows['x'] = [];
+    rows['y'] = [];
+    rows['z'] = [];
+    rows['u'] = [];
+    rows['v'] = [];
+    rows['w'] = [];
+    for (let x = -20; x < 20; x+=5) {
+        for (let y = -26; y < 30; y+=5) {
+            for (let z = 0; z < 50; z+=5) {
+                u = 10*(y-x);
+                v = x*(28-z)-y;
+                w = x*y-(8/3)*z;
+                rows['x'].push(x);
+                rows['y'].push(y);
+                rows['z'].push(z);
+                rows['u'].push(u);
+                rows['v'].push(v);
+                rows['w'].push(w);
+            }
+        }   
+    }
+
+    var data = [{
+      type: "streamtube",
+      x: rows['x'],
+      y: rows['y'],
+      z: rows['z'],
+      u: rows['u'],
+      v: rows['v'],
+      w: rows['w'],
+      sizeref: 0.1,
+      cmin: 0,
+      cmax: 3
+    }]
+
+    Plotly.newPlot('chartStreamtube3D', data,
+        {
+            height: 750,
+            displayModeBar: true,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1}
+        }
+    );
+
+});
+}
+// -----------------------------------------------------------------------------------
+*/
 // save plot data
 function savetocsv() {
 
@@ -1384,133 +1447,3 @@ function savetocsv() {
         jQuery("#error_alert").delay(1000).fadeOut(100);
     }
 }
-
-// trash
-/*
-function transpose(matrix) {
-    const rows = matrix.length, cols = matrix[0].length;
-    const grid = [];
-    for (let j = 0; j < cols; j++) {
-      grid[j] = Array(rows);
-    }
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        grid[j][i] = matrix[i][j];
-      }
-    }
-    return grid;
-}*/
-
-/*
-function getData(dataset, type){
-    
-    xs = {};
-    ls = {};
-    t = [];
-    lt = [];
-    
-    if (type == "web"){
-        datalen = dataset.length;
-        ndims = (Object.keys(dataset[0]).length - 1) / 2;
-
-        for (var i = 1; i <= ndims; i++){
-            xs['x' + i] = [];
-            ls['l' + i] = [];
-        }
-        if (ndims < 3){
-            xs['x3'] = [];
-        }
-        
-        xsdone = false;
-        for (var i = 0; i < dataset.length; i++) {
-            row = dataset[i];
-            // endcheck
-            if (row['t'] == 0 && i > 0) { xsdone = true }
-
-            if (xsdone){
-                for (var j = 1; j <= ndims; j++){
-                    ls['l' + j].push(parseFloat(row['l' + j]));
-                }
-                lt.push(row['t']);
-            } else {
-                for (var j = 1; j <= ndims; j++){
-                    xs['x' + j].push(row['x' + j]);
-                }
-                t.push(row['t']);
-            }
-
-            if (ndims < 3){
-                xs['x3'].push(0);
-            }
-            t.push(row['t']);
-        }
-    } else if (type == "local"){
-        return 0;
-    }
-
-    return [n, ndims, xs, t, ls, lt];
-}
-*/
-
-/*
-function oldgetData(dataset, type){
-    
-    xs = {};
-    ls = {};
-    t = [];
-    
-    if (type == "web"){
-        n = dataset.length;
-        ndims = (Object.keys(dataset[0]).length - 1) / 2;
-
-        lsum = {};
-        for (var i = 1; i <= ndims; i++){
-            xs['x' + i] = [];
-            ls['l' + i] = [];
-            lsum['l' + i] = 0;
-        }
-        if (ndims < 3){
-            xs['x3'] = [];
-        }
-        
-        for (var i = 0; i < dataset.length; i++) {
-            row = dataset[i];
-            for (var j = 1; j <= ndims; j++){
-                xs['x' + j].push(row['x' + j]);
-                lsum['l' + j] += parseFloat(row['l' + j]);
-                ls['l' + j].push(lsum['l' + j] / (i + 1));
-            }
-            if (ndims < 3){
-                xs['x3'].push(0);
-            }
-            t.push(row['t']);
-        }
-    } else if (type == "local"){
-        n = dataset.length - 2
-        ndims = ((dataset[0].join(",").split(",")).length - 1) / 2;
-
-        for (var i = 1; i <= ndims; i++){
-            xs['x' + i] = [];
-            ls['l' + i] = [];
-        }
-        if (ndims < 3){
-            xs['x3'] = [];
-        }
-
-        for(var i = 1; i < (dataset.length - 1); i++){
-			var row = dataset[i];
-			var cells = row.join(",").split(",");
-			for(var j = 1; j <= ndims; j++){
-                xs['x' + j].push(cells[j - 1]);
-                ls['l' + j].push(cells[ndims + j - 1]);
-            }
-            if (ndims < 3){
-                xs['x3'].push(0);
-            }
-            t.push(cells[ndims * 2]);
-        }
-    }
-
-    return [n, ndims, xs, t, ls];
-}
-*/

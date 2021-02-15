@@ -1,4 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from socketserver import ThreadingMixIn
+import threading
 import logging
 from urllib.parse import parse_qs
 import json
@@ -232,7 +234,7 @@ def calc(requestData):
 '''
 
 
-class S(BaseHTTPRequestHandler):
+class Handler(BaseHTTPRequestHandler):
     def _set_response(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -273,13 +275,19 @@ class S(BaseHTTPRequestHandler):
         # print(json_string.encode(encoding='utf_8'))
         self.wfile.write(json_string.encode(encoding='utf_8'))
         # self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
-        print('done in', time.time() - starting_time, 'seconds')
+        print('done in', time.time() - starting_time, 'seconds', 'in thread:', threading.currentThread().getName())
 
 
-def run(server_class=HTTPServer, handler_class=S, port=5000):
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
+    pass
+
+
+def run(server_class=HTTPServer, handler_class=Handler, port=5000):
     logging.basicConfig(level=logging.INFO)
     server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
+    # httpd = server_class(server_address, handler_class)
+    httpd = ThreadedHTTPServer(('0.0.0.0', 5000), Handler)
     logging.info('Starting httpd...\n')
     try:
         httpd.serve_forever()
