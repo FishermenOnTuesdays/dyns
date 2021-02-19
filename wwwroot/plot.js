@@ -1008,10 +1008,10 @@ function makePlotLyapunov(ndims, timeSeries){
         for(var i = 0; i < ndims; i++){
             licurr = lisample;
             value = arrLyapunov[i];
-            if (value > 0){
-                licurr = licurr.split("type").join('list-group-item-success');
-            } else if (-eps < value && value < eps){
+            if (-eps < value && value < eps){
                 licurr = licurr.split("type").join('list-group-item-light');
+            } else if (value > 0){
+                licurr = licurr.split("type").join('list-group-item-success');
             } else if (value < 0){
                 licurr = licurr.split("type").join('list-group-item-danger');
             }
