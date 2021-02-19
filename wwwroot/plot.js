@@ -592,7 +592,7 @@ function makePlotT(ndims, timeSeries){
     });
 
     var seriesLen = timeSeries['t'].length;
-    var seriesdt = timeSeries['t'][1] = timeSeries['t'][0];
+    var seriesdt = timeSeries['t'][1] - timeSeries['t'][0];
     //make timeSeries for eqs w/o dependecies
     EqDepends.forEach(function(currentEqDepends, i) {
         if (currentEqDepends.length == 0){
