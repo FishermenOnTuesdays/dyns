@@ -336,6 +336,7 @@ function ODEchange(element){
         ODEvarlist.push(eqvar);
     // look for params
     equation = equation.slice(equation.indexOf(')/dt=') + 5);
+    equation = equation.split(eqvar).join(' ');
     exclusionList.forEach(function(item, i, exclusionList) {
         equation = equation.split(item).join(' ');
     });
