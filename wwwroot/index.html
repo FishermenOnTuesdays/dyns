@@ -46,6 +46,7 @@
                                         <a class="dropdown-item" href="#" id="lorenz">Аттрактор Лоренца</a>
                                         <a class="dropdown-item" href="#" id="dequanli">Аттрактор Дэцюань Ли</a>
                                         <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
+                                        <a class="dropdown-item" href="#" id="aizawa">Аттрактор Айзава</a>
                                     </div>
                                 </li>
                                 
@@ -106,21 +107,21 @@
                                     <div class="row no-gutters" style="width:100%;">
                                         <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
                                         <div class="col col-75"><input type="text" class="form-control inputeq" id="x1" placeholder="" value="d()/dt="></div>
-                                        <div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
                                     </div>
                                 </div>
                                 <div class="bg-white rounded shadow p-1 mb-1">
                                     <div class="row no-gutters" style="width:100%;">
                                         <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
                                         <div class="col col-75"><input type="text" class="form-control inputeq" id="x2" placeholder="" value="d()/dt="></div>
-                                        <div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
                                     </div>
                                 </div>
                                 <div class="bg-white rounded shadow p-1 mb-1">
                                     <div class="row no-gutters" style="width:100%;">
                                         <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
                                         <div class="col col-75"><input type="text" class="form-control inputeq" id="x3" placeholder="" value="d()/dt="></div>
-                                        <div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
                                     </div>
                                 </div>
                             </fieldset>
@@ -173,7 +174,7 @@
                                 <div class="bg-white rounded shadow p-1 mb-1">
                                     <div class="row no-gutters" style="width:100%;">
                                         <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
-                                        <div class="col col-05"><button class="remove btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                        <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
                                     </div>
                                 </div>
                             </fieldset>
@@ -261,7 +262,7 @@
 
                 <div class="row">
                     <!--<div class="col-1 zero-padding"></div>-->
-                    <div class="col-4 bg-white">
+                    <div class="col-5 bg-white">
                         <div class="col-12 m10" id="LyapunovMapParamList">
                             <div class="row justify-content-center align-self-center"><h4>параметры системы</h4></div>
                             <!-- slider sample -->
@@ -289,52 +290,68 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--    
-                            <div class="row align-self-center shadow rounded mb-1" id="LyapunovMapParamT">
+                            
+                            <!--
+                            <div class="row align-self-center shadow rounded mb-1" id="LyapunovMapParamPARAM">
                                 <div class="col-12 zero-padding">
                                     <div class="row no-gutters justify-content-center   align-self-center bg-light">
                                         <div class="col-05 text-center my-auto">
-                                            <input type="checkbox" class="LyapunovMapCheckBox" id="LyapunovMapCheckBoxT">
+                                            <input type="checkbox" class="LyapunovMapCheckBox" id="LyapunovMapCheckBoxPARAM">
                                         </div>
-                                        <div class="col-05 text-center my-auto">
-                                            <h4>T</h4>
+                                        <div class="col-05 text-center my-1" style="font-size:1vw;">
+                                            <b>PARAM</b>
                                         </div>
                                         <div class="col-80 justify-content-center align-self-center">
                                             <div class="row no-gutters" style="width: 100%;">
                                                 <div class="col-2 justify-content-center align-self-center">
-                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTL" value="-10">
+                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputPARAML" value="-10">
                                                 </div>
                                                 <div class="col-8 justify-content-center align-self-center">
-                                                    <div id="sliderRangeLyapunovMapT"></div>
+                                                    <div id="sliderRangeLyapunovMapPARAM"></div>
                                                 </div>
                                                 <div class="col-2 justify-content-center align-self-center">
-                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTR" value="10">
+                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputPARAMR" value="10">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-010 text-center my-auto">
-                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputTStep" value="0.1">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="inputPARAMStep" value="0.1">
                                         </div>
                                     </div>
                                 </div>
                                 <script>
                                     $(function() {
-                                        $("#sliderRangeLyapunovMapT").slider({
+                                        $("#sliderRangeLyapunovMapPARAM").slider({
                                             range: true,
-                                            min: -100,
-                                            max: 100,
-                                            values: [-10, 10],
+                                            min: -10,
+                                            max: 10,
+                                            step : 0.1,
+                                            values: [-1, 1],
                                             slide: function( event, ui ) {
-                                                $("#inputTL").val(ui.values[0]);
-                                                $("#inputTR").val(ui.values[1]);
+                                                $("#inputPARAML").val(ui.values[0]);
+                                                $("#inputPARAMR").val(ui.values[1]);
+                                                $("#sliderRangeLyapunovMapPARAM").slider("option", "min", ui.values[0] - 100 * $("#sliderRangeLyapunovMapPARAM").slider("option", "step"));
+                                                $("#sliderRangeLyapunovMapPARAM").slider("option", "max", ui.values[1] + 100 * $("#sliderRangeLyapunovMapPARAM").slider("option", "step"));
                                             }
                                         });
-                                        $("#inputTL").val($("#sliderRangeLyapunovMapT").slider("values", 0));
-                                        $("#inputTR").val($("#sliderRangeLyapunovMapT").slider("values", 1));
+                                        $("#inputPARAML").on("change paste keyup", function() {
+                                            $("#sliderRangeLyapunovMapPARAM").slider("option", "min", $(this).val() - 100 * $("#sliderRangeLyapunovMapPARAM").slider("option", "step"));
+                                            $("#sliderRangeLyapunovMapPARAM").slider("values", 0, $(this).val());
+                                        });
+                                        $("#inputPARAMR").on("change paste keyup", function() {
+                                            $("#sliderRangeLyapunovMapPARAM").slider("option", "max", $(this).val() + 100 * $("#sliderRangeLyapunovMapPARAM").slider("option", "step"));
+                                            $("#sliderRangeLyapunovMapPARAM").slider("values", 1, $(this).val());
+                                        });
+                                        $("#inputPARAMStep").on("change paste keyup", function() {
+                                            $("#sliderRangeLyapunovMapPARAM").slider("option", "step", $(this).val());
+                                            $("#sliderRangeLyapunovMapPARAM").slider("option", "min", $("#sliderRangeLyapunovMapPARAM").slider("option", "min") - 100 * $(this).val());
+                                            $("#sliderRangeLyapunovMapPARAM").slider("option", "max", $("#sliderRangeLyapunovMapPARAM").slider("option", "max") + 100 * $(this).val());
+                                        });
                                     });
                                 </script>
                             </div>
                             -->
+
                         </div>
                         <div class="col-12 m10">
                             <div class="row justify-content-end align-self-center shadow rounded mb-1">
@@ -342,8 +359,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-2 zero-padding"></div>
-                    <div class="col-6 zero-padding">
+                    <!--<div class="col-1 zero-padding"></div>-->
+                    <div class="col-7 zero-padding">
                         <div id="chartLyapunovMap" class="m10"></div>
                     </div>
                 </div>
@@ -388,47 +405,61 @@
                                 </div>
                             </div>
                             <!--    
-                            <div class="row align-self-center shadow rounded mb-1" id="BifurcationDiagramT">
+                            <div class="row align-self-center shadow rounded mb-1" id="BifurcationDiagramParamPARAM">
                                 <div class="col-12 zero-padding">
                                     <div class="row no-gutters justify-content-center   align-self-center bg-light">
                                         <div class="col-05 text-center my-auto">
-                                            <input type="checkbox" class="BifurcationDiagramCheckBox" id="BifurcationDiagramCheckBoxT">
+                                            <input type="checkbox" class="BifurcationDiagramCheckBox" id="BifurcationDiagramCheckBoxPARAM">
                                         </div>
-                                        <div class="col-05 text-center my-auto">
-                                            <h4>T</h4>
+                                        <div class="col-05 text-center my-1" style="font-size:1vw;">
+                                            <b>PARAM</b>
                                         </div>
                                         <div class="col-80 justify-content-center align-self-center">
                                             <div class="row no-gutters" style="width: 100%;">
                                                 <div class="col-2 justify-content-center align-self-center">
-                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTL" value="-10">
+                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputPARAML" value="-10">
                                                 </div>
                                                 <div class="col-8 justify-content-center align-self-center">
-                                                    <div id="sliderRangeBifurcationDiagramT"></div>
+                                                    <div id="sliderRangeBifurcationDiagramPARAM"></div>
                                                 </div>
                                                 <div class="col-2 justify-content-center align-self-center">
-                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTR" value="10">
+                                                    <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputPARAMR" value="10">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-010 text-center my-auto">
-                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputTStep" value="0.1">
+                                            <input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;" id="BifurcationDiagraminputPARAMStep" value="0.1">
                                         </div>
                                     </div>
                                 </div>
                                 <script>
                                     $(function() {
-                                        $("#sliderRangeBifurcationDiagramT").slider({
+                                        $("#sliderRangeBifurcationDiagramPARAM").slider({
                                             range: true,
-                                            min: -100,
-                                            max: 100,
-                                            values: [-10, 10],
+                                            min: -10,
+                                            max: 10,
+                                            step : 0.1,
+                                            values: [-1, 1],
                                             slide: function( event, ui ) {
-                                                $("#BifurcationDiagraminputTL").val(ui.values[0]);
-                                                $("#BifurcationDiagraminputTR").val(ui.values[1]);
+                                                $("#BifurcationDiagraminputPARAML").val(ui.values[0]);
+                                                $("#BifurcationDiagraminputPARAMR").val(ui.values[1]);
+                                                $("#sliderRangeBifurcationDiagramPARAM").slider("option", "min", ui.values[0] - 100 * $("#sliderRangeBifurcationDiagramPARAM").slider("option", "step"));
+                                                $("#sliderRangeBifurcationDiagramPARAM").slider("option", "max", ui.values[1] + 100 * $("#sliderRangeBifurcationDiagramPARAM").slider("option", "step"));
                                             }
                                         });
-                                        $("#BifurcationDiagraminputTL").val($("#sliderRangeBifurcationDiagramT").slider("values", 0));
-                                        $("#BifurcationDiagraminputTR").val($("#sliderRangeBifurcationDiagramT").slider("values", 1));
+                                        $("#BifurcationDiagraminputPARAML").on("change paste keyup", function() {
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("option", "min", $(this).val() - 100 * $("#sliderRangeBifurcationDiagramPARAM").slider("option", "step"));
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("values", 0, $(this).val());
+                                        });
+                                        $("#BifurcationDiagraminputPARAMR").on("change paste keyup", function() {
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("option", "max", $(this).val() + 100 * $("#sliderRangeBifurcationDiagramPARAM").slider("option", "step"));
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("values", 1, $(this).val());
+                                        });
+                                        $("#BifurcationDiagraminputPARAMStep").on("change paste keyup", function() {
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("option", "step", $(this).val());
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("option", "min", $("#sliderRangeBifurcationDiagramPARAM").slider("option", "min") - 100 * $(this).val());
+                                            $("#sliderRangeBifurcationDiagramPARAM").slider("option", "max", $("#sliderRangeBifurcationDiagramPARAM").slider("option", "max") + 100 * $(this).val());
+                                        });
                                     });
                                 </script>
                             </div>

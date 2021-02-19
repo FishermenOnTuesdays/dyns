@@ -178,6 +178,7 @@ def LyapunovMap(requestData):
     requestData['dt'] = float(requestData['dt'][0])
     #
     requestData['variables'] = requestData['variables'][0]
+    requestData['additional equations'] = requestData['additional equations'][0]
     if requestData['additional equations'] == ';':
         requestData['additional equations'] = ''
     requestData['steps[]'] = np.array(requestData['steps[]']).astype(np.float).tolist()
