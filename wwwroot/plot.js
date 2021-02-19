@@ -655,7 +655,13 @@ function makePlotXY(x, y, type){
         l: 20, //left margin
         r: 20, //right margin
         b: 20 //bottom margin
-        }
+        },
+        xaxis: {
+            constrain: 'range'
+            }, 
+        yaxis: {
+            scaleanchor: 'x'
+            }
     },
     config);
 }
