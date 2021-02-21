@@ -3,6 +3,11 @@ local_ip = 'localhost';
 dyns_ip = '85.143.113.155';
 ip = local_ip;
 
+// USER
+var login = true;
+var USER = {};
+var userDynamicSystems = [];
+
 exclusionList = ['Math.pow', ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '^' , '.', '(', ')', '*', '/', '+', '-', 'abs', 'acos', 'acosh', 'arg', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cbrt', 'conj', 'ceil', 'cos', 'cosh', 'cot', 'csc', 'exp', 'exp2', 'floor', 'hypot', 'imag', 'int', 'log', 'log2', 'log10', 'max', 'min', 'polar', 'pow', 'real', 'sec', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc'];
 
 //var xs = {};
@@ -16,7 +21,6 @@ var ndims;
 var equationTimeSeries = {}, lyapunovTimeSeries = {};
 selectedLyapunovMapParamList = [];
 selectedBifurcationDiagramParamList = [];
-
 
 // init popovers
 $(document).ready(function(){
@@ -120,7 +124,7 @@ jQuery(function(){
         jQuery("#lorenz").click(function(){
             eqs = ["d(x)/dt=s*(y-x)", "d(y)/dt=x*(r-z)-y", "d(z)/dt=x*y-b*z"];
             eqparams = ["10", "28", "8/3"];
-            setFields(3, eqs, 'main');
+            setFields(3, eqs, 'ODEs');
             setFields(3, eqparams, 'params');
             document.getElementById("time").value = "100";
             document.getElementById("dt").value = "0.001";
@@ -129,7 +133,7 @@ jQuery(function(){
         jQuery("#dequanli").click(function(){
             eqs = ["d(x)/dt=a*(y-x)+delta*x*z", "d(y)/dt=ro*x+t*y-x*z", "d(z)/dt=beta*z+x*y-eps*x*x"];
             eqparams = ["40", "0.16", "55", "20", "1.833", "0.65"];
-            setFields(3, eqs, 'main');
+            setFields(3, eqs, 'ODEs');
             setFields(6, eqparams, 'params');
             document.getElementById("time").value = "10";
             document.getElementById("dt").value = "0.001";
@@ -137,7 +141,7 @@ jQuery(function(){
 
         jQuery("#shilnikov").click(function(){
             eqs = ["d(x)/dt=y", "d(y)/dt=z", "d(z)/dt=-0.87*x-y-0.4*z+x*x"];
-            setFields(3, eqs, 'main');
+            setFields(3, eqs, 'ODEs');
             document.getElementById("time").value = "100";
             document.getElementById("dt").value = "0.001";
         })
@@ -145,7 +149,7 @@ jQuery(function(){
         jQuery("#aizawa").click(function(){
             eqs = ["d(x)/dt=(z-beta)*x-delta*y", "d(y)/dt=delta*x+(z-beta)*y", "d(z)/dt=gamma+alpha*z-z^3/3-(x^2+y^2)*(1+eps*z)+dzeta*z*x^3"];
             eqparams = ["0.7", "3.5", "0.6", "0.95", "0.25", "0.1"];
-            setFields(3, eqs, 'main');
+            setFields(3, eqs, 'ODEs');
             setFields(6, eqparams, 'params');
             document.getElementById("time").value = "100";
             document.getElementById("dt").value = "0.01";
@@ -224,7 +228,35 @@ jQuery(function(){
             }
         }
     });
-    
+
+    $(document).on('click', '.userSavedDS', function(){
+        SavedDSid = this.id.slice(7);
+        userDynamicSystem = userDynamicSystems[SavedDSid]['data']['data']
+        eqs = userDynamicSystem['ODEs'];
+        eqparams = userDynamicSystem['params'];
+        equations = userDynamicSystem['Equations'];
+        setFields(eqs.length, eqs, 'ODEs');
+        setFields(eqparams.length, eqparams, 'params');
+        document.getElementById("time").value = userDynamicSystem['time'];
+        document.getElementById("dt").value = userDynamicSystem['dt'];
+        setFields(equations.length, equations, 'Equations');
+    });
+
+    $('#submit-login').on("click",function(e){
+		login = $('#inputLogin').val()
+        password = $('#inputPassword').val()
+        requestData = {
+            'request type': 'login',
+            'login': login,
+            'password': password
+        };
+        jQuery.post(
+            'http://' + ip + ':5000',
+            requestData,
+            successLogin
+        );
+    });
+
     /*
     // file
     $('#submit-file').on("click",function(e){
@@ -257,7 +289,7 @@ function setStarts(defval, n){
         if (i < n) {elem.value = defval;}
     });
 }
-function ensureFields(n){
+function ensureODEFields(n){
     count = 0;
     $('.inputeq').each(function(i, elem){
         count++;
@@ -267,21 +299,37 @@ function ensureFields(n){
         $('#maininput').append(newODE());
     }
 }
+function ensureEquationFields(n){
+    count = 0;
+    $('.eq').each(function(i, elem){
+        count++;
+    });
+    extra = n - count;
+    for(var i = 0; i < extra; i++){
+        $('#eqinput').append(newEq());
+    }
+}
 function setFields(n, array, type){
-    if (type == 'main'){
-        ensureFields(n);
+    if (type == 'ODEs'){
+        ensureODEFields(n);
         $('.inputeq').each(function(i, elem){
             if (i < n) {elem.value = array[i]; ODEchange(elem)}
         });
         setStarts(0.1, 3);
-    } else if (type = 'params') {
+    } else if (type == 'params') {
         $('.inputparam').each(function(i, elem){
             if (i < n) {elem.value = array[i];}
         });
         setStarts(0.1, 3);
+    } else if (type == 'Equations') {
+        $('.eq').each(function(i, elem){
+            ensureEquationFields(n);
+            if (i < n) {elem.value = array[i];}
+        });
     }
 }
 
+// UI
 function successAlert(state) {
     if (state){
         //add alert
@@ -336,7 +384,7 @@ function ODEchange(element){
         ODEvarlist.push(eqvar);
     // look for params
     equation = equation.slice(equation.indexOf(')/dt=') + 5);
-    equation = equation.split(eqvar).join(' ');
+    //equation = equation.split(eqvar).join(' ');
     exclusionList.forEach(function(item, i, exclusionList) {
         equation = equation.split(item).join(' ');
     });
@@ -390,6 +438,110 @@ function newEq(){
         count++;
     });
     return neweq.split("eqi").join('eq'+(count + 1));
+}
+
+// Login
+function successLogin(data){
+    login = true;
+    data = JSON.parse(data);
+    $('#LoginModal').modal('toggle');
+    if (data == 'access denied') {
+        alert('Неверный логин или пароль')
+    } else {
+        USER = {
+            'login': data['user'][1],
+            'password': data['user'][2],
+            'name': data['user'][3],
+            'surname': data['user'][4],
+            'organization': data['user'][5],
+            'email': data['user'][6]
+        }
+        SavedDSs = data['data'];
+        profileNavHTML =   `
+                            <div class="nav-item dropdown" id="profileNanav-itemDropdown">
+                                <a class="nav-link dropdown-toggle text-primary" href="#" id="savedDSDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь сохраняются ваши динамические системы" rel="popover" data-placement="left" data-original-title="Что это?" data-trigger="hover">
+                                    Ваши системы
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="savedDSDropdownMenuLink" id="dropdownSavedDS">`;
+        sampleSavedDS = '<a class="dropdown-item userSavedDS" href="#" id="SavedDSN">NAME</a>';
+        SavedDSs.forEach(function(SavedDS, i, SavedDSs) {
+            SavedDSid = 'SavedDS' + i;
+            SavedDSname = SavedDS[2];
+            SavedDS = JSON.parse(SavedDS[3]);
+            userDynamicSystems.push({
+                'id': SavedDSid,
+                'name': SavedDSname,
+                'data': SavedDS
+            });
+            profileNavHTML += sampleSavedDS.replace('SavedDSN', SavedDSid).replace('NAME', SavedDSname);
+        });
+        profileNavHTML += `
+                                </div>
+                            </div>
+                            <div class="btn-group" role="group" id="profileNavbtn-group">
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#saveDSModal" id=saveDSButton">Сохранить</button>
+                                <button type="button" class="btn btn-outline-primary" id="profileButton">NAME</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="Logout()" id="logoutButton">Выйти</button>
+                            </div>`;
+        profileNavHTML = profileNavHTML.replace('NAME', USER['name']);
+        $('#loginButton').after(profileNavHTML);
+        $('#loginButton').remove();
+        alert('Добро пожаловать, ' + USER['name'] + '!');
+    }
+}
+function Logout(){
+    login = false;
+    loginButtonHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#LoginModal" id="loginButton">Войти</button>'
+    $('#profileNavbtn-group').after(loginButtonHTML);
+    $('#logoutButton').remove();
+    $('#profileNavbtn-group').remove();
+    $('#profileNanav-itemDropdown').remove();
+}
+function saveUserDynamicSystem(){
+    title = $('#inputDSName').val();
+    userDynamicSystem = {
+        'title': title,
+        'data': {
+            'ODEs': [],
+            'params': [],
+            'Equations': [],
+            'time': parseFloat(document.getElementById("time").value),
+            'dt': parseFloat(document.getElementById("dt").value)
+        }
+    };
+    // add to the UI
+    SavedDSid = userDynamicSystems.length.toString();
+    userDynamicSystems.push({
+        'name': title,
+        'data': userDynamicSystem
+    });
+    SavedDSHTML = '<a class="dropdown-item userSavedDS" href="#" id="SavedDSN">NAME</a>'.replace('SavedDSN', 'SavedDS' + SavedDSid).replace('NAME', title);
+    $('#dropdownSavedDS').append(SavedDSHTML);
+    // save in server db
+    $('.inputeq').each(function(i, elem){
+        userDynamicSystem['data']['ODEs'].push(elem.value);
+    });
+    $('.inputparam').each(function(i, elem){
+        userDynamicSystem['data']['params'].push(elem.value);
+    });
+    $('.eq').each(function(i, elem){
+        userDynamicSystem['data']['Equations'].push(elem.value);
+    });
+    requestData = {
+        'request type': 'saveUserDynamicSystem',
+        'login': USER['login'],
+        'password': USER['password'],
+        'title': title,
+        'data': JSON.stringify(userDynamicSystem)
+    };
+    jQuery.post(
+        'http://' + ip + ':5000',
+        requestData,
+        successSaveUserDynamicSystem
+    );
+}
+function successSaveUserDynamicSystem(data){
+    $('#SaveDSModal').modal('toggle');
 }
 
 // web graph

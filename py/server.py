@@ -8,65 +8,9 @@ from subprocess import Popen, PIPE
 import time
 # from numba import jit, njit
 import numpy as np
+import pandas as pd
 # import os
-
-'''
-def Poincare(data):
-    p = Popen(['..\cpp\Poincare.exe'], shell=True, stdout=PIPE, stdin=PIPE)
-
-    out = ''
-
-    for eq_param in ['A', 'B', 'C', 'D']:
-        value = str(data[eq_param][0]) + '\n'
-        # out += value
-        value = bytes(value, 'UTF-8')  # Needed in Python 3.
-        p.stdin.write(value)
-        p.stdin.flush()
-
-    n = int(data['N'][0])
-
-    # send number of input params
-    value = data['N'][0] + '\n'
-    # out += value
-    value = bytes(value, 'UTF-8')  # Needed in Python 3.
-    p.stdin.write(value)
-    p.stdin.flush()
-    for i in range(n):
-        for x in ['x1[]', 'x2[]', 'x3[]']:
-            value = str(data[x][i]) + ' '
-            # out += value
-            value = bytes(value, 'UTF-8')  # Needed in Python 3.
-            p.stdin.write(value)
-        value = '\n'
-        # out += value
-        value = bytes(value, 'UTF-8')  # Needed in Python 3.
-        p.stdin.write(value)
-        p.stdin.flush()
-
-    # print(out)
-    n = int(p.stdout.readline().strip().decode('utf-8'))
-    print(n)
-    answer = {}
-    answer['N'] = n
-    answer['x'] = []
-    answer['y'] = []
-    answer['z'] = []
-    answer['X'] = []
-    answer['Y'] = []
-    answer['D'] = data['D']
-    for i in range(n):
-        x, y, z = map(float, p.stdout.readline().strip().decode('utf-8').split())
-        answer['x'].append(x)
-        answer['y'].append(y)
-        answer['z'].append(z)
-    for i in range(n):
-        x, y = map(float, p.stdout.readline().strip().decode('utf-8').split())
-        answer['X'].append(x)
-        answer['Y'].append(y)
-    # print(answer)
-    # print(out)
-    return answer
-'''
+import sqlite3 as sl
 
 
 def Solver():
@@ -74,6 +18,47 @@ def Solver():
 
 
 starting_time = 0
+
+
+def Login(requestData):
+    con = sl.connect('dyns.db')
+    login = requestData['login'][0]
+    password = requestData['password'][0]
+    users = pd.read_sql("SELECT * FROM USERS WHERE " + "login = '" + login + "' AND password = '" + password + "'", con)
+    if users.values.shape[0] > 0:
+        user = users.values[0].tolist()
+        systems = pd.read_sql("SELECT * FROM DYNAMICSYSTEMS WHERE " + "user_id = '" + str(user[0]) + "'", con)
+        ans = systems.values.tolist()
+        ans = {
+            'user': user,
+            'data': ans
+        }
+        con.close()
+        return ans
+    con.close()
+    return 'access denied'
+
+
+def saveUserDynamicSystem(requestData):
+    con = sl.connect('dyns.db')
+    login = requestData['login'][0]
+    password = requestData['password'][0]
+    users = pd.read_sql("SELECT * FROM USERS WHERE " + "login = '" + login + "' AND password = '" + password + "'", con)
+    if users.values.shape[0] > 0:
+        user = users.values[0].tolist()
+        user_id = user[0]
+        userDynamicSystemJSON = requestData['data'][0]
+        title = requestData['title'][0]
+        sqlinsert = 'INSERT INTO DYNAMICSYSTEMS (user_id, title, data) values(?, ?, ?)'
+        data = [
+            (user_id, title, userDynamicSystemJSON),
+        ]
+        with con:
+            con.executemany(sqlinsert, data)
+        con.close()
+        return 'success'
+    con.close()
+    return 'access denied'
 
 
 def Poincare(data):
@@ -199,42 +184,6 @@ def LyapunovMap(requestData):
     return ans
 
 
-'''
-def calc(requestData):
-    p = Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
-    ans = []
-    # make numeric
-    requestData['request type'] = int(requestData['request type'][0])
-    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
-    requestData['time'] = float(requestData['time'][0])
-    requestData['dt'] = float(requestData['dt'][0])
-    requestData['variables'] = requestData['variables'][0]
-    if requestData['additional equations'] == ';':
-        requestData['additional equations'] = ''
-    # print('data', data)
-    if requestData['request type'] == 1:
-        requestData['steps[]'] = np.array(requestData['steps[]']).astype(np.float).tolist()
-        requestData['ranges[]'] = np.array([requestData['ranges[0][]'], requestData['ranges[1][]']]).astype(np.float).tolist()
-        del requestData['ranges[0][]']
-        del requestData['ranges[1][]']
-
-    # send json string
-    value = json.dumps(requestData)
-    print(value)
-    value = bytes(value, 'UTF-8')  # Needed in Python 3.
-    p.stdin.write(value)
-    p.stdin.flush()
-    # print('done')
-    start = time.time()
-
-    result = p.stdout.readline().strip()
-    # print('result = ', result.decode('utf-8'))
-    ans.append(result.decode('utf-8'))
-    #print('solved in', time.time() - start, 'seconds')
-    return ans
-'''
-
-
 class Handler(BaseHTTPRequestHandler):
     def _set_response(self):
         self.send_response(200)
@@ -259,7 +208,13 @@ class Handler(BaseHTTPRequestHandler):
         self._set_response()
         # print('parced post data at', time.time() - starting_time, 'seconds')
         answer = 0
-        if data['request type'][0] == '0':
+        if data['request type'][0] == 'login':
+            print('login request')
+            answer = Login(data)
+        elif data['request type'][0] == 'saveUserDynamicSystem':
+            print('saveUserDynamicSystem request')
+            answer = saveUserDynamicSystem(data)
+        elif data['request type'][0] == '0':
             print('trajectory request')
             answer = Trajectory(data)[0]  # [1:-1]
         elif data['request type'][0] == '1':
