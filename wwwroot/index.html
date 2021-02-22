@@ -22,274 +22,271 @@
         <script src="plot.js"></script>
         <script src="animation.js"></script>
         <link rel = "stylesheet" href="custom.css"/>
+
+        <script src="scripts/p5.min.js"></script>
+        <script src="scripts/vanta.topology.min.js"></script>
+        <script src="scripts/three.min.js"></script>
+        <script src="scripts/vanta.fog.min.js"></script>
+        <script src="scripts/vanta.birds.min.js"></script>
     </head>
 
-    <body>
-        <div id="back_container" class = "background_animation">
-            <object id="svg_object" type="image/svg+xml" data="fish.svg"></object>
-            <div class="container-fluid">
-                <!--            main            -->
-                <div class="container">
-                
-                    <!--            logo            -->
-                    <div class="row m10">
-                        <div class="col-8">
-                            <img src="logo.svg" height="150">
-                        </div>
+    <body style="margin-top: -10px;">
+        <div class="container-fluid" id="mainbody">
+            <!--            main            -->
+            <div class="container">
+            
+                <!--            logo            -->
+                <div class="row m10">
+                    <div class="col-8">
+                        <img src="logo.svg" height="150">
                     </div>
-    
-                    <!--            nav frame            -->
-                    <nav class="navbar navbar-expand navbar-light bg-light rounded m10">
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav mr-auto">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-primary" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь можно ознакомится с примерами вводных данных" rel="popover" data-placement="left" data-original-title="Есть вопросы?" data-trigger="hover">
-                                        Примеры
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                        <a class="dropdown-item" href="#" id="lorenz">Аттрактор Лоренца</a>
-                                        <a class="dropdown-item" href="#" id="dequanli">Аттрактор Дэцюань Ли</a>
-                                        <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
-                                        <a class="dropdown-item" href="#" id="aizawa">Аттрактор Айзава</a>
-                                    </div>
-                                </li>
-                                
-                                <!-- Button trigger modal -->
-                                <!--
-                                <li class="nav-item active align-items-center m05">
-                                    <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" data-toggle="modal" data-target="#UploadModal">
-                                        Открыть CSV
+                </div>
+
+                <!--            nav frame            -->
+                <nav class="navbar navbar-expand navbar-light bg-black rounded m10">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-primary" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь можно ознакомится с примерами вводных данных" rel="popover" data-placement="left" data-original-title="Есть вопросы?" data-trigger="hover">
+                                    Примеры
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="#" id="lorenz">Аттрактор Лоренца</a>
+                                    <a class="dropdown-item" href="#" id="dequanli">Аттрактор Дэцюань Ли</a>
+                                    <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
+                                    <a class="dropdown-item" href="#" id="aizawa">Аттрактор Айзава</a>
+                                </div>
+                            </li>
+                            
+                            <!-- Button trigger modal -->
+                            <!--
+                            <li class="nav-item active align-items-center m05">
+                                <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" data-toggle="modal" data-target="#UploadModal">
+                                    Открыть CSV
+                                </button>
+                            </li>
+                            -->
+                            <!-- Modal -->
+                            <!--
+                            <div class="modal fade" id="UploadModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabel">Загрузите CSV файл</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
                                     </button>
-                                </li>
-                                -->
-                                <!-- Modal -->
-                                <!--
-                                <div class="modal fade" id="UploadModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="form-inline">
+                                            <div class="form-group">
+                                            <input type="file" id="files" class="form-control" accept=".csv" required=""></div>
+                                            <div class="form-group">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="submit" id="submit-file" class="btn btn-primary" data-dismiss="modal">Загрузить</button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            -->
+                            <!--
+                            <li class="nav-item active align-items-center m05">
+                                <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" onclick="savetocsv()">Скачать CSV</button> 
+                            </li>
+                            -->
+                        </ul>
+                        <form class="form-inline my-2 my-lg-0">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#LoginModal" id="loginButton">Войти</button>
+                            <!-- SaveDS Modal -->
+                            <div class="modal fade" id="SaveDSModal" data-backdrop="static" tabindex="-1" aria-labelledby="SaveDSModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Загрузите CSV файл</h5>
+                                            <h5 class="modal-title" id="SaveDSModalLabel">Сохранение динамической системы</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                         </div>
                                         <div class="modal-body">
-                                            <form class="form-inline">
-                                                <div class="form-group">
-                                                <input type="file" id="files" class="form-control" accept=".csv" required=""></div>
-                                                <div class="form-group">
+                                            <form class="form">
+                                                <div class="form-group mx-3">
+                                                    <label for="inputDSName">Название системы: </label>
+                                                    <input type="text" class="form-control" id="inputDSName" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">
                                                 </div>
                                             </form>
                                         </div>
                                         <div class="modal-footer">
-                                        <button type="submit" id="submit-file" class="btn btn-primary" data-dismiss="modal">Загрузить</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                        <button type="button" id="submit-SaveDS" onclick="saveUserDynamicSystem()" class="btn btn-primary">Сохранить</button>
                                         </div>
                                     </div>
-                                    </div>
-                                </div>
-                                -->
-                                <!--
-                                <li class="nav-item active align-items-center m05">
-                                    <button type="button" class="btn btn-sm align-bottom btn-outline-secondary" onclick="savetocsv()">Скачать CSV</button> 
-                                </li>
-                                -->
-                            </ul>
-                            <form class="form-inline my-2 my-lg-0">
-                                <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#LoginModal" id="loginButton">Войти</button>
-                                <!-- SaveDS Modal -->
-                                <div class="modal fade" id="SaveDSModal" data-backdrop="static" tabindex="-1" aria-labelledby="SaveDSModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="SaveDSModalLabel">Сохранение динамической системы</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form class="form">
-                                                    <div class="form-group mx-3">
-                                                        <label for="inputDSName">Название системы: </label>
-                                                        <input type="text" class="form-control" id="inputDSName" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                            <button type="button" id="submit-SaveDS" onclick="saveUserDynamicSystem()" class="btn btn-primary">Сохранить</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Login Modal -->
-                                <div class="modal fade" id="LoginModal" data-backdrop="static" tabindex="-1" aria-labelledby="LoginModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="LoginModalLabel">Войдите в аккаунт</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form class="form">
-                                                    <div class="form-group mx-3">
-                                                        <label for="inputLogin">Логин: </label>
-                                                        <input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="...">
-                                                        <!--<input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
-                                                    </div>
-                                                    <div class="form-group mx-3">
-                                                        <label for="inputPassword">Пароль: </label>
-                                                        <input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="...">
-                                                        <!--<input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-                                            <button type="button" id="submit-login" class="btn btn-primary">Войти</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                            <!--<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>-->
-                        </div>
-                    </nav>
-                    
-                    <!--            input frame            -->
-                    <div class="row m10">
-                        <div class="col-8 p-0 pr-1">
-                            <!--            main input frame            -->
-                            <fieldset class="shadow p-2 rounded bg-primary justify-content-center" id="maininput">
-                                <div class="row justify-content-start p-1 ml-1">
-                                    <div class="col col-20 p-1 h5 text-white">начальные условия</div>
-                                    <div class="col col-75 p-1 h5 text-white">дифференциальные уравнения</div>
-                                </div>
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
-                                        <div class="col col-75"><input type="text" class="form-control inputeq" id="x1" placeholder="" value="d()/dt="></div>
-                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                    </div>
-                                </div>
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
-                                        <div class="col col-75"><input type="text" class="form-control inputeq" id="x2" placeholder="" value="d()/dt="></div>
-                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                    </div>
-                                </div>
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
-                                        <div class="col col-75"><input type="text" class="form-control inputeq" id="x3" placeholder="" value="d()/dt="></div>
-                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                    </div>
-                                </div>
-                            </fieldset>
-    
-                            <!--            add row button            -->
-                            <div class="row justify-content-center mt-2">
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-outline-dark btn-block" id="addx">добавить уравнение</button>
                                 </div>
                             </div>
+                            <!-- Login Modal -->
+                            <div class="modal fade" id="LoginModal" data-backdrop="static" tabindex="-1" aria-labelledby="LoginModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="LoginModalLabel">Войдите в аккаунт</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form class="form">
+                                                <div class="form-group mx-3">
+                                                    <label for="inputLogin">Логин: </label>
+                                                    <input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="...">
+                                                    <!--<input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
+                                                </div>
+                                                <div class="form-group mx-3">
+                                                    <label for="inputPassword">Пароль: </label>
+                                                    <input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="...">
+                                                    <!--<input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                        <button type="button" id="submit-login" class="btn btn-primary">Войти</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <!--<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>-->
+                    </div>
+                </nav>
+                
+                <!--           ODEs input frame            -->
+                <div class="row m10">
+                    <div class="col-8 p-0 pr-1">
+                        <!--            main input frame            -->
+                        <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="maininput" >
+                            <div class="row justify-content-start p-1 ml-1">
+                                <div class="col col-20 p-1 h5 text-white">начальные условия</div>
+                                <div class="col col-75 p-1 h5 text-white">дифференциальные уравнения</div>
+                            </div>
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                                    <div class="col col-75"><input type="text" class="form-control inputeq" id="x1" placeholder="" value="d()/dt="></div>
+                                    <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                                    <div class="col col-75"><input type="text" class="form-control inputeq" id="x2" placeholder="" value="d()/dt="></div>
+                                    <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                                    <div class="col col-75"><input type="text" class="form-control inputeq" id="x3" placeholder="" value="d()/dt="></div>
+                                    <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!--            add row button            -->
+                        <div class="row justify-content-center mt-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-primary btn-block" id="addx">добавить уравнение</button>
+                            </div>
                         </div>
-                        <div class="col-4 p-0 pl-1">
-                            <!--            parameters input frame            -->
-                            <fieldset class="shadow p-2 rounded bg-primary justify-content-center" id="paraminput">
-                                <div class="row justify-content-start p-1 ml-1">
-                                    <div class="col-12 p-1 h5 text-white">параметры</div>
+                    </div>
+                    <div class="col-4 p-0 pl-1">
+                        <!--            parameters input frame            -->
+                        <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="paraminput">
+                            <div class="row justify-content-start p-1 ml-1">
+                                <div class="col-12 p-1 h5 text-white">параметры</div>
+                            </div>
+                            <!--
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param1name" value="name ="></div>
+                                    <div class="col col-10"><input type="text" class="form-control" id="param1" placeholder="значение"></div>
                                 </div>
-                                <!--
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param1name" value="name ="></div>
-                                        <div class="col col-10"><input type="text" class="form-control" id="param1" placeholder="значение"></div>
-                                    </div>
+                            </div>
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param2name"></div>
+                                    <div class="col col-10"><input type="text" class="form-control" id="param2" placeholder=""></div>
                                 </div>
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param2name"></div>
-                                        <div class="col col-10"><input type="text" class="form-control" id="param2" placeholder=""></div>
-                                    </div>
+                            </div>
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param3name"></div>
+                                    <div class="col col-10"><input type="text" class="form-control" id="param3" placeholder=""></div>
                                 </div>
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param3name"></div>
-                                        <div class="col col-10"><input type="text" class="form-control" id="param3" placeholder=""></div>
-                                    </div>
+                            </div>
+                            -->
+                        </fieldset>
+                    </div>
+                </div>
+
+                <!--           Eq input frame            -->
+                <div class="row m10">
+                    <div class="col-12 p-0 pr-1">
+                        <!--            main input frame            -->
+                        <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="eqinput">
+                            <div class="row justify-content-start p-1 ml-1">
+                                <div class="col col-12 p-1 h5 text-white">уравнения</div>
+                            </div>
+                            <div class="bg-white rounded shadow p-1 mb-1">
+                                <div class="row no-gutters" style="width:100%;">
+                                    <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
+                                    <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
                                 </div>
-                                -->
-                            </fieldset>
+                            </div>
+                        </fieldset>
+
+                        <!--            add eq button            -->
+                        <div class="row justify-content-center mt-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-primary btn-block" id="addeq">добавить уравнение</button>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!--            secondary input frame            -->
+                <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
+                    <div class="row no-gutters mb-1 ml-1">
+                        <div class="col col-2 p-1 align-items-center h5 text-white justify-content-end">время   </div>
+                        <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
                     </div>
 
-                    <!--            input frame            -->
-                    <div class="row m10">
-                        <div class="col-12 p-0 pr-1">
-                            <!--            main input frame            -->
-                            <fieldset class="shadow p-2 rounded bg-primary justify-content-center" id="eqinput">
-                                <div class="row justify-content-start p-1 ml-1">
-                                    <div class="col col-12 p-1 h5 text-white">уравнения</div>
-                                </div>
-                                <div class="bg-white rounded shadow p-1 mb-1">
-                                    <div class="row no-gutters" style="width:100%;">
-                                        <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
-                                        <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                    </div>
-                                </div>
-                            </fieldset>
-    
-                            <!--            add eq button            -->
-                            <div class="row justify-content-center mt-2">
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-outline-dark btn-block" id="addeq">добавить уравнение</button>
-                                </div>
-                            </div>
+                    <div class="row no-gutters mb-1 ml-1">
+                        <div class="col col-2 p-1 align-items-center h5 text-white justify-content-end">dt   </div>
+                        <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
                         </div>
                     </div>
-    
-                    <!--            secondary input frame            -->
-                    <div class="shadow p-2 rounded bg-primary justify-content-center m10">
-                        <div class="row no-gutters mb-1 ml-1">
-                            <div class="col col-2 p-1 align-items-center h5 text-white justify-content-end">время   </div>
-                            <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
-                        </div>
-    
-                        <div class="row no-gutters mb-1 ml-1">
-                            <div class="col col-2 p-1 align-items-center h5 text-white justify-content-end">dt   </div>
-                            <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
-                        </div>
-    
-                        <div class="row justify-content-center">
-                            <div class="col-12">
-                                <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
-                            </div>
-                        </div>
-                    </div>
-    
+                </div>
+
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 code"></div>
                 </div>
             </div>
-        </div>
 
-        <div class="container">
-            <div class="row">
-                <div class="col-12 code"></div>
-            </div>
         </div>
-        
-        <!--
-        <div class="row">
-            <div class="row" id="parsed_csv_list">
-            </div>
-        </div>
-        -->
 
         <!--            charts frame            -->
         <div class="container-fluid" id="charts" style="margin-bottom: 2em;">
@@ -799,4 +796,5 @@
         </div>
     
     </body>
+
 </html>

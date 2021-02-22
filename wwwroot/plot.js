@@ -65,9 +65,16 @@ function rangeFloatArray(start, end, step) {
     return array
 }
 
+var effectVANTA;
+
+function makeVANTA(){
+    effectVANTA.resize();
+}
+
 // UI
 jQuery(function(){
-    //jQuery("#charts").hide();
+
+    jQuery("#charts").hide();
     jQuery("#phasecharts").hide();
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
@@ -77,8 +84,67 @@ jQuery(function(){
     jQuery("#LyapunovMap").hide();
     jQuery("#BifurcationDiagram").hide();
     jQuery("#Poincarecharts").hide();
-    jQuery("#credits").hide();
-    
+    //jQuery("#credits").hide();
+
+    effectVANTA = VANTA.FOG({
+        el: "#mainbody",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        highlightColor: 0x7bff,
+        midtoneColor: 0x0,
+        lowlightColor: 0xa9ff,
+        baseColor: 0x0
+    });
+
+    /*
+    VANTA.BIRDS({
+        el: "#mainbody",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        backgroundColor: 0xffffff,
+        color1: 0x7bff,
+        color2: 0x0,
+        birdSize: 1.10,
+        wingSpan: 27.00,
+        speedLimit: 7.00,
+        separation: 61.00,
+        cohesion: 13.00
+    })
+    */
+    /*
+    VANTA.FOG({
+        el: "#maininput",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        highlightColor: 0x7bff
+      })
+    */
+    /*
+    VANTA.TOPOLOGY({
+        el: "#maininput",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 0.10,
+        scaleMobile: 1.00,
+        color: 0xffffff,
+        backgroundColor: 0x7bff
+      })
+    */
+
     document.getElementById("time").defaultValue = "10";
     document.getElementById("dt").defaultValue = "0.01";
 
@@ -86,6 +152,7 @@ jQuery(function(){
     jQuery("#draw").click(onDraw);
     jQuery('#addx').click(function(){
         $('#maininput').append(newODE());
+        makeVANTA();
     });
     jQuery('#drawPoincare').click(function(){
         makePlotPoincare();
@@ -109,14 +176,17 @@ jQuery(function(){
     });
     jQuery('#addeq').click(function(){
         $('#eqinput').append(newEq());
+        makeVANTA();
     });
     $(document).on('click', '.removeODE', function() {
         removedODEVar = $(this).parent().parent().children('.col-75').children('.inputeq')[0].id;
         removeItemOnce(ODEvarlist, removedODEVar);
         $(this).parent().parent().parent().remove();
+        makeVANTA()
     });
     $(document).on('click', '.removeEq', function() {
         $(this).parent().parent().parent().remove();
+        makeVANTA()
     });
     
     //example attractors
@@ -386,11 +456,13 @@ function addParam(name){
     $('#paraminput').append(newParam(name));
     addParamLyapunovMap(name);
     addParamLBifurcationDiagram(name);
+    makeVANTA();
 }
 function deleteParam(name){
     $('#param' + name).parent().parent().parent().remove();
     deleteParamLyapunovMap(name);
     deleteParamBifurcationDiagram(name);
+    makeVANTA()
 }
 function ODEchange(element){
     equation = element.value;
@@ -540,7 +612,7 @@ function saveUserDynamicSystem(){
     SavedDSHTML = `<div class="dropdown-item bg-white rounded px-1 py-0 m-0">
                         <div class="btn-group bg-white p-0 m-0 d-flex" role="group">
                             <button type="button" class="btn btn-light bg-white w-100 userSavedDS" id="SavedDSN">NAME</button>
-                            <button type="button" class="btn btn-light bg-white">❌</button>
+                            <button type="button" class="btn btn-light bg-white userDeleteSavedDS" id="DeleteSavedDSN">❌</button>
                         </div>
                     </div>`.replace('SavedDSN', 'SavedDS' + SavedDSid).replace('SavedDSN', 'SavedDS' + SavedDSid).replace('NAME', title);
     $('#dropdownSavedDS').append(SavedDSHTML);
@@ -679,10 +751,10 @@ function processData(allRows, type) {
     equationTimeSeries = _data[0];
     lyapunovTimeSeries = _data[1];
     ndims = ODEvarlist.length;
-
+    jQuery("#charts").show();
     jQuery("#lyapunovchart").show();
     jQuery("#LyapunovMap").show();
-    jQuery("#credits").show();
+    //jQuery("#credits").show();
     jQuery("#phasechart2").hide();
     jQuery("#phasechart3").hide();
     jQuery("#phasecharts").hide();
@@ -706,6 +778,7 @@ function processData(allRows, type) {
     makePlots(ndims);
     //-----------------------------------------------------------
     successAlert(false);
+    makeVANTA();
 }
 
 // Plots -----------------------------------------------------------------------------
@@ -1011,49 +1084,6 @@ function successPoincare(data){
     var T = 1 * Math.max(M1, M2, M3);
     // 3D map
     makePlotPoincare3D(equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
-    // trash
-    /*
-    if ((data['time'] > 0) || (Darc == 0)){
-        inputD.value = data['D'];
-        sliderD.value = data['D'];
-        // get plane params
-        var A = parseFloat(document.getElementById('inputA').value);
-        var B = parseFloat(document.getElementById('inputB').value);
-        var C = parseFloat(document.getElementById('inputC').value);
-        //var D = parseFloat(document.getElementById('inputD').value);
-        var D = Darc;
-        if (Darc == 0){
-            var D = parseFloat(document.getElementById('inputD').value);
-        }
-        
-        //console.log(data);
-        //console.log("success");
-        // Poincare 2D map
-        var traces = [{
-            x: data['X'],
-            y: data['Y'],
-            mode: 'markers'
-        }];
-        
-        Plotly.newPlot('chartPoincare2D', traces, {
-            height: document.getElementById('chartPoincare2D').offsetWidth,
-            displayModeBar: true,
-            margin: {
-            t: 25, //top margin
-            l: 25, //left margin
-            r: 25, //right margin
-            b: 25, //bottom margin
-            pad: 1 
-            }
-        });
-        var M1 = Math.max(Math.min(...equationTimeSeries[currentXs[0]]), Math.max(...equationTimeSeries[currentXs[0]]));
-        var M2 = Math.max(Math.min(...equationTimeSeries[currentXs[1]]), Math.max(...equationTimeSeries[currentXs[1]]));
-        var M3 = Math.max(Math.min(...equationTimeSeries[currentXs[2]]), Math.max(...equationTimeSeries[currentXs[2]]));
-        var T = 1 * Math.max(M1, M2, M3);
-        // 3D map
-        makePlotPoincare3D(equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]], A, B, C, D, 'chartPoincare3D', data, T)
-    }
-    */
 }
 function makePlotPoincare3D(X, Y, Z, A, B, C, D, type, dataset, T = 100){
     //var plotDiv = document.getElementById("plot");

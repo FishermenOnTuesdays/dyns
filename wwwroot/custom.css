@@ -1,3 +1,22 @@
+.modal-backdrop {
+    z-index: -1;
+}
+
+.bg-black
+{
+    background-color: black;
+}
+
+.btn-black
+{
+    background-color: black;
+}
+
+.bg-transparent
+{
+    background-color: transparent;
+}
+
 .background_animation
 {
     position: relative;
