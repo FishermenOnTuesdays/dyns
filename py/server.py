@@ -39,6 +39,25 @@ def Login(requestData):
     return 'access denied'
 
 
+def deleteUserDynamicSystem(requestData):
+    con = sl.connect('dyns.db')
+    login = requestData['login'][0]
+    password = requestData['password'][0]
+    users = pd.read_sql("SELECT * FROM USERS WHERE " + "login = '" + login + "' AND password = '" + password + "'", con)
+    if users.values.shape[0] > 0:
+        user = users.values[0].tolist()
+        user_id = user[0]
+        title = requestData['title'][0]
+        userDynamicSystemJSON = requestData['data'][0]
+        con.execute("DELETE FROM DYNAMICSYSTEMS WHERE user_id = ? AND title = ? AND data = ?",
+                    (user_id, title, userDynamicSystemJSON,))
+        con.commit()
+        con.close()
+        return 'success'
+    con.close()
+    return 'access denied'
+
+
 def saveUserDynamicSystem(requestData):
     con = sl.connect('dyns.db')
     login = requestData['login'][0]
@@ -55,6 +74,7 @@ def saveUserDynamicSystem(requestData):
         ]
         with con:
             con.executemany(sqlinsert, data)
+        con.commit()
         con.close()
         return 'success'
     con.close()
@@ -214,6 +234,9 @@ class Handler(BaseHTTPRequestHandler):
         elif data['request type'][0] == 'saveUserDynamicSystem':
             print('saveUserDynamicSystem request')
             answer = saveUserDynamicSystem(data)
+        elif data['request type'][0] == 'deleteUserDynamicSystem':
+            print('deleteUserDynamicSystem request')
+            answer = deleteUserDynamicSystem(data)
         elif data['request type'][0] == '0':
             print('trajectory request')
             answer = Trajectory(data)[0]  # [1:-1]

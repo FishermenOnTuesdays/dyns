@@ -228,7 +228,6 @@ jQuery(function(){
             }
         }
     });
-
     $(document).on('click', '.userSavedDS', function(){
         SavedDSid = this.id.slice(7);
         userDynamicSystem = userDynamicSystems[SavedDSid]['data']['data']
@@ -240,6 +239,24 @@ jQuery(function(){
         document.getElementById("time").value = userDynamicSystem['time'];
         document.getElementById("dt").value = userDynamicSystem['dt'];
         setFields(equations.length, equations, 'Equations');
+    });
+
+    $(document).on('click', '.userDeleteSavedDS', function(){
+        SavedDSid = this.id.slice(13);
+        requestData = {
+            'request type': 'deleteUserDynamicSystem',
+            'login': USER['login'],
+            'password': USER['password'],
+            'title': userDynamicSystems[SavedDSid]['name'],
+            'data': JSON.stringify(userDynamicSystems[SavedDSid]['data'])
+        };
+        jQuery.post(
+            'http://' + ip + ':5000',
+            requestData,
+            successDeleteSavedDS
+        );
+        delete userDynamicSystems[SavedDSid];
+        $(this).parent().parent().remove();
     });
 
     $('#submit-login').on("click",function(e){
@@ -463,7 +480,12 @@ function successLogin(data){
                                     Ваши системы
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="savedDSDropdownMenuLink" id="dropdownSavedDS">`;
-        sampleSavedDS = '<a class="dropdown-item userSavedDS" href="#" id="SavedDSN">NAME</a>';
+        sampleSavedDS = `<div class="dropdown-item bg-white rounded px-1 py-0 m-0">
+                            <div class="btn-group bg-white p-0 m-0 d-flex" role="group">
+                                <button type="button" class="btn btn-light bg-white w-100 userSavedDS" id="SavedDSN">NAME</button>
+                                <button type="button" class="btn btn-light bg-white userDeleteSavedDS" id="DeleteSavedDSN">❌</button>
+                            </div>
+                        </div>`;
         SavedDSs.forEach(function(SavedDS, i, SavedDSs) {
             SavedDSid = 'SavedDS' + i;
             SavedDSname = SavedDS[2];
@@ -473,7 +495,7 @@ function successLogin(data){
                 'name': SavedDSname,
                 'data': SavedDS
             });
-            profileNavHTML += sampleSavedDS.replace('SavedDSN', SavedDSid).replace('NAME', SavedDSname);
+            profileNavHTML += sampleSavedDS.replace('SavedDSN', SavedDSid).replace('SavedDSN', SavedDSid).replace('NAME', SavedDSname);
         });
         profileNavHTML += `
                                 </div>
@@ -515,7 +537,12 @@ function saveUserDynamicSystem(){
         'name': title,
         'data': userDynamicSystem
     });
-    SavedDSHTML = '<a class="dropdown-item userSavedDS" href="#" id="SavedDSN">NAME</a>'.replace('SavedDSN', 'SavedDS' + SavedDSid).replace('NAME', title);
+    SavedDSHTML = `<div class="dropdown-item bg-white rounded px-1 py-0 m-0">
+                        <div class="btn-group bg-white p-0 m-0 d-flex" role="group">
+                            <button type="button" class="btn btn-light bg-white w-100 userSavedDS" id="SavedDSN">NAME</button>
+                            <button type="button" class="btn btn-light bg-white">❌</button>
+                        </div>
+                    </div>`.replace('SavedDSN', 'SavedDS' + SavedDSid).replace('SavedDSN', 'SavedDS' + SavedDSid).replace('NAME', title);
     $('#dropdownSavedDS').append(SavedDSHTML);
     // save in server db
     $('.inputeq').each(function(i, elem){
@@ -542,6 +569,9 @@ function saveUserDynamicSystem(){
 }
 function successSaveUserDynamicSystem(data){
     $('#SaveDSModal').modal('toggle');
+}
+function successDeleteSavedDS(data){
+    alert(data);
 }
 
 // web graph
