@@ -126,6 +126,7 @@ def Bifurcation(requestData):
     requestData['dt'] = float(requestData['dt'][0])
     requestData['variables'] = requestData['variables'][0]
     requestData['additional equations'] = requestData['additional equations'][0]
+    requestData['ExplicitNumericalMethodCode'] = 0
 
     requestData['parameter'] = requestData['parameter'][0]
     requestData['range[]'] = np.array(requestData['range[]']).astype(np.float).tolist()
@@ -144,7 +145,7 @@ def Bifurcation(requestData):
     # print('solved in', time.time() - start, 'seconds')
     return ans
 
-
+'''
 def Trajectory(requestData):
     solver = Solver()
     ans = []
@@ -170,7 +171,23 @@ def Trajectory(requestData):
     ans.append(result.decode('utf-8'))
     # print('solved in', time.time() - start, 'seconds')
     return ans
+'''
 
+#'''
+def Trajectory(requestData):
+    solver = Solver()
+    ans = []
+    value = requestData['data'][0]
+    print(value)
+    solver.stdin.write(bytes(value, 'UTF-8'))
+    solver.stdin.flush()
+    # start = time.time()
+    result = solver.stdout.readline().strip()
+    # print('result = ', result.decode('utf-8'))
+    ans.append(result.decode('utf-8'))
+    # print('solved in', time.time() - start, 'seconds')
+    return ans
+#'''
 
 def LyapunovMap(requestData):
     solver = Solver()
@@ -191,6 +208,7 @@ def LyapunovMap(requestData):
         np.float).tolist()
     del requestData['ranges[0][]']
     del requestData['ranges[1][]']
+    requestData['ExplicitNumericalMethodCode'] = 0
     # send json string
     value = json.dumps(requestData)
     print(value)
