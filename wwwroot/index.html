@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Анализ данных</title>
+        <title>DynS</title>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <script src="scripts/jquery-3.5.0.min.js"></script>
         <script src="scripts/papaparse.min.js"></script>
@@ -172,7 +172,9 @@
                         <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="maininput" >
                             <div class="row justify-content-start p-1 ml-1">
                                 <div class="col col-20 p-1 h5 text-white">начальные условия</div>
-                                <div class="col col-75 p-1 h5 text-white">дифференциальные уравнения</div>
+                                <div class="col col-75 p-1 h5 text-white" id="ODEstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются только однородные уравнения, переменными могут быть любые комбинации букв" rel="popover" data-placement="left" data-trigger="hover">
+                                    дифференциальные уравнения
+                                </div>
                             </div>
                             <div class="bg-white rounded shadow p-1 mb-1">
                                 <div class="row no-gutters" style="width:100%;">
@@ -208,7 +210,7 @@
                         <!--            parameters input frame            -->
                         <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="paraminput">
                             <div class="row justify-content-start p-1 ml-1">
-                                <div class="col-12 p-1 h5 text-white">параметры</div>
+                                <div class="col-12 p-1 h5 text-white" id="PARAMStitle" aria-haspopup="true" aria-expanded="false" data-content="Определяются автоматически, необходимо только ввести их значения" rel="popover" data-placement="left" data-trigger="hover">параметры</div>
                             </div>
                             <!--
                             <div class="bg-white rounded shadow p-1 mb-1">
@@ -240,7 +242,9 @@
                         <!--            main input frame            -->
                         <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="eqinput">
                             <div class="row justify-content-start p-1 ml-1">
-                                <div class="col col-12 p-1 h5 text-white">уравнения</div>
+                                <div class="col col-12 p-1 h5 text-white" id="Equationstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются уравнения с переменными из дифференциальных уравнений" rel="popover" data-placement="left" data-trigger="hover">
+                                    уравнения
+                                </div>
                             </div>
                             <div class="bg-white rounded shadow p-1 mb-1">
                                 <div class="row no-gutters" style="width:100%;">
@@ -262,12 +266,13 @@
                 <!--            secondary input frame            -->
                 <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
                     <div class="row no-gutters mb-1 ml-1">
-                        <div class="col col-2 p-1 align-items-center h5 text-white justify-content-end">время   </div>
+                        <div class="col col-2 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
                         <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
                     </div>
 
                     <div class="row no-gutters mb-1 ml-1">
-                        <div class="col col-2 p-1 align-items-center h5 text-white justify-content-end">dt   </div>
+                        <div class="col col-1 p-1 m-0"><button type="button" class="btn bg-primary text-white w100" id="AdaptiveStepToggle">Адаптивный</button></div>
+                        <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
                         <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
                     </div>
 
@@ -791,7 +796,7 @@
         <!--            credits           -->
         <div class="container-fluid" id="credits">
             <div class="row">
-                <div class="col-12 bg-primary text-white"><h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ МИФИ. 2020</h6></div>
+                <div class="col-12 bg-primary text-white"><h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ МИФИ. 2021</h6></div>
             </div>
         </div>
     
