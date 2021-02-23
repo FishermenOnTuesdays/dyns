@@ -1,5 +1,5 @@
 // global vars
-local_ip = 'localhost';
+local_ip = '192.168.31.80';
 dyns_ip = '85.143.113.155';
 ip = local_ip;
 
@@ -22,6 +22,8 @@ var equationTimeSeries = {}, lyapunovTimeSeries = {};
 selectedLyapunovMapParamList = [];
 selectedBifurcationDiagramParamList = [];
 
+var ExplicitNumericalMethodCode = 1;
+
 // init popovers
 $(document).ready(function(){
     //Инициализация всплывающей панели для
@@ -33,6 +35,10 @@ $(document).ready(function(){
       trigger: "hover"
     });
     $('#navbarDropdownMenuLink').popover();
+    $('#PARAMStitle').popover();
+    $('#ODEstitle').popover();
+    $('#Equationstitle').popover();
+    
     //$("#popover-left").popover({ trigger: "hover" });
 });
 
@@ -154,8 +160,18 @@ jQuery(function(){
         $('#maininput').append(newODE());
         makeVANTA();
     });
-    jQuery('#drawPoincare').click(function(){
-        makePlotPoincare();
+    jQuery('#AdaptiveStepToggle').click(function(){
+        if (ExplicitNumericalMethodCode == 0) {
+            $('#AdaptiveStepToggle').removeClass("bg-black");
+            $('#AdaptiveStepToggle').addClass("bg-primary");
+            $('#AdaptiveStepToggle').html('Адаптивный');
+            ExplicitNumericalMethodCode = 1;
+        } else {
+            $('#AdaptiveStepToggle').removeClass("bg-primary");
+            $('#AdaptiveStepToggle').addClass("bg-black");
+            $('#AdaptiveStepToggle').html('Постоянный');
+            ExplicitNumericalMethodCode = 0;
+        }
     });
 
     /*
@@ -187,6 +203,10 @@ jQuery(function(){
     $(document).on('click', '.removeEq', function() {
         $(this).parent().parent().parent().remove();
         makeVANTA()
+    });
+
+    jQuery('#drawPoincare').click(function(){
+        makePlotPoincare();
     });
     
     //example attractors
@@ -548,10 +568,10 @@ function successLogin(data){
         SavedDSs = data['data'];
         profileNavHTML =   `
                             <div class="nav-item dropdown" id="profileNanav-itemDropdown">
-                                <a class="nav-link dropdown-toggle text-primary" href="#" id="savedDSDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь сохраняются ваши динамические системы" rel="popover" data-placement="left" data-original-title="Что это?" data-trigger="hover">
+                                <a class="nav-link dropdown-toggle text-primary" href="#" id="savedDSDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь будут ваши сохраненные динамические системы" rel="popover" data-placement="left" data-original-title="Что это?" data-trigger="hover">
                                     Ваши системы
                                 </a>
-                                <div class="dropdown-menu" aria-labelledby="savedDSDropdownMenuLink" id="dropdownSavedDS">`;
+                                <div class="dropdown-menu" aria-labelledby="savedDSDropdownMenuLink" id="savedDSDropdownMenuLink">`;
         sampleSavedDS = `<div class="dropdown-item bg-white rounded px-1 py-0 m-0">
                             <div class="btn-group bg-white p-0 m-0 d-flex" role="group">
                                 <button type="button" class="btn btn-light bg-white w-100 userSavedDS" id="SavedDSN">NAME</button>
@@ -573,13 +593,17 @@ function successLogin(data){
                                 </div>
                             </div>
                             <div class="btn-group" role="group" id="profileNavbtn-group">
-                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#saveDSModal" id=saveDSButton">Сохранить</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#saveDSModal" id=saveDSButton aria-haspopup="true" aria-expanded="false" data-content="Нажмите, чтобы сохранить динамическую систему" rel="popover" data-placement="top" data-trigger="hover">
+                                    Сохранить
+                                </button>
                                 <button type="button" class="btn btn-outline-primary" id="profileButton">NAME</button>
                                 <button type="button" class="btn btn-outline-primary" onclick="Logout()" id="logoutButton">Выйти</button>
                             </div>`;
         profileNavHTML = profileNavHTML.replace('NAME', USER['name']);
         $('#loginButton').after(profileNavHTML);
         $('#loginButton').remove();
+        $('#savedDSDropdownMenuLink').popover();
+        $('#saveDSButton').popover();
         alert('Добро пожаловать, ' + USER['name'] + '!');
     }
 }
@@ -652,7 +676,7 @@ function onDraw()
     // make data
     k = 0;
     k0 = 0;
-    requestData = {};
+    var requestData = {};
     requestData['request type'] = 0;
     requestData['variables'] = ODEvarlist.join(', ');
     
@@ -660,10 +684,10 @@ function onDraw()
     jQuery('.inputstart').each(function(i, elem){
         if ($(elem).val() != ""){
             k0++;
-            start_values.push($(elem).val());
+            start_values.push(parseFloat($(elem).val()));
         }   
     });
-    requestData['start values'] = start_values;
+    requestData['start values[]'] = start_values;
 
     functions = [];
     jQuery('.inputeq').each(function(i, elem){
@@ -672,7 +696,7 @@ function onDraw()
             functions.push($(elem).val().slice(($(elem).val().indexOf(')/dt=') + 5)));
         }
     });
-    requestData['functions'] = functions;
+    requestData['functions[]'] = functions;
 
     additional_equations = [];
     jQuery('.inputparam').each(function(i, elem){
@@ -682,18 +706,23 @@ function onDraw()
         }
     });
     requestData['additional equations'] = additional_equations.join('; ').split(' =').join(':=') + ';';
-    //if (requestData['additional equations'] == ';') requestData['additional equations'] = ';';
+    if (requestData['additional equations'] == ';') requestData['additional equations'] = '';
 
-    requestData['time'] = jQuery("#time").val();
-    requestData['dt'] = jQuery("#dt").val();
+    requestData['time'] = parseFloat(jQuery("#time").val());
+    requestData['dt'] = parseFloat(jQuery("#dt").val());
+    requestData['ExplicitNumericalMethodCode'] = ExplicitNumericalMethodCode;
 
-    console.log(requestData);
+    request = {
+        'request type': 0,
+        'data': JSON.stringify(requestData)
+    }
+
+    console.log(request);
     if (Object.values(requestData).length > 2 && k == k0){
         successAlert(true);
-        //requestData['request type'] = 'main';
         jQuery.post(
             'http://' + ip + ':5000',
-            requestData,
+            request,
             success
         );
     }
