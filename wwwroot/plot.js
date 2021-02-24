@@ -73,7 +73,7 @@ function rangeFloatArray(start, end, step) {
 
 var effectVANTA;
 
-function makeVANTA(){
+function updateLayout(){
     effectVANTA.resize();
 }
 
@@ -157,8 +157,7 @@ jQuery(function(){
     // btns
     jQuery("#draw").click(onDraw);
     jQuery('#addx').click(function(){
-        $('#maininput').append(newODE());
-        makeVANTA();
+        newODE()
     });
     jQuery('#AdaptiveStepToggle').click(function(){
         if (ExplicitNumericalMethodCode == 0) {
@@ -191,20 +190,15 @@ jQuery(function(){
         makeBifurcationDiagram();
     });
     jQuery('#addeq').click(function(){
-        $('#eqinput').append(newEq());
-        makeVANTA();
+        newEq();
     });
     $(document).on('click', '.removeODE', function() {
-        removedODEVar = $(this).parent().parent().children('.col-75').children('.inputeq')[0].id;
-        removeItemOnce(ODEvarlist, removedODEVar);
-        $(this).parent().parent().parent().remove();
-        this.value = "";
-        ODEchange(this);
-        makeVANTA()
+        inputeqObj = $(this).parent().parent().children('.col-75').children('.inputeq')[0];
+        removeODE(inputeqObj);
     });
     $(document).on('click', '.removeEq', function() {
         $(this).parent().parent().parent().remove();
-        makeVANTA()
+        updateLayout()
     });
     jQuery('#drawPoincare').click(function(){
         makePlotPoincare();
@@ -362,31 +356,6 @@ jQuery(function(){
             successLogin
         );
     });
-
-    /*
-    // file
-    $('#submit-file').on("click",function(e){
-		e.preventDefault();
-		$('#files').parse({
-			config: {
-				delimiter: "auto",
-				complete: displayPlotData,
-			},
-			before: function(file, inputElem)
-			{
-				//console.log("Parsing file...", file);
-			},
-			error: function(err, file)
-			{
-				//console.log("ERROR:", err, file);
-			},
-			complete: function()
-			{
-				//console.log("Done with all files");
-			}
-		});
-    });
-    */
 });
 
 // UI fill ins
@@ -399,18 +368,14 @@ function ensureODEFields(n){
     count = 0;
     $('.inputeq').each(function(i, elem){
         if (i >= n) {
-            removedODEVar = $(elem).parent().parent().children('.col-75').children('.inputeq')[0].id;
-            removeItemOnce(ODEvarlist, removedODEVar);
-            elem.value = "";
-            ODEchange(elem);
-            $(elem).parent().parent().parent().remove();
+            removeODE(elem);
         }
         count++;
     });
     extra = n - count;
     if (extra >= 0){
         for(var i = 0; i < extra; i++){
-            $('#maininput').append(newODE());
+            newODE();
         }
     }
 }
@@ -421,7 +386,7 @@ function ensureEquationFields(n){
     });
     extra = n - count;
     for(var i = 0; i < extra; i++){
-        $('#eqinput').append(newEq());
+        newEq();
     }
 }
 function setFields(n, array, type){
@@ -445,6 +410,36 @@ function setFields(n, array, type){
 }
 
 // UI
+/* creates new ODE row and updates layout */
+function newODE(){
+    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
+    count = 0;
+    $('.inputeq').each(function(i, elem){
+        count++;
+    });
+    $('#maininput').append(newx.split("xi").join('x'+(count + 1)));
+    updateLayout();
+}
+/* receives .inputeq object, deletes its input row and updates layout */
+function removeODE(elem){
+    removedODEVar = $(elem).id;
+    removeItemOnce(ODEvarlist, removedODEVar);
+    elem.value = "";
+    ODEchange(elem);
+    $(elem).parent().parent().parent().remove();
+    updateLayout()
+}
+/* creates new Equation row and updates layout*/
+function newEq(){
+    var neweq = '<div class="bg-white rounded shadow p-1 mb-1"> <div class="row no-gutters" style="width:100%;"> <div class="col col-95"><input type="text" class="form-control eq" id="eqi" placeholder="variable = ..." value=""></div> <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div> </div> </div>';
+    count = 0;
+    $('.eq').each(function(i, elem){
+        count++;
+    });
+    $('#eqinput').append(neweq.split("eqi").join('eq'+(count + 1)));
+    updateLayout();
+}
+/* receives onDraw task state and updates spinner */
 function successAlert(state) {
     if (state){
         //add alert
@@ -460,38 +455,24 @@ function successAlert(state) {
         jQuery("#draw").text("Построить графики");
     }
 }
-function newODE(){
-    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
-    count = 0;
-    $('.inputeq').each(function(i, elem){
-        count++;
-    });
-    return newx.split("xi").join('x'+(count + 1));
-}
-function newParam(name){
+/* receives name of new parameter, creates linked instances and updates layout */
+function addParam(name){
     var Param = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-4 pr-1"><input type="text" class="form-control inputparamname" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: end;" id="paraminame" value="name ="></div><div class="col col-8"><input type="text" class="form-control inputparam" id="parami" placeholder="значение"></div></div></div>';
-    /*
-    count = 1;
-    $('.inputparam').each(function(i, elem){
-        count++;
-    });
-    */
     Param = Param.split("name").join(name);
     Param = Param.split("parami").join("param" + name);
-    return Param;
-}
-function addParam(name){
-    $('#paraminput').append(newParam(name));
+    $('#paraminput').append(Param);
     addParamLyapunovMap(name);
     addParamLBifurcationDiagram(name);
-    makeVANTA();
+    updateLayout();
 }
+/* receives name of new parameter, deletes linked instances and updates layout */
 function deleteParam(name){
     $('#param' + name).parent().parent().parent().remove();
     deleteParamLyapunovMap(name);
     deleteParamBifurcationDiagram(name);
-    makeVANTA()
+    updateLayout()
 }
+/* receives .inputeq object, looks for changes and processes if present */
 function ODEchange(element){
     equation = element.value;
     // change eqvar
@@ -548,14 +529,7 @@ function ODEchange(element){
     });
     //alert(paramlist);
 }
-function newEq(){
-    var neweq = '<div class="bg-white rounded shadow p-1 mb-1"> <div class="row no-gutters" style="width:100%;"> <div class="col col-95"><input type="text" class="form-control eq" id="eqi" placeholder="variable = ..." value=""></div> <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div> </div> </div>';
-    count = 0;
-    $('.eq').each(function(i, elem){
-        count++;
-    });
-    return neweq.split("eqi").join('eq'+(count + 1));
-}
+
 
 // Login
 function successLogin(data){
@@ -749,16 +723,8 @@ function success(data)
     //console.log(data);
     //console.log("success");
     //successAlert(false);
-    plot(JSON.parse(JSON.parse(data))[0], "web");
+    processData(JSON.parse(JSON.parse(data))[0], "web");
     jQuery("#charts").show();
-}
-function plot(dataset, type) {
-    if (dataset){
-        processData(dataset, type);
-    } else{
-        processData(dataset, "web");
-        //Plotly.d3.csv("output/result.csv", function(data){ processData(data, "web") } );
-    }
 }
 function getData(dataset, type){
     
@@ -817,7 +783,7 @@ function processData(allRows, type) {
     makePlots(ndims);
     //-----------------------------------------------------------
     successAlert(false);
-    makeVANTA();
+    updateLayout();
 }
 
 // Plots -----------------------------------------------------------------------------
@@ -1709,4 +1675,29 @@ function savetocsv() {
         jQuery("#error_alert").delay(1000).fadeOut(100);
     }
 }
+*/
+/*
+in jQuery
+// file
+$('#submit-file').on("click",function(e){
+    e.preventDefault();
+    $('#files').parse({
+        config: {
+            delimiter: "auto",
+            complete: displayPlotData,
+        },
+        before: function(file, inputElem)
+        {
+            //console.log("Parsing file...", file);
+        },
+        error: function(err, file)
+        {
+            //console.log("ERROR:", err, file);
+        },
+        complete: function()
+        {
+            //console.log("Done with all files");
+        }
+    });
+});
 */
