@@ -87,10 +87,10 @@ def Poincare(data):
     ans = []
     # make floats
     data['request type'] = int(data['request type'][0])
-    data['plane equation[]'] = np.array(data['plane equation[]']).astype(np.float).tolist()
+    data['plane equation[]'] = np.array(data['plane equation[]']).astype(float).tolist()
     data['trajectory[]'] = np.array(
         [data['trajectory[0][]'], data['trajectory[1][]'], data['trajectory[2][]']]
-    ).astype(np.float).transpose().tolist()
+    ).astype(float).transpose().tolist()
     del data['trajectory[0][]']
     del data['trajectory[1][]']
     del data['trajectory[2][]']
@@ -98,7 +98,7 @@ def Poincare(data):
 
     # send json string
     value = json.dumps(data)
-    # print(value)
+    print(value)
     # text_file = open("send.txt", "w")
     # text_file.write(value)
     # text_file.close()
@@ -110,8 +110,8 @@ def Poincare(data):
     res = solver.stdout.readline().strip()
     # print('result = ', result.decode('utf-8'))
     res = json.loads(res.decode('utf-8'))[0]
-    res['intersections2D'] = np.array(res['intersections2D']).astype(np.float).transpose().tolist()
-    res['intersections3D'] = np.array(res['intersections3D']).astype(np.float).transpose().tolist()
+    res['intersections2D'] = np.array(res['intersections2D']).astype(float).transpose().tolist()
+    res['intersections3D'] = np.array(res['intersections3D']).astype(float).transpose().tolist()
     # print('solved at', time.time() - starting_time, 'seconds')
     return json.dumps(res)
 
@@ -121,7 +121,7 @@ def Bifurcation(requestData):
     ans = []
     # make numeric
     requestData['request type'] = int(requestData['request type'][0])
-    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
+    requestData['start values[]'] = np.array(requestData['start values[]']).astype(float).tolist()
     requestData['time'] = float(requestData['time'][0])
     requestData['dt'] = float(requestData['dt'][0])
     requestData['variables'] = requestData['variables'][0]
@@ -129,7 +129,7 @@ def Bifurcation(requestData):
     requestData['ExplicitNumericalMethodCode'] = 0
 
     requestData['parameter'] = requestData['parameter'][0]
-    requestData['range[]'] = np.array(requestData['range[]']).astype(np.float).tolist()
+    requestData['range[]'] = np.array(requestData['range[]']).astype(float).tolist()
     requestData['step'] = float(requestData['step'][0])
 
     # send json string
@@ -195,7 +195,7 @@ def LyapunovMap(requestData):
     # remove additional fairings
     # make numeric
     requestData['request type'] = int(requestData['request type'][0])
-    requestData['start values[]'] = np.array(requestData['start values[]']).astype(np.float).tolist()
+    requestData['start values[]'] = np.array(requestData['start values[]']).astype(float).tolist()
     requestData['time'] = float(requestData['time'][0])
     requestData['dt'] = float(requestData['dt'][0])
     #
@@ -203,7 +203,7 @@ def LyapunovMap(requestData):
     requestData['additional equations'] = requestData['additional equations'][0]
     if requestData['additional equations'] == ';':
         requestData['additional equations'] = ''
-    requestData['steps[]'] = np.array(requestData['steps[]']).astype(np.float).tolist()
+    requestData['steps[]'] = np.array(requestData['steps[]']).astype(float).tolist()
     requestData['ranges[]'] = np.array([requestData['ranges[0][]'], requestData['ranges[1][]']]).astype(
         np.float).tolist()
     del requestData['ranges[0][]']
