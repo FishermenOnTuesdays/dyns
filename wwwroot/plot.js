@@ -198,6 +198,7 @@ jQuery(function(){
         removedODEVar = $(this).parent().parent().children('.col-75').children('.inputeq')[0].id;
         removeItemOnce(ODEvarlist, removedODEVar);
         $(this).parent().parent().parent().remove();
+        this.value = "";
         ODEchange(this);
         makeVANTA()
     });
