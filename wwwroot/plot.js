@@ -198,13 +198,13 @@ jQuery(function(){
         removedODEVar = $(this).parent().parent().children('.col-75').children('.inputeq')[0].id;
         removeItemOnce(ODEvarlist, removedODEVar);
         $(this).parent().parent().parent().remove();
+        ODEchange(this);
         makeVANTA()
     });
     $(document).on('click', '.removeEq', function() {
         $(this).parent().parent().parent().remove();
         makeVANTA()
     });
-
     jQuery('#drawPoincare').click(function(){
         makePlotPoincare();
     });
@@ -330,7 +330,6 @@ jQuery(function(){
         document.getElementById("dt").value = userDynamicSystem['dt'];
         setFields(equations.length, equations, 'Equations');
     });
-
     $(document).on('click', '.userDeleteSavedDS', function(){
         SavedDSid = this.id.slice(13);
         requestData = {
@@ -348,7 +347,6 @@ jQuery(function(){
         delete userDynamicSystems[SavedDSid];
         $(this).parent().parent().remove();
     });
-
     $('#submit-login').on("click",function(e){
 		login = $('#inputLogin').val()
         password = $('#inputPassword').val()
@@ -399,11 +397,20 @@ function setStarts(defval, n){
 function ensureODEFields(n){
     count = 0;
     $('.inputeq').each(function(i, elem){
+        if (i >= n) {
+            removedODEVar = $(elem).parent().parent().children('.col-75').children('.inputeq')[0].id;
+            removeItemOnce(ODEvarlist, removedODEVar);
+            elem.value = "";
+            ODEchange(elem);
+            $(elem).parent().parent().parent().remove();
+        }
         count++;
     });
     extra = n - count;
-    for(var i = 0; i < extra; i++){
-        $('#maininput').append(newODE());
+    if (extra >= 0){
+        for(var i = 0; i < extra; i++){
+            $('#maininput').append(newODE());
+        }
     }
 }
 function ensureEquationFields(n){
