@@ -360,7 +360,7 @@ jQuery(function(){
 
 // UI fill ins
 function setStarts(defval, n){
-    $('input[id="x_0"]').each(function(i, elem){
+    $('.inputstart').each(function(i, elem){
         if (i < n) {elem.value = defval;}
     });
 }
@@ -382,11 +382,16 @@ function ensureODEFields(n){
 function ensureEquationFields(n){
     count = 0;
     $('.eq').each(function(i, elem){
+        if (i >= n) {
+            removeEq(elem);
+        }
         count++;
     });
     extra = n - count;
-    for(var i = 0; i < extra; i++){
-        newEq();
+    if (extra >= 0){
+        for(var i = 0; i < extra; i++){
+            newEq();
+        }
     }
 }
 function setFields(n, array, type){
@@ -412,7 +417,7 @@ function setFields(n, array, type){
 // UI
 /* creates new ODE row and updates layout */
 function newODE(){
-    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
+    var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="xi_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
     count = 0;
     $('.inputeq').each(function(i, elem){
         count++;
@@ -438,6 +443,11 @@ function newEq(){
     });
     $('#eqinput').append(neweq.split("eqi").join('eq'+(count + 1)));
     updateLayout();
+}
+/* receives .eq object, deletes its input row and updates layout */
+function removeEq(elem){
+    $(elem).parent().parent().parent().remove();
+    updateLayout()
 }
 /* receives onDraw task state and updates spinner */
 function successAlert(state) {
@@ -474,60 +484,69 @@ function deleteParam(name){
 }
 /* receives .inputeq object, looks for changes and processes if present */
 function ODEchange(element){
-    equation = element.value;
-    // change eqvar
-    eqvar = equation.slice(2, equation.indexOf(')/dt='));
-    element.id = eqvar;
-    if (ODEvarlist.indexOf(eqvar) == -1)
-        ODEvarlist.push(eqvar);
-    // look for params
-    equation = equation.slice(equation.indexOf(')/dt=') + 5);
-    //equation = equation.split(eqvar).join(' ');
-    exclusionList.forEach(function(item, i, exclusionList) {
-        equation = equation.split(item).join(' ');
-    });
-    equation = equation.replace(/\s{2,}/g, ' ');
-    params = equation.split(' ');
-    removeItemAll(params, '');
-    // check if some param is removed
-    if (eqvar in ODEEqParams){
-        outerParams = [];
-        ODEvarlist.forEach(function(variable) {
-            if (variable != eqvar) {
-                ODEEqParams[variable].forEach(function(varparam) {
-                    if (outerParams.indexOf(varparam) == -1)
-                        outerParams.push(varparam);
-                });
-            }
-        });
-        ODEEqParams[eqvar].forEach(function(eqvarparam) {
-            if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
-                deleteParam(eqvarparam);
-                removeItemAll(ODEparamlist, eqvarparam);
-            }
-        });
-        ODEparamlist.forEach(function(eqvarparam) {
-            if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
-                deleteParam(eqvarparam);
-                removeItemAll(ODEparamlist, eqvarparam);
-            }
-        });
-        ODEEqParams[eqvar] = params;
-    } else {
-        ODEEqParams[eqvar] = params;
-    }
+    var ODE = element.value;
+    if (ODE == '' || ODE == 'd()/dt='){ // means empty ODE
 
-    params.forEach(function(item) {
-        if (ODEparamlist.indexOf(item) == -1) {
-            ODEparamlist.push(item);
-            addParam(item);
+    } else {
+        // change eqvar
+        eqvar = ODE.slice(2, ODE.indexOf(')/dt='));
+        if (eqvar == '' || eqvar == ' '){ // means no eqvar in this ODE
+            removeItemOnce(ODEvarlist, element.id); // remove last var if present
+            alert('Вы не указали переменную в дифференциальном уравнении: ' + ODE);
+        } else {
+            element.id = eqvar;
+            if (ODEvarlist.indexOf(eqvar) == -1)
+                ODEvarlist.push(eqvar);
+            // look for params
+            ODE = ODE.slice(ODE.indexOf(')/dt=') + 5);
+            //equation = equation.split(eqvar).join(' ');
+            exclusionList.forEach(function(item, i, exclusionList) {
+                ODE = ODE.split(item).join(' ');
+            });
+            ODE = ODE.replace(/\s{2,}/g, ' ');
+            params = ODE.split(' ');
+            removeItemAll(params, '');
+            // check if some param is removed
+            if (eqvar in ODEEqParams){
+                outerParams = [];
+                ODEvarlist.forEach(function(variable) {
+                    if (variable != eqvar) {
+                        ODEEqParams[variable].forEach(function(varparam) {
+                            if (outerParams.indexOf(varparam) == -1)
+                                outerParams.push(varparam);
+                        });
+                    }
+                });
+                ODEEqParams[eqvar].forEach(function(eqvarparam) {
+                    if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
+                        deleteParam(eqvarparam);
+                        removeItemAll(ODEparamlist, eqvarparam);
+                    }
+                });
+                ODEparamlist.forEach(function(eqvarparam) {
+                    if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
+                        deleteParam(eqvarparam);
+                        removeItemAll(ODEparamlist, eqvarparam);
+                    }
+                });
+                ODEEqParams[eqvar] = params;
+            } else {
+                ODEEqParams[eqvar] = params;
+            }
+    
+            params.forEach(function(item) {
+                if (ODEparamlist.indexOf(item) == -1) {
+                    ODEparamlist.push(item);
+                    addParam(item);
+                }
+            });
+            ODEvarlist.forEach(function(item) {
+                deleteParam(item);
+                removeItemAll(ODEparamlist, item);
+            });
+            //alert(paramlist);
         }
-    });
-    ODEvarlist.forEach(function(item) {
-        deleteParam(item);
-        removeItemAll(ODEparamlist, item);
-    });
-    //alert(paramlist);
+    }
 }
 
 
