@@ -197,8 +197,7 @@ jQuery(function(){
         removeODE(inputeqObj);
     });
     $(document).on('click', '.removeEq', function() {
-        $(this).parent().parent().parent().remove();
-        updateLayout()
+        removeODE(this);
     });
     jQuery('#drawPoincare').click(function(){
         makePlotPoincare();
@@ -369,6 +368,9 @@ function ensureODEFields(n){
     $('.inputeq').each(function(i, elem){
         if (i >= n) {
             removeODE(elem);
+        } else {
+            removeODE(elem);
+            newODE();
         }
         count++;
     });
@@ -485,66 +487,109 @@ function deleteParam(name){
 /* receives .inputeq object, looks for changes and processes if present */
 function ODEchange(element){
     var ODE = element.value;
+    var lastODEvar = element.id;
     if (ODE == '' || ODE == 'd()/dt='){ // means empty ODE
-
+        if (ODEvarlist.indexOf(lastODEvar) == -1) { // means ODE var wasn't defined
+            // for now, let's settle with that if it was not defined, than the parameters were not, too
+        } else {
+            removeItemOnce(ODEvarlist, lastODEvar); // remove last ODE var if present
+            // update params
+            var outerParams = [];
+            // find all parameters not included in this ODE -> outerParams
+            ODEvarlist.forEach(function(variable) {
+                if (variable != lastODEvar) {
+                    ODEEqParams[variable].forEach(function(varparam) {
+                        if (outerParams.indexOf(varparam) == -1)
+                            outerParams.push(varparam);
+                    });
+                }
+            });
+            // remove all parameters not included in outerParams from ODEparamlist
+            ODEEqParams[lastODEvar].forEach(function(eqvarparam) {
+                if (outerParams.indexOf(eqvarparam) == -1) {
+                    deleteParam(eqvarparam);
+                    removeItemAll(ODEparamlist, eqvarparam);
+                }
+            });
+        }
     } else {
         // change eqvar
         eqvar = ODE.slice(2, ODE.indexOf(')/dt='));
         if (eqvar == '' || eqvar == ' '){ // means no eqvar in this ODE
-            removeItemOnce(ODEvarlist, element.id); // remove last var if present
+            removeItemOnce(ODEvarlist, lastODEvar); // remove last var if present
+            delete ODEEqParams[lastODEvar];
+            // find all parameters not included in this ODE -> outerParams
+            ODEvarlist.forEach(function(variable) {
+                if (variable != lastODEvar) {
+                    ODEEqParams[variable].forEach(function(varparam) {
+                        if (outerParams.indexOf(varparam) == -1)
+                            outerParams.push(varparam);
+                    });
+                }
+            });
+            // remove all parameters not included in outerParams from ODEparamlist
+            ODEEqParams[lastODEvar].forEach(function(eqvarparam) {
+                if (outerParams.indexOf(eqvarparam) == -1) {
+                    deleteParam(eqvarparam);
+                    removeItemAll(ODEparamlist, eqvarparam);
+                }
+            });
             alert('Вы не указали переменную в дифференциальном уравнении: ' + ODE);
         } else {
+            // find all parameters not included in this ODE -> outerParams
+            var outerParams = [];
+            ODEvarlist.forEach(function(variable) {
+                if (variable != eqvar) {
+                    ODEEqParams[variable].forEach(function(varparam) {
+                        if (outerParams.indexOf(varparam) == -1)
+                            outerParams.push(varparam);
+                    });
+                }
+            });
             element.id = eqvar;
-            if (ODEvarlist.indexOf(eqvar) == -1)
+            if (ODEvarlist.indexOf(eqvar) == -1) { // means ODE var changed
+                removeItemOnce(ODEvarlist, lastODEvar); // remove last ODE var
+                if (!(lastODEvar in ODEEqParams)){ /// means ODE var wasn't defined
+                    // for now, let's settle with that if it was not defined, than the parameters were not, too
+                } else {
+                    ODEEqParams[lastODEvar].forEach(function(eqvarparam) {
+                        if (outerParams.indexOf(eqvarparam) == -1) {
+                            deleteParam(eqvarparam);
+                            removeItemAll(ODEparamlist, eqvarparam);
+                        }
+                    });
+                    delete ODEEqParams[lastODEvar]; // remove last ODE var's params from ODEEqParams
+                }
                 ODEvarlist.push(eqvar);
-            // look for params
+            }
+            // look for this ODE params
             ODE = ODE.slice(ODE.indexOf(')/dt=') + 5);
             //equation = equation.split(eqvar).join(' ');
             exclusionList.forEach(function(item, i, exclusionList) {
                 ODE = ODE.split(item).join(' ');
             });
             ODE = ODE.replace(/\s{2,}/g, ' ');
-            params = ODE.split(' ');
+            var params = ODE.split(' ');
             removeItemAll(params, '');
-            // check if some param is removed
-            if (eqvar in ODEEqParams){
-                outerParams = [];
-                ODEvarlist.forEach(function(variable) {
-                    if (variable != eqvar) {
-                        ODEEqParams[variable].forEach(function(varparam) {
-                            if (outerParams.indexOf(varparam) == -1)
-                                outerParams.push(varparam);
-                        });
+            ODEEqParams[eqvar] = params;
+            var uniqueParams = [];
+            // remove all parameters not included in this ODE and outerParams from ODEparamlist
+            ODEEqParams[eqvar].forEach(function(eqvarparam) {
+                if (ODEvarlist.indexOf(eqvarparam) != -1) {
+                    deleteParam(eqvarparam);
+                    removeItemAll(ODEparamlist, eqvarparam);
+                } else {
+                    if (outerParams.indexOf(eqvarparam) == -1) {
+                        if (params.indexOf(eqvarparam) == -1) {
+                            deleteParam(eqvarparam);
+                            removeItemAll(ODEparamlist, eqvarparam);
+                        } else {
+                            ODEparamlist.push(eqvarparam);
+                            addParam(eqvarparam);
+                        }
                     }
-                });
-                ODEEqParams[eqvar].forEach(function(eqvarparam) {
-                    if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
-                        deleteParam(eqvarparam);
-                        removeItemAll(ODEparamlist, eqvarparam);
-                    }
-                });
-                ODEparamlist.forEach(function(eqvarparam) {
-                    if (outerParams.indexOf(eqvarparam) == -1 && params.indexOf(eqvarparam) == -1) {
-                        deleteParam(eqvarparam);
-                        removeItemAll(ODEparamlist, eqvarparam);
-                    }
-                });
-                ODEEqParams[eqvar] = params;
-            } else {
-                ODEEqParams[eqvar] = params;
-            }
-    
-            params.forEach(function(item) {
-                if (ODEparamlist.indexOf(item) == -1) {
-                    ODEparamlist.push(item);
-                    addParam(item);
                 }
             });
-            ODEvarlist.forEach(function(item) {
-                deleteParam(item);
-                removeItemAll(ODEparamlist, item);
-            });
-            //alert(paramlist);
         }
     }
 }
