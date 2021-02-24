@@ -571,7 +571,7 @@ function successLogin(data){
                                 <a class="nav-link dropdown-toggle text-primary" href="#" id="savedDSDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь будут ваши сохраненные динамические системы" rel="popover" data-placement="left" data-original-title="Что это?" data-trigger="hover">
                                     Ваши системы
                                 </a>
-                                <div class="dropdown-menu" aria-labelledby="savedDSDropdownMenuLink" id="savedDSDropdownMenuLink">`;
+                                <div class="dropdown-menu" aria-labelledby="savedDSDropdownMenuLink" id="dropdownSavedDS">`;
         sampleSavedDS = `<div class="dropdown-item bg-white rounded px-1 py-0 m-0">
                             <div class="btn-group bg-white p-0 m-0 d-flex" role="group">
                                 <button type="button" class="btn btn-light bg-white w-100 userSavedDS" id="SavedDSN">NAME</button>
@@ -639,6 +639,8 @@ function saveUserDynamicSystem(){
                             <button type="button" class="btn btn-light bg-white userDeleteSavedDS" id="DeleteSavedDSN">❌</button>
                         </div>
                     </div>`.replace('SavedDSN', 'SavedDS' + SavedDSid).replace('SavedDSN', 'SavedDS' + SavedDSid).replace('NAME', title);
+    //$('#dropdownSavedDS').append(SavedDSHTML);
+    $('#dropdownSavedDS').dropdown('toggle');
     $('#dropdownSavedDS').append(SavedDSHTML);
     // save in server db
     $('.inputeq').each(function(i, elem){
