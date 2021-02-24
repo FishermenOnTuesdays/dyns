@@ -640,7 +640,7 @@ function saveUserDynamicSystem(){
                         </div>
                     </div>`.replace('SavedDSN', 'SavedDS' + SavedDSid).replace('SavedDSN', 'SavedDS' + SavedDSid).replace('NAME', title);
     //$('#dropdownSavedDS').append(SavedDSHTML);
-    $('#dropdownSavedDS').dropdown('toggle');
+    //$('#dropdownSavedDS').dropdown('toggle');
     $('#dropdownSavedDS').append(SavedDSHTML);
     // save in server db
     $('.inputeq').each(function(i, elem){
