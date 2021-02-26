@@ -306,14 +306,26 @@
                 <!--            secondary input frame            -->
                 <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
                     <div class="row no-gutters mb-1 ml-1">
-                        <div class="col col-2 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
-                        <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
+                        <div class="col col-4 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
+                        <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
                     </div>
 
                     <div class="row no-gutters mb-1 ml-1">
-                        <div class="col col-1 p-1 m-0"><button type="button" class="btn bg-primary text-white w100" id="AdaptiveStepToggle">Адаптивный</button></div>
+                        <div class="col col-3 p-1 m-0">
+                            <!--<button type="button" class="btn bg-primary text-white w100" id="AdaptiveStepToggle">Адаптивный</button>-->
+                            <div class="btn-group dropup" style="width: 100%;">
+                                <button type="button" id="StepToggle" class="btn bg-black text-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Постоянный шаг
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" id="FixedStep">Постоянный шаг</a>
+                                    <a class="dropdown-item" href="#" id="AdaptiveStep">Адаптивный шаг</a>
+                                    <a class="dropdown-item" href="#" id="FixedVelocityStep">Фиксированный по скорости</a>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
-                        <div class="col col-10 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+                        <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
                     </div>
 
                     <div class="row justify-content-center">
