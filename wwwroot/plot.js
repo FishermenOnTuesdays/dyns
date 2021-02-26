@@ -2,7 +2,7 @@
 local_ip = '192.168.31.80';
 dyns_ip = '85.143.113.155';
 dyns_web = 'dyns.mephi.ru';
-var ip = dyns_web;
+var ip = local_ip;
 
 // USER
 var login = true;
@@ -76,6 +76,9 @@ function randomInteger(min, max) {
     let rand = min + Math.random() * (max + 1 - min);
     return Math.floor(rand);
 }
+function transpose(matrix) {
+    return matrix[0].map((col, i) => matrix.map(row => row[i]));
+}
 
 var effectVANTA;
 
@@ -122,18 +125,35 @@ jQuery(function(){
     jQuery('#addx').click(function(){
         newODE()
     });
-    jQuery('#AdaptiveStepToggle').click(function(){
-        if (ExplicitNumericalMethodCode == 0) {
-            $('#AdaptiveStepToggle').removeClass("bg-black");
-            $('#AdaptiveStepToggle').addClass("bg-primary");
-            $('#AdaptiveStepToggle').html('Адаптивный');
-            ExplicitNumericalMethodCode = 1;
-        } else {
-            $('#AdaptiveStepToggle').removeClass("bg-primary");
-            $('#AdaptiveStepToggle').addClass("bg-black");
-            $('#AdaptiveStepToggle').html('Постоянный');
-            ExplicitNumericalMethodCode = 0;
+    jQuery('#FixedStep').click(function(){
+        if (ExplicitNumericalMethodCode == 1) {
+            $('#StepToggle').removeClass("bg-primary");
+        } else if (ExplicitNumericalMethodCode == 2) {
+            $('#StepToggle').removeClass("bg-secondary");
         }
+        $('#StepToggle').html('Постоянный шаг');
+        $('#StepToggle').addClass("bg-black");
+        ExplicitNumericalMethodCode = 0;
+    });
+    jQuery('#AdaptiveStep').click(function(){
+        if (ExplicitNumericalMethodCode == 0) {
+            $('#StepToggle').removeClass("bg-black");
+        } else if (ExplicitNumericalMethodCode == 2) {
+            $('#StepToggle').removeClass("bg-secondary");
+        }
+        $('#StepToggle').html('Адаптивный шаг');
+        $('#StepToggle').addClass("bg-primary");
+        ExplicitNumericalMethodCode = 1;
+    });
+    jQuery('#FixedVelocityStep').click(function(){
+        if (ExplicitNumericalMethodCode == 0) {
+            $('#StepToggle').removeClass("bg-black");
+        } else if (ExplicitNumericalMethodCode == 1) {
+            $('#StepToggle').removeClass("bg-primary");
+        }
+        $('#StepToggle').html('Фиксированный по скорости');
+        $('#StepToggle').addClass("bg-secondary");
+        ExplicitNumericalMethodCode = 2;
     });
 
     /*
@@ -1065,13 +1085,16 @@ function makePlotPoincare(){
     // request data from server
     data = {
         'request type': 3,
-        'trajectory': [equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]]],
-        'plane equation': [A, B, C, D]
+        'trajectory[]': transpose([equationTimeSeries[currentXs[0]], equationTimeSeries[currentXs[1]], equationTimeSeries[currentXs[2]]]),
+        'plane equation[]': [A, B, C, D]
     }
     console.log(data);
     jQuery.post(
         'https://' + ip + ':5000',
-        data,
+        {
+            'request type': 3,
+            'data': JSON.stringify(data)
+        },
         successPoincare
     );
 }
