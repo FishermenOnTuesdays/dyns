@@ -289,8 +289,8 @@ def run(server_class=HTTPServer, handler_class=Handler, port=5000):
     # httpd = server_class(server_address, handler_class)
     httpd = ThreadedHTTPServer(('0.0.0.0', 5000), Handler)
     httpd.socket = ssl.wrap_socket(httpd.socket,
-                                   keyfile="dyns.mephi.ru-key.pem",
-                                   certfile='dyns.mephi.ru-chain.pem',
+                                   keyfile="../key.pem",
+                                   certfile='../cert.pem',
                                    server_side=True,
                                    ssl_version=ssl.PROTOCOL_TLS)
     logging.info('Starting httpd...\n')
