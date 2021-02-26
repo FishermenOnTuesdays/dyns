@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 # import os
 import sqlite3 as sl
+import ssl
 
 
 def Solver():
@@ -98,7 +99,7 @@ def Poincare(data):
 
     # send json string
     value = json.dumps(data)
-    print(value)
+    #print(value)
     # text_file = open("send.txt", "w")
     # text_file.write(value)
     # text_file.close()
@@ -173,6 +174,7 @@ def Trajectory(requestData):
     return ans
 '''
 
+
 #'''
 def Trajectory(requestData):
     solver = Solver()
@@ -188,6 +190,7 @@ def Trajectory(requestData):
     # print('solved in', time.time() - start, 'seconds')
     return ans
 #'''
+
 
 def LyapunovMap(requestData):
     solver = Solver()
@@ -285,6 +288,11 @@ def run(server_class=HTTPServer, handler_class=Handler, port=5000):
     server_address = ('', port)
     # httpd = server_class(server_address, handler_class)
     httpd = ThreadedHTTPServer(('0.0.0.0', 5000), Handler)
+    httpd.socket = ssl.wrap_socket(httpd.socket,
+                                   keyfile="dyns.mephi.ru-key.pem",
+                                   certfile='dyns.mephi.ru-chain.pem',
+                                   server_side=True,
+                                   ssl_version=ssl.PROTOCOL_TLS)
     logging.info('Starting httpd...\n')
     try:
         httpd.serve_forever()
