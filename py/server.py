@@ -86,6 +86,7 @@ def Poincare(data):
     global starting_time
     solver = Solver()
     ans = []
+    '''
     # make floats
     data['request type'] = int(data['request type'][0])
     data['plane equation[]'] = np.array(data['plane equation[]']).astype(float).tolist()
@@ -96,9 +97,9 @@ def Poincare(data):
     del data['trajectory[1][]']
     del data['trajectory[2][]']
     # print('fixed data at', time.time() - starting_time, 'seconds')
-
+    '''
     # send json string
-    value = json.dumps(data)
+    value = data['data'][0]
     #print(value)
     # text_file = open("send.txt", "w")
     # text_file.write(value)
