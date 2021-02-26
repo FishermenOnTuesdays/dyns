@@ -1,7 +1,8 @@
 // global vars
 local_ip = '192.168.31.80';
 dyns_ip = '85.143.113.155';
-ip = local_ip;
+dyns_web = 'dyns.mephi.ru';
+var ip = dyns_web;
 
 // USER
 var login = true;
@@ -74,19 +75,18 @@ function randomInteger(min, max) {
     // random Integer from min to (max+1)
     let rand = min + Math.random() * (max + 1 - min);
     return Math.floor(rand);
-  }
+}
 
 var effectVANTA;
 
+/* updates layout */
 function updateLayout(){
     effectVANTA.resize();
 }
 
 // UI
 jQuery(function(){
-
     
-
     jQuery("#charts").hide();
     jQuery("#phasecharts").hide();
     jQuery("#phasechart2").hide();
@@ -113,52 +113,6 @@ jQuery(function(){
     });
     
     updateLayout();
-
-    /*
-    VANTA.BIRDS({
-        el: "#mainbody",
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: 1.00,
-        scaleMobile: 1.00,
-        backgroundColor: 0xffffff,
-        color1: 0x7bff,
-        color2: 0x0,
-        birdSize: 1.10,
-        wingSpan: 27.00,
-        speedLimit: 7.00,
-        separation: 61.00,
-        cohesion: 13.00
-    })
-    */
-    /*
-    VANTA.FOG({
-        el: "#maininput",
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        highlightColor: 0x7bff
-      })
-    */
-    /*
-    VANTA.TOPOLOGY({
-        el: "#maininput",
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: 0.10,
-        scaleMobile: 1.00,
-        color: 0xffffff,
-        backgroundColor: 0x7bff
-      })
-    */
 
     document.getElementById("time").defaultValue = "10";
     document.getElementById("dt").defaultValue = "0.01";
@@ -343,7 +297,7 @@ jQuery(function(){
             'data': JSON.stringify(userDynamicSystems[SavedDSid]['data'])
         };
         jQuery.post(
-            'http://' + ip + ':5000',
+            'https://' + ip + ':5000',
             requestData,
             successDeleteSavedDS
         );
@@ -359,7 +313,7 @@ jQuery(function(){
             'password': password
         };
         jQuery.post(
-            'http://' + ip + ':5000',
+            'https://' + ip + ':5000',
             requestData,
             successLogin
         );
@@ -728,7 +682,7 @@ function saveUserDynamicSystem(){
         'data': JSON.stringify(userDynamicSystem)
     };
     jQuery.post(
-        'http://' + ip + ':5000',
+        'https://' + ip + ':5000',
         requestData,
         successSaveUserDynamicSystem
     );
@@ -793,7 +747,7 @@ function onDraw()
     if (Object.values(requestData).length > 2 && k == k0){
         successAlert(true);
         jQuery.post(
-            'http://' + ip + ':5000',
+            'https://' + ip + ':5000',
             request,
             success
         );
@@ -994,7 +948,10 @@ function makePlotT(ndims, timeSeries){
 function makePlotXY(x, y, type){
     var traces = [{
         x: x,
-        y: y
+        y: y,
+        mode: 'lines',
+        line: {shape: 'spline'},
+        type: 'scatter'
     }];
     var config = {responsive: true}
     Plotly.newPlot(type, traces, {
@@ -1057,7 +1014,8 @@ function makePlot3D(x, y, z, chartid){
         opacity: 1,
         line:{
             color: '#000000',
-            size: 1
+            size: 1,
+            shape: 'spline'
         },
         /*marker: {
             color: '#000000',
@@ -1112,7 +1070,7 @@ function makePlotPoincare(){
     }
     console.log(data);
     jQuery.post(
-        'http://' + ip + ':5000',
+        'https://' + ip + ':5000',
         data,
         successPoincare
     );
@@ -1413,7 +1371,7 @@ function makeLyapunovMap(){
         successAlertLyapunovMap(true);
         //requestData['request type'] = 'main';
         jQuery.post(
-            'http://' + ip + ':5000',
+            'https://' + ip + ':5000',
             requestData,
             successLyapunovMap
         );
@@ -1588,7 +1546,7 @@ function makeBifurcationDiagram(){
         successAlertBifurcationDiagram(true);
         //requestData['request type'] = 'main';
         jQuery.post(
-            'http://' + ip + ':5000',
+            'https://' + ip + ':5000',
             requestData,
             successBifurcationDiagram
         );
