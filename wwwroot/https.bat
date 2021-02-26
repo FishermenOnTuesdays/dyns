@@ -1,0 +1,1 @@
+python -m twisted web -c ../cert.pem -k ../key.pem --https=52000 --path C:\Code\DynamicSystems\dyns\wwwroot
