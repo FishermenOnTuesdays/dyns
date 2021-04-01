@@ -23,7 +23,7 @@ var equationTimeSeries = {}, lyapunovTimeSeries = {};
 selectedLyapunovMapParamList = [];
 selectedBifurcationDiagramParamList = [];
 
-var ExplicitNumericalMethodCode = 1;
+var ExplicitNumericalMethodCode = 0;
 
 // init popovers
 $(document).ready(function(){
@@ -559,20 +559,26 @@ function ODEchange(element){
             var params = ODE.split(' ');
             removeItemAll(params, '');
             ODEEqParams[eqvar] = params;
-            var uniqueParams = [];
             // remove all parameters not included in this ODE and outerParams from ODEparamlist
             ODEEqParams[eqvar].forEach(function(eqvarparam) {
-                if (ODEvarlist.indexOf(eqvarparam) != -1) {
+                if (eqvarparam == 't') {
                     deleteParam(eqvarparam);
                     removeItemAll(ODEparamlist, eqvarparam);
-                } else {
-                    if (outerParams.indexOf(eqvarparam) == -1) {
-                        if (params.indexOf(eqvarparam) == -1) {
-                            deleteParam(eqvarparam);
-                            removeItemAll(ODEparamlist, eqvarparam);
-                        } else {
-                            ODEparamlist.push(eqvarparam);
-                            addParam(eqvarparam);
+                } else{
+                    if (ODEvarlist.indexOf(eqvarparam) != -1) {
+                        deleteParam(eqvarparam);
+                        removeItemAll(ODEparamlist, eqvarparam);
+                    } else {
+                        if (outerParams.indexOf(eqvarparam) == -1) {
+                            if (params.indexOf(eqvarparam) == -1) {
+                                deleteParam(eqvarparam);
+                                removeItemAll(ODEparamlist, eqvarparam);
+                            } else {
+                                if (ODEparamlist.indexOf(eqvarparam) == -1) {
+                                    ODEparamlist.push(eqvarparam);
+                                    addParam(eqvarparam);
+                                }
+                            }
                         }
                     }
                 }
