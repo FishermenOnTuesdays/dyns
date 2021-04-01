@@ -104,6 +104,7 @@ def Poincare(data):
     # text_file = open("send.txt", "w")
     # text_file.write(value)
     # text_file.close()
+    print(value)
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     solver.stdin.write(value)
     solver.stdin.flush()
@@ -115,7 +116,9 @@ def Poincare(data):
     res['intersections2D'] = np.array(res['intersections2D']).astype(float).transpose().tolist()
     res['intersections3D'] = np.array(res['intersections3D']).astype(float).transpose().tolist()
     # print('solved at', time.time() - starting_time, 'seconds')
-    return json.dumps(res)
+    ans = json.dumps(res)
+    #print(ans)
+    return ans
 
 
 def Bifurcation(requestData):
