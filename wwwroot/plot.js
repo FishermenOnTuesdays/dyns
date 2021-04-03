@@ -770,6 +770,7 @@ function onDraw()
     }
 
     console.log(request);
+
     if (Object.values(requestData).length > 2 && k == k0){
         successAlert(true);
         jQuery.post(
@@ -1342,7 +1343,7 @@ function makeLyapunovMap(){
     // make data
     k = 0;
     k0 = 0;
-    requestData = {};
+    var requestData = {};
     requestData['request type'] = 1;
     requestData['variables'] = ODEvarlist.join(', ');
     
@@ -1350,10 +1351,10 @@ function makeLyapunovMap(){
     jQuery('.inputstart').each(function(i, elem){
         if ($(elem).val() != ""){
             k0++;
-            start_values.push($(elem).val());
+            start_values.push(parseFloat($(elem).val()));
         }   
     });
-    requestData['start values'] = start_values;
+    requestData['start values[]'] = start_values;
 
     functions = [];
     jQuery('.inputeq').each(function(i, elem){
@@ -1362,7 +1363,7 @@ function makeLyapunovMap(){
             functions.push($(elem).val().slice(($(elem).val().indexOf(')/dt=') + 5)));
         }
     });
-    requestData['functions'] = functions;
+    requestData['functions[]'] = functions;
 
     additional_equations = [];
     jQuery('.inputparam').each(function(i, elem){
@@ -1384,24 +1385,29 @@ function makeLyapunovMap(){
     });
     requestData['additional equations'] = temp_additional_equations.join('; ').split(' =').join(':=') + ';';
 
-    requestData['time'] = jQuery("#time").val();
-    requestData['dt'] = jQuery("#dt").val();
+    requestData['time'] = parseFloat(jQuery("#time").val());
+    requestData['dt'] = parseFloat(jQuery("#dt").val());
 
-    requestData['parameters'] = selectedLyapunovMapParamList;
-    requestData['ranges'] = [];
-    requestData['steps'] = [];
+    requestData['parameters[]'] = selectedLyapunovMapParamList;
+    requestData['ranges[]'] = [];
+    requestData['steps[]'] = [];
     selectedLyapunovMapParamList.forEach(function(item, i) {
-        requestData['ranges'].push([parseFloat($('#input' + item + 'L').val()), parseFloat($('#input' + item + 'R').val())]);
-        requestData['steps'].push(parseFloat($('#input' + item + 'Step').val()));
+        requestData['ranges[]'].push([parseFloat($('#input' + item + 'L').val()), parseFloat($('#input' + item + 'R').val())]);
+        requestData['steps[]'].push(parseFloat($('#input' + item + 'Step').val()));
     });
 
-    console.log(requestData);
+    request = {
+        'request type': 1,
+        'data': JSON.stringify(requestData)
+    }
+
+    console.log(request);
+    
     if (Object.values(requestData).length > 2 && k == k0 && (paramcount == 2)){
         successAlertLyapunovMap(true);
-        //requestData['request type'] = 'main';
         jQuery.post(
             'https://' + ip + ':5000',
-            requestData,
+            request,
             successLyapunovMap
         );
     }
