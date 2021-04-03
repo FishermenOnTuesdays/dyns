@@ -751,11 +751,11 @@ function makePDEInputFrame(){
                     <div class="bg-white rounded shadow p-4 mb-1">
                         <div class="row no-gutters" style="width:100%; font-size: 2em;" id="PDE">
                             \\({ ( }\\)
-                            <input id="PDEF1" type="text" class="form-control input-lg" style="width: 28em; height: 2.5em; font-size: 0.5em;">
+                            <input id="PDEF1" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
                             \\({ ) }\\)
                             \\({ \\frac{\\partial u}{\\partial t} }\\)
                             \\({ + ( }\\)
-                            <input id="PDEF2" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
+                            <input id="PDEF2" type="text" class="form-control input-lg" style="width: 28em; height: 2.5em; font-size: 0.5em;">
                             \\({ ) \\nabla u = \\, }\\)
                             <input id="PDEF3" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
                         </div>
@@ -1143,7 +1143,7 @@ function successSolvePDE(data){
             z: trajectory['u'],
             opacity: 1,
             line:{
-                colorscale: 'Bluered',
+                //colorscale: 'Bluered',
                 color: trajectory['u'],
                 size: 1
             },
@@ -1202,7 +1202,8 @@ function successSolvePDE(data){
                     }
             }, config
     );
-
+    
+    /*
     var x = [];
     var u = [];
     var t = [];
@@ -1221,6 +1222,44 @@ function successSolvePDE(data){
         z: u,
         x: x,
         y: t,
+    }];
+        
+    var layout = {
+        height: 750,
+        margin: {
+            l: 25,
+            r: 25,
+            b: 25,
+            t: 25,
+            pad: 1
+        }
+    };
+    Plotly.newPlot('PDEMeshSurface', data, layout, config);
+    */
+    var x = [];
+    var u = [];
+    for (let i = 0; i < timeSequence.length; i++){
+        temp = [];
+        for (let j = 0; j < trajectories.length; j++){
+            x.push(trajectories[j]['x'][i]);
+            temp.push(trajectories[j]['u'][i]);
+        }
+        u.push(temp);
+    }
+
+    var data = [{
+        type: 'surface',
+        colorscale: 'Bluered',
+        lighting: {
+            ambient:  0.8,
+            diffuse:  0.8,
+            specular:  0,
+            roughness:  1,
+            fresnel:  2.2
+        },
+        z: u,
+        x: x,
+        y: timeSequence,
     }];
         
     var layout = {
