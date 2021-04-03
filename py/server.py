@@ -1,3 +1,4 @@
+import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 import threading
@@ -9,13 +10,24 @@ import time
 # from numba import jit, njit
 import numpy as np
 import pandas as pd
-# import os
+import os
 import sqlite3 as sl
 import ssl
 
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 def Solver():
-    return Popen(['..\cpp\solver.exe'], shell=True, stdout=PIPE, stdin=PIPE)
+    return Popen([resource_path('solver.exe')], shell=True, stdout=PIPE, stdin=PIPE)
 
 
 starting_time = 0
@@ -193,7 +205,7 @@ def Trajectory(requestData):
     # print('solved in', time.time() - start, 'seconds')
     return ans
 '''
-
+'''
 def LyapunovMap(requestData):
     solver = Solver()
     ans = []
@@ -225,7 +237,7 @@ def LyapunovMap(requestData):
     ans.append(result.decode('utf-8'))
     # print('solved in', time.time() - start, 'seconds')
     return ans
-
+'''
 
 # forward request to Solver
 def Solve(request):
@@ -307,8 +319,8 @@ def run(server_class=HTTPServer, handler_class=Handler, port=5000):
     # httpd = server_class(server_address, handler_class)
     httpd = ThreadedHTTPServer(('0.0.0.0', 5000), Handler)
     httpd.socket = ssl.wrap_socket(httpd.socket,
-                                   keyfile="../key.pem",
-                                   certfile='../cert.pem',
+                                   keyfile=resource_path("key.pem"),
+                                   certfile=resource_path('cert.pem'),
                                    server_side=True,
                                    ssl_version=ssl.PROTOCOL_TLS)
     logging.info('Starting httpd...\n')
