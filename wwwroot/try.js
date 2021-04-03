@@ -1,38 +1,3 @@
-/*
-Plotly.d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv', function(err, rows){
-function unpack(rows, key) {
-  return rows.map(function(row) { return row[key]; });
-}
-  
-var z_data=[ ]
-for(i=0;i<24;i++)
-{
-  z_data.push(unpack(rows,i));
-}
-
-
-
-
-var data = [{
-           z: z_data,
-           type: 'surface'
-        }];
-  
-var layout = {
-  title: 'Mt Bruno Elevation',
-  autosize: false,
-  width: 1200,
-  height: 1200,
-  margin: {
-    l: 65,
-    r: 50,
-    b: 65,
-    t: 90,
-  }
-};
-Plotly.newPlot('myDiv', data, layout);
-});
-*/
 
 function loadFile(filePath) {
   var result = null;
@@ -122,4 +87,56 @@ function renderGraph(){
                 }
           }
   );
+
+}
+
+function renderSurfaceGraph(){
+
+  inputJSON = loadFile("data.json");;
+  inputData = JSON.parse(inputJSON);
+  var timeSequence = inputData['time sequence'];
+  timeSequence.unshift(0.0);
+  var trajectories = inputData['trajectories'];
+
+  var x = [];
+  var u = [];
+  var t = [];
+  ///*
+  for (let i = 0; i < timeSequence.length; i++){
+    for (let j = 0; j < trajectories.length; j++){
+      x.push(trajectories[j]['x'][i]);
+      u.push(trajectories[j]['u'][i]);
+      t.push(timeSequence[i]);
+    }
+  }
+  //*/
+  /*
+  trajectories.forEach(function(trajectory, i){
+    x = x.concat(trajectory['x']);
+    u = u.concat([trajectory['u']]);
+    t = t.concat(timeSequence);
+  });
+  */
+
+  var data = [{
+    z: u,
+    x: x,
+    y: t,
+    type: 'mesh3d'
+  }];
+    
+  var layout = {
+    title: '42',
+    autosize: false,
+    width: 1200,
+    height: 1200,
+    margin: {
+      l: 65,
+      r: 50,
+      b: 65,
+      t: 90,
+    }
+  };
+  Plotly.newPlot('myDiv1', data, layout);
+
 }
