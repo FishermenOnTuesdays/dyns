@@ -104,7 +104,7 @@ def Poincare(data):
     # text_file = open("send.txt", "w")
     # text_file.write(value)
     # text_file.close()
-    print(value)
+    #print(value)
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     solver.stdin.write(value)
     solver.stdin.flush()
@@ -178,8 +178,7 @@ def Trajectory(requestData):
     return ans
 '''
 
-
-#'''
+'''
 def Trajectory(requestData):
     solver = Solver()
     ans = []
@@ -193,8 +192,7 @@ def Trajectory(requestData):
     ans.append(result.decode('utf-8'))
     # print('solved in', time.time() - start, 'seconds')
     return ans
-#'''
-
+'''
 
 def LyapunovMap(requestData):
     solver = Solver()
@@ -227,6 +225,19 @@ def LyapunovMap(requestData):
     ans.append(result.decode('utf-8'))
     # print('solved in', time.time() - start, 'seconds')
     return ans
+
+
+# forward request to Solver
+def Solve(request):
+    solver = Solver()
+    print(request)  # log input data
+    solver.stdin.write(bytes(request, 'UTF-8'))
+    solver.stdin.flush()
+    # start = time.time()
+    result = solver.stdout.readline().strip()
+    # print('result = ', result.decode('utf-8'))
+    # print('solved in', time.time() - start, 'seconds')
+    return result.decode('utf-8')
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -264,10 +275,10 @@ class Handler(BaseHTTPRequestHandler):
             answer = deleteUserDynamicSystem(data)
         elif data['request type'][0] == '0':
             print('trajectory request')
-            answer = Trajectory(data)[0]  # [1:-1]
+            answer = Solve(data['data'][0])
         elif data['request type'][0] == '1':
             print('Lyapunov map request')
-            answer = LyapunovMap(data)[0]  # [1:-1]
+            answer = Solve(data['data'][0])
         elif data['request type'][0] == '2':
             print('Bifurcation request')
             answer = Bifurcation(data)
