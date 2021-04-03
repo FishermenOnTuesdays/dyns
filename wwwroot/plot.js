@@ -40,6 +40,7 @@ $(document).ready(function(){
     $('#ODEstitle').popover();
     $('#Equationstitle').popover();
     
+    
     //$("#popover-left").popover({ trigger: "hover" });
 });
 
@@ -79,266 +80,6 @@ function randomInteger(min, max) {
 function transpose(matrix) {
     return matrix[0].map((col, i) => matrix.map(row => row[i]));
 }
-
-var effectVANTA;
-
-/* updates layout */
-function updateLayout(){
-    effectVANTA.resize();
-}
-
-// UI
-jQuery(function(){
-    
-    jQuery("#charts").hide();
-    jQuery("#phasecharts").hide();
-    jQuery("#phasechart2").hide();
-    jQuery("#phasechart3").hide();
-    jQuery("#3dcharts").hide();
-    //jQuery("#3DStreamtubeCharts").hide(); // deprecated
-    jQuery("#lyapunovchart").hide();
-    jQuery("#LyapunovMap").hide();
-    jQuery("#BifurcationDiagram").hide();
-    jQuery("#Poincarecharts").hide();
-    //jQuery("#credits").hide();
-
-    effectVANTA = VANTA.FOG({
-        el: "#mainbody",
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        highlightColor: 0x7bff,
-        midtoneColor: 0x0,
-        lowlightColor: 0xa9ff,
-        baseColor: 0x0
-    });
-    
-    updateLayout();
-
-    document.getElementById("time").defaultValue = "10";
-    document.getElementById("dt").defaultValue = "0.01";
-
-    // btns
-    jQuery("#draw").click(onDraw);
-    jQuery('#addx').click(function(){
-        newODE()
-    });
-    jQuery('#FixedStep').click(function(){
-        if (ExplicitNumericalMethodCode == 1) {
-            $('#StepToggle').removeClass("bg-primary");
-        } else if (ExplicitNumericalMethodCode == 2) {
-            $('#StepToggle').removeClass("bg-secondary");
-        }
-        $('#StepToggle').html('Постоянный шаг');
-        $('#StepToggle').addClass("bg-black");
-        ExplicitNumericalMethodCode = 0;
-    });
-    jQuery('#AdaptiveStep').click(function(){
-        if (ExplicitNumericalMethodCode == 0) {
-            $('#StepToggle').removeClass("bg-black");
-        } else if (ExplicitNumericalMethodCode == 2) {
-            $('#StepToggle').removeClass("bg-secondary");
-        }
-        $('#StepToggle').html('Адаптивный шаг');
-        $('#StepToggle').addClass("bg-primary");
-        ExplicitNumericalMethodCode = 1;
-    });
-    jQuery('#FixedVelocityStep').click(function(){
-        if (ExplicitNumericalMethodCode == 0) {
-            $('#StepToggle').removeClass("bg-black");
-        } else if (ExplicitNumericalMethodCode == 1) {
-            $('#StepToggle').removeClass("bg-primary");
-        }
-        $('#StepToggle').html('Фиксированный по скорости');
-        $('#StepToggle').addClass("bg-secondary");
-        ExplicitNumericalMethodCode = 2;
-    });
-
-    /*
-    jQuery('#drawRangePoincare').click(function(){
-        for (var i = -50; i <= 50; i++){
-            Darc = i;
-            makePlotPoincare();
-        }
-        Darc = 0;
-    });
-    */
-   
-    jQuery('#drawLyapunovMap').click(function(){
-        makeLyapunovMap();
-    });
-    jQuery('#drawBifurcationDiagram').click(function(){
-        makeBifurcationDiagram();
-    });
-    jQuery('#addeq').click(function(){
-        newEq();
-    });
-    $(document).on('click', '.removeODE', function() {
-        inputeqObj = $(this).parent().parent().children('.col-75').children('.inputeq')[0];
-        removeODE(inputeqObj);
-    });
-    $(document).on('click', '.removeEq', function() {
-        removeODE(this);
-    });
-    jQuery('#drawPoincare').click(function(){
-        makePlotPoincare();
-    });
-    
-    //example attractors
-    {
-        jQuery("#lorenz").click(function(){
-            eqs = ["d(x)/dt=s*(y-x)", "d(y)/dt=x*(r-z)-y", "d(z)/dt=x*y-b*z"];
-            eqparams = ["10", "28", "8/3"];
-            setFields(3, eqs, 'ODEs');
-            setFields(3, eqparams, 'params');
-            document.getElementById("time").value = "100";
-            document.getElementById("dt").value = "0.001";
-        })
-
-        jQuery("#dequanli").click(function(){
-            eqs = ["d(x)/dt=a*(y-x)+delta*x*z", "d(y)/dt=ro*x+t*y-x*z", "d(z)/dt=beta*z+x*y-eps*x*x"];
-            eqparams = ["40", "0.16", "55", "20", "1.833", "0.65"];
-            setFields(3, eqs, 'ODEs');
-            setFields(6, eqparams, 'params');
-            document.getElementById("time").value = "10";
-            document.getElementById("dt").value = "0.001";
-        })
-
-        jQuery("#shilnikov").click(function(){
-            eqs = ["d(x)/dt=y", "d(y)/dt=z", "d(z)/dt=-0.87*x-y-0.4*z+x*x"];
-            setFields(3, eqs, 'ODEs');
-            document.getElementById("time").value = "100";
-            document.getElementById("dt").value = "0.001";
-        })
-
-        jQuery("#aizawa").click(function(){
-            eqs = ["d(x)/dt=(z-beta)*x-delta*y", "d(y)/dt=delta*x+(z-beta)*y", "d(z)/dt=gamma+alpha*z-z^3/3-(x^2+y^2)*(1+eps*z)+dzeta*z*x^3"];
-            eqparams = ["0.7", "3.5", "0.6", "0.95", "0.25", "0.1"];
-            setFields(3, eqs, 'ODEs');
-            setFields(6, eqparams, 'params');
-            document.getElementById("time").value = "100";
-            document.getElementById("dt").value = "0.01";
-        })
-    }
-    
-    // btn Groups
-    $(document).on('click', '.btn-phase', function(){
-        if ($(this).is("active"))
-        {
-            s = this.id;
-            /*
-            $(this).siblings().removeClass('active');
-            makePlotXY(xs[this.id.split('/')[0]], xs[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
-            */
-        }
-        else
-        {
-            s = this.id;
-            $(this).addClass('active');
-            $(this).siblings().removeClass('active');
-            makePlotXY(equationTimeSeries[this.id.split('/')[0]], equationTimeSeries[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
-        }
-    });
-    $(document).on('click', '.btn-Poincare', function(){
-        if ($(this).is("active"))
-        {
-            s = this.id;
-            /*
-            $(this).siblings().removeClass('active');
-            */
-        }
-        else
-        {
-            s = this.id;
-            $(this).addClass('active');
-            $(this).siblings().removeClass('active');
-            currentXs[0] = this.id.split('/')[0];
-            currentXs[1] = this.id.split('/')[1];
-            currentXs[2] = this.id.split('/')[2];
-            makePlotPoincare();
-        }
-    });
-    $(document).on('change', '.inputeq', function() {
-        ODEchange(this);
-    });
-    $(document).on('click', '.LyapunovMapCheckBox', function() {
-        if (selectedLyapunovMapParamList.length < 2){
-            if (selectedLyapunovMapParamList.indexOf(this.id.slice(19)) == -1){
-                selectedLyapunovMapParamList.push(this.id.slice(19));
-            } else {
-                removeItemOnce(selectedLyapunovMapParamList, this.id.slice(19));
-            }
-        } else {
-            if (selectedLyapunovMapParamList.indexOf(this.id.slice(19)) == -1){
-                alert("Можно выбрать только два параметра");
-                this.checked = false;
-            } else {
-                removeItemOnce(selectedLyapunovMapParamList, this.id.slice(19));
-            }
-        }
-    });
-    $(document).on('click', '.BifurcationDiagramCheckBox', function() {
-        if (selectedBifurcationDiagramParamList.length < 1){
-            if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(26)) == -1){
-                selectedBifurcationDiagramParamList.push(this.id.slice(26));
-            } else {
-                removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(26));
-            }
-        } else {
-            if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(26)) == -1){
-                alert("Можно выбрать только один параметр");
-                this.checked = false;
-            } else {
-                removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(26));
-            }
-        }
-    });
-    $(document).on('click', '.userSavedDS', function(){
-        SavedDSid = this.id.slice(7);
-        userDynamicSystem = userDynamicSystems[SavedDSid]['data']['data']
-        eqs = userDynamicSystem['ODEs'];
-        eqparams = userDynamicSystem['params'];
-        equations = userDynamicSystem['Equations'];
-        setFields(eqs.length, eqs, 'ODEs');
-        setFields(eqparams.length, eqparams, 'params');
-        document.getElementById("time").value = userDynamicSystem['time'];
-        document.getElementById("dt").value = userDynamicSystem['dt'];
-        setFields(equations.length, equations, 'Equations');
-    });
-    $(document).on('click', '.userDeleteSavedDS', function(){
-        SavedDSid = this.id.slice(13);
-        requestData = {
-            'request type': 'deleteUserDynamicSystem',
-            'login': USER['login'],
-            'password': USER['password'],
-            'title': userDynamicSystems[SavedDSid]['name'],
-            'data': JSON.stringify(userDynamicSystems[SavedDSid]['data'])
-        };
-        jQuery.post(
-            'https://' + ip + ':5000',
-            requestData,
-            successDeleteSavedDS
-        );
-        delete userDynamicSystems[SavedDSid];
-        $(this).parent().parent().remove();
-    });
-    $('#submit-login').on("click",function(e){
-		login = $('#inputLogin').val()
-        password = $('#inputPassword').val()
-        requestData = {
-            'request type': 'login',
-            'login': login,
-            'password': password
-        };
-        jQuery.post(
-            'https://' + ip + ':5000',
-            requestData,
-            successLogin
-        );
-    });
-});
 
 // UI fill ins
 /* receives value and number of it and fills in ODEs start values */
@@ -404,6 +145,272 @@ function setFields(n, array, type){
 }
 
 // UI
+var effectVANTA;
+// launch UI
+onStart();
+
+/* updates layout */
+function updateLayout(){
+    effectVANTA.resize();
+}
+/* launches on start, prepair page */
+function onStart(){
+
+    jQuery(function(){
+
+        effectVANTA = VANTA.FOG({
+            el: "#mainbody",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            highlightColor: 0x7bff,
+            midtoneColor: 0x0,
+            lowlightColor: 0xa9ff,
+            baseColor: 0x0
+        });
+
+        jQuery("#makePDEInputFrameButton").on('click', function() {
+            makePDEInputFrame();
+        });
+    
+        jQuery("#charts").hide();
+        jQuery("#phasecharts").hide();
+        jQuery("#phasechart2").hide();
+        jQuery("#phasechart3").hide();
+        jQuery("#3dcharts").hide();
+        //jQuery("#3DStreamtubeCharts").hide(); // deprecated
+        jQuery("#lyapunovchart").hide();
+        jQuery("#LyapunovMap").hide();
+        jQuery("#BifurcationDiagram").hide();
+        jQuery("#Poincarecharts").hide();
+        //jQuery("#credits").hide();
+
+        $(document).on('click', '.userSavedDS', function(){
+            SavedDSid = this.id.slice(7);
+            userDynamicSystem = userDynamicSystems[SavedDSid]['data']['data']
+            eqs = userDynamicSystem['ODEs'];
+            eqparams = userDynamicSystem['params'];
+            equations = userDynamicSystem['Equations'];
+            setFields(eqs.length, eqs, 'ODEs');
+            setFields(eqparams.length, eqparams, 'params');
+            document.getElementById("time").value = userDynamicSystem['time'];
+            document.getElementById("dt").value = userDynamicSystem['dt'];
+            setFields(equations.length, equations, 'Equations');
+        });
+        $(document).on('click', '.userDeleteSavedDS', function(){
+            SavedDSid = this.id.slice(13);
+            requestData = {
+                'request type': 'deleteUserDynamicSystem',
+                'login': USER['login'],
+                'password': USER['password'],
+                'title': userDynamicSystems[SavedDSid]['name'],
+                'data': JSON.stringify(userDynamicSystems[SavedDSid]['data'])
+            };
+            jQuery.post(
+                'https://' + ip + ':5000',
+                requestData,
+                successDeleteSavedDS
+            );
+            delete userDynamicSystems[SavedDSid];
+            $(this).parent().parent().remove();
+        });
+        $('#submit-login').on("click",function(e){
+            login = $('#inputLogin').val()
+            password = $('#inputPassword').val()
+            requestData = {
+                'request type': 'login',
+                'login': login,
+                'password': password
+            };
+            jQuery.post(
+                'https://' + ip + ':5000',
+                requestData,
+                successLogin
+            );
+        });
+
+    })
+
+    engageODELayout();
+    updateLayout();
+
+}
+/* engages ODE layout */
+function engageODELayout(){
+
+    jQuery(function(){
+        document.getElementById("time").defaultValue = "10";
+        document.getElementById("dt").defaultValue = "0.01";
+
+        // btns
+        jQuery("#draw").click(onDraw);
+        jQuery('#addx').click(function(){
+            newODE()
+        });
+        jQuery('#FixedStep').click(function(){
+            if (ExplicitNumericalMethodCode == 1) {
+                $('#StepToggle').removeClass("bg-primary");
+            } else if (ExplicitNumericalMethodCode == 2) {
+                $('#StepToggle').removeClass("bg-secondary");
+            }
+            $('#StepToggle').html('Постоянный шаг');
+            $('#StepToggle').addClass("bg-black");
+            ExplicitNumericalMethodCode = 0;
+        });
+        jQuery('#AdaptiveStep').click(function(){
+            if (ExplicitNumericalMethodCode == 0) {
+                $('#StepToggle').removeClass("bg-black");
+            } else if (ExplicitNumericalMethodCode == 2) {
+                $('#StepToggle').removeClass("bg-secondary");
+            }
+            $('#StepToggle').html('Адаптивный шаг');
+            $('#StepToggle').addClass("bg-primary");
+            ExplicitNumericalMethodCode = 1;
+        });
+        jQuery('#FixedVelocityStep').click(function(){
+            if (ExplicitNumericalMethodCode == 0) {
+                $('#StepToggle').removeClass("bg-black");
+            } else if (ExplicitNumericalMethodCode == 1) {
+                $('#StepToggle').removeClass("bg-primary");
+            }
+            $('#StepToggle').html('Фиксированный по скорости');
+            $('#StepToggle').addClass("bg-secondary");
+            ExplicitNumericalMethodCode = 2;
+        });
+    
+        jQuery('#drawLyapunovMap').click(function(){
+            makeLyapunovMap();
+        });
+        jQuery('#drawBifurcationDiagram').click(function(){
+            makeBifurcationDiagram();
+        });
+        jQuery('#addeq').click(function(){
+            newEq();
+        });
+        $(document).on('click', '.removeODE', function() {
+            inputeqObj = $(this).parent().parent().children('.col-75').children('.inputeq')[0];
+            removeODE(inputeqObj);
+        });
+        $(document).on('click', '.removeEq', function() {
+            removeODE(this);
+        });
+        jQuery('#drawPoincare').click(function(){
+            makePlotPoincare();
+        });
+        
+        //example attractors
+        {
+            jQuery("#lorenz").click(function(){
+                eqs = ["d(x)/dt=s*(y-x)", "d(y)/dt=x*(r-z)-y", "d(z)/dt=x*y-b*z"];
+                eqparams = ["10", "28", "8/3"];
+                setFields(3, eqs, 'ODEs');
+                setFields(3, eqparams, 'params');
+                document.getElementById("time").value = "100";
+                document.getElementById("dt").value = "0.001";
+            })
+
+            jQuery("#dequanli").click(function(){
+                eqs = ["d(x)/dt=a*(y-x)+delta*x*z", "d(y)/dt=ro*x+t*y-x*z", "d(z)/dt=beta*z+x*y-eps*x*x"];
+                eqparams = ["40", "0.16", "55", "20", "1.833", "0.65"];
+                setFields(3, eqs, 'ODEs');
+                setFields(6, eqparams, 'params');
+                document.getElementById("time").value = "10";
+                document.getElementById("dt").value = "0.001";
+            })
+
+            jQuery("#shilnikov").click(function(){
+                eqs = ["d(x)/dt=y", "d(y)/dt=z", "d(z)/dt=-0.87*x-y-0.4*z+x*x"];
+                setFields(3, eqs, 'ODEs');
+                document.getElementById("time").value = "100";
+                document.getElementById("dt").value = "0.001";
+            })
+
+            jQuery("#aizawa").click(function(){
+                eqs = ["d(x)/dt=(z-beta)*x-delta*y", "d(y)/dt=delta*x+(z-beta)*y", "d(z)/dt=gamma+alpha*z-z^3/3-(x^2+y^2)*(1+eps*z)+dzeta*z*x^3"];
+                eqparams = ["0.7", "3.5", "0.6", "0.95", "0.25", "0.1"];
+                setFields(3, eqs, 'ODEs');
+                setFields(6, eqparams, 'params');
+                document.getElementById("time").value = "100";
+                document.getElementById("dt").value = "0.01";
+            })
+        }
+        
+        // btn Groups
+        $(document).on('click', '.btn-phase', function(){
+            if ($(this).is("active"))
+            {
+                s = this.id;
+                /*
+                $(this).siblings().removeClass('active');
+                makePlotXY(xs[this.id.split('/')[0]], xs[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
+                */
+            }
+            else
+            {
+                s = this.id;
+                $(this).addClass('active');
+                $(this).siblings().removeClass('active');
+                makePlotXY(equationTimeSeries[this.id.split('/')[0]], equationTimeSeries[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
+            }
+        });
+        $(document).on('click', '.btn-Poincare', function(){
+            if ($(this).is("active"))
+            {
+                s = this.id;
+                /*
+                $(this).siblings().removeClass('active');
+                */
+            }
+            else
+            {
+                s = this.id;
+                $(this).addClass('active');
+                $(this).siblings().removeClass('active');
+                currentXs[0] = this.id.split('/')[0];
+                currentXs[1] = this.id.split('/')[1];
+                currentXs[2] = this.id.split('/')[2];
+                makePlotPoincare();
+            }
+        });
+        $(document).on('change', '.inputeq', function() {
+            ODEchange(this);
+        });
+        $(document).on('click', '.LyapunovMapCheckBox', function() {
+            if (selectedLyapunovMapParamList.length < 2){
+                if (selectedLyapunovMapParamList.indexOf(this.id.slice(19)) == -1){
+                    selectedLyapunovMapParamList.push(this.id.slice(19));
+                } else {
+                    removeItemOnce(selectedLyapunovMapParamList, this.id.slice(19));
+                }
+            } else {
+                if (selectedLyapunovMapParamList.indexOf(this.id.slice(19)) == -1){
+                    alert("Можно выбрать только два параметра");
+                    this.checked = false;
+                } else {
+                    removeItemOnce(selectedLyapunovMapParamList, this.id.slice(19));
+                }
+            }
+        });
+        $(document).on('click', '.BifurcationDiagramCheckBox', function() {
+            if (selectedBifurcationDiagramParamList.length < 1){
+                if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(26)) == -1){
+                    selectedBifurcationDiagramParamList.push(this.id.slice(26));
+                } else {
+                    removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(26));
+                }
+            } else {
+                if (selectedBifurcationDiagramParamList.indexOf(this.id.slice(26)) == -1){
+                    alert("Можно выбрать только один параметр");
+                    this.checked = false;
+                } else {
+                    removeItemOnce(selectedBifurcationDiagramParamList, this.id.slice(26));
+                }
+            }
+        });
+    });
+}
 /* creates new ODE row and updates layout */
 function newODE(){
     var newx = '<div class="bg-white rounded shadow p-1 mb-1"><div class="row no-gutters" style="width:100%;"><div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="xi_0" placeholder=""></div><div class="col col-75"><input type="text" class="form-control inputeq" id="xi" placeholder="" value="d()/dt="></div><div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div></div></div>';
@@ -586,7 +593,334 @@ function ODEchange(element){
         }
     }
 }
+/* makes ODE layout */
+function makeODEInputFrame(){
+    codeODEInputFrame = `
+        <!--           ODEs input frame            -->
+        <div class="row m10">
+            <div class="col-8 p-0 pr-1">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="maininput" >
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col col-20 p-1 h5 text-white">начальные условия</div>
+                        <div class="col col-75 p-1 h5 text-white" id="ODEstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются автономные и неавтономные уравнения, переменными могут быть любые комбинации букв" rel="popover" data-placement="left" data-trigger="hover">
+                            дифференциальные уравнения
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                            <div class="col col-75"><input type="text" class="form-control inputeq" id="x1" placeholder="" value="d()/dt="></div>
+                            <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                            <div class="col col-75"><input type="text" class="form-control inputeq" id="x2" placeholder="" value="d()/dt="></div>
+                            <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                            <div class="col col-75"><input type="text" class="form-control inputeq" id="x3" placeholder="" value="d()/dt="></div>
+                            <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                        </div>
+                    </div>
+                </fieldset>
 
+                <!--            add row button            -->
+                <div class="row justify-content-center mt-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-primary btn-block" id="addx">добавить уравнение</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 p-0 pl-1">
+                <!--            parameters input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="paraminput">
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col-12 p-1 h5 text-white" id="PARAMStitle" aria-haspopup="true" aria-expanded="false" data-content="Определяются автоматически, необходимо только ввести их значения" rel="popover" data-placement="left" data-trigger="hover">параметры</div>
+                    </div>
+                    <!--
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param1name" value="name ="></div>
+                            <div class="col col-10"><input type="text" class="form-control" id="param1" placeholder="значение"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param2name"></div>
+                            <div class="col col-10"><input type="text" class="form-control" id="param2" placeholder=""></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param3name"></div>
+                            <div class="col col-10"><input type="text" class="form-control" id="param3" placeholder=""></div>
+                        </div>
+                    </div>
+                    -->
+                </fieldset>
+            </div>
+        </div>
+
+        <!--           Eq input frame            -->
+        <div class="row m10">
+            <div class="col-12 p-0 pr-1">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="eqinput">
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col col-12 p-1 h5 text-white" id="Equationstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются уравнения с переменными из дифференциальных уравнений" rel="popover" data-placement="left" data-trigger="hover">
+                            уравнения
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
+                            <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!--            add eq button            -->
+                <div class="row justify-content-center mt-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-primary btn-block" id="addeq">добавить уравнение</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--            secondary input frame            -->
+        <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
+            <div class="row no-gutters mb-1 ml-1">
+                <div class="col col-4 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
+                <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
+            </div>
+
+            <div class="row no-gutters mb-1 ml-1">
+                <div class="col col-3 p-1 m-0">
+                    <!--<button type="button" class="btn bg-primary text-white w100" id="AdaptiveStepToggle">Адаптивный</button>-->
+                    <div class="btn-group dropup" style="width: 100%;">
+                        <button type="button" id="StepToggle" class="btn bg-black text-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Постоянный шаг
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" id="FixedStep">Постоянный шаг</a>
+                            <a class="dropdown-item" href="#" id="AdaptiveStep">Адаптивный шаг</a>
+                            <a class="dropdown-item" href="#" id="FixedVelocityStep">Фиксированный по скорости</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
+                <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
+                </div>
+            </div>
+        </div>
+    `;
+    jQuery('#InputFrame').empty();
+    jQuery('#InputFrame').append(codeODEInputFrame);
+    jQuery('#makeODEInputFrameButton').after(`<a class="nav-link text-primary" id="makePDEInputFrameButton">УРЧП</a>`);
+    jQuery('#makeODEInputFrameButton').remove();
+    $("#makePDEInputFrameButton").on('click', function() {
+        makePDEInputFrame();
+    });
+    engageODELayout();
+    updateLayout();
+}
+/* makes PDE layout */
+function makePDEInputFrame(){
+    codePDEInputFrame = `
+        <!--           PDE input frame            -->
+        <div class="row m10">
+            <div class="col-12 p-0 pr-1">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="PDEinput" >
+                    <div class="row justify-content-start p-1 ml-1">
+                    </div>
+                    <div class="bg-white rounded shadow p-4 mb-1">
+                        <div class="row no-gutters" style="width:100%; font-size: 2em;" id="PDE">
+                            \\({ ( }\\)
+                            <input id="PDEF1" type="text" class="form-control input-lg" style="width: 28em; height: 2.5em; font-size: 0.5em;">
+                            \\({ ) \\nabla u + }\\)
+                            \\({ \\frac{\\partial u}{\\partial t} }\\)
+                            \\({ ( }\\)
+                            <input id="PDEF2" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
+                            \\({ ) = \\, }\\)
+                            <input id="PDEF3" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <!--           boundary functions input frame            -->
+        <div class="row m10">
+            <div class="col-12 p-0 pr-1">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="boundaryfunctioninput">
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col col-12 p-1 h5 text-white" id="boundaryfunctionstitle" aria-haspopup="true" aria-expanded="false" data-content="Граничные функции" rel="popover" data-placement="left" data-trigger="hover">
+                            Граничные функции
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-95"><input type="text" class="form-control boundaryfunction" placeholder="" value=""></div>
+                            <div class="col col-05"><button class="removeboundaryfunction btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!--            add boundaryfunction button            -->
+                <div class="row justify-content-center mt-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-primary btn-block" id="addboundaryfunction">добавить уравнение</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--            secondary input frame            -->
+        <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
+
+            <div class="row no-gutters mb-1 ml-1 rounded" id="PDEparamSlider">
+                <div class="col-12 zero-padding rounded">
+                    <div class="row no-gutters justify-content-center align-self-center bg-light rounded">
+                        <div class="col-1 text-center my-2" style="font-size:1vw;"> <b>p</b> </div>
+                        <div class="col-10 justify-content-center align-self-center">
+                            <div class="row no-gutters" style="width: 100%;">
+                                <div class="col-2 justify-content-center align-self-center">
+                                    <input type="text" class="form-control"
+                                        style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;"
+                                        id="inputPDEparamL" value="-10">
+                                </div>
+                                <div class="col-8 justify-content-center align-self-center">
+                                    <div id="sliderRangePDEparam"
+                                        class="ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content">
+                                        <div class="ui-slider-range ui-corner-all ui-widget-header" style="width: 10%; left: 45%;">
+                                        </div>
+                                        <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"
+                                            style="left: 45%;"></span><span tabindex="0"
+                                            class="ui-slider-handle ui-corner-all ui-state-default" style="left: 55%;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control"
+                                        style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;"
+                                        id="inputPDEparamR" value="10"> </div>
+                            </div>
+                        </div>
+                        <div class="col-1 text-center my-auto"> <input type="text" class="form-control"
+                                style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;"
+                                id="inputPDEparamStep" value="1"> </div>
+                    </div>
+                </div>
+                <script> 
+                    $(function() {
+                        $("#sliderRangePDEparam").slider({
+                            range: true,
+                            min: -10,
+                            max: 10,
+                            step : 1,
+                            values: [-1, 1],
+                            slide: function( event, ui ) {
+                                $("#inputPDEparamL").val(ui.values[0]);
+                                $("#inputPDEparamR").val(ui.values[1]);
+                                $("#sliderRangePDEparam").slider("option", "min", ui.values[0] - 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                                $("#sliderRangePDEparam").slider("option", "max", ui.values[1] + 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                            }
+                        });
+                        $("#inputPDEparamL").on("change paste keyup", function() {
+                            $("#sliderRangePDEparam").slider("option", "min", $(this).val() - 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                            $("#sliderRangePDEparam").slider("values", 0, $(this).val());
+                        });
+                        $("#inputPDEparamR").on("change paste keyup", function() {
+                            $("#sliderRangePDEparam").slider("option", "max", $(this).val() + 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                            $("#sliderRangePDEparam").slider("values", 1, $(this).val());
+                        });
+                        $("#inputPARAMStep").on("change paste keyup", function() {
+                            $("#sliderRangePDEparam").slider("option", "step", $(this).val());
+                            $("#sliderRangePDEparam").slider("option", "min", $("#sliderRangePDEparam").slider("option", "min") - 10 * $(this).val());
+                            $("#sliderRangePDEparam").slider("option", "max", $("#sliderRangePDEparam").slider("option", "max") + 10 * $(this).val());
+                        });
+                    });
+                </script>
+            </div>
+
+            <div class="row no-gutters mb-1 ml-1">
+                <div class="col col-4 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
+                <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
+            </div>
+
+            <div class="row no-gutters mb-1 ml-1">
+                <div class="col col-3 p-1 m-0"></div>
+                <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
+                <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="SolvePDE">Построить решение</button>
+                </div>
+            </div>
+        </div>
+    `;
+    setTimeout(function () {
+        MathJax.typesetPromise();
+        updateLayout();
+    }, 100);
+    jQuery('#InputFrame').empty();
+    jQuery('#InputFrame').append(codePDEInputFrame);
+    jQuery('#makePDEInputFrameButton').after(`<a class="nav-link text-primary" id="makeODEInputFrameButton">ОДУ</a>`);
+    jQuery('#makePDEInputFrameButton').remove();
+    document.getElementById("time").defaultValue = "10";
+    document.getElementById("dt").defaultValue = "0.01";
+    $('#boundaryfunctionstitle').popover();
+    $("#makeODEInputFrameButton").on('click', function() {
+        makeODEInputFrame();
+    });
+    jQuery('#addboundaryfunction').click(function(){
+        newBoundaryFunction();
+    });
+    jQuery(function(){
+        $(document).on('click', '.removeboundaryfunction', function(){
+            removeBoundaryFunction(this);
+        });
+    });SolvePDE
+    jQuery('#SolvePDE').click(function(){
+        SolvePDE();
+    });
+}
+/* creates new boundary function row and updates layout*/
+function newBoundaryFunction(){
+    var newboundaryfunction = `
+        <div class="bg-white rounded shadow p-1 mb-1">
+            <div class="row no-gutters" style="width:100%;">
+                <div class="col col-95"><input type="text" class="form-control boundaryfunction" placeholder="" value=""></div>
+                <div class="col col-05"><button class="removeboundaryfunction btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+            </div>
+        </div>
+        `;
+    count = 0;
+    $('.boundaryfunction').each(function(i, elem){
+        count++;
+    });
+    $('#boundaryfunctioninput').append(newboundaryfunction);
+    updateLayout();
+}
+/* receives .boundaryfunction object, deletes its input row and updates layout */
+function removeBoundaryFunction(elem){
+    $(elem).parent().parent().parent().remove();
+    updateLayout()
+}
 
 // Login
 /* processes login sequence */
@@ -721,6 +1055,72 @@ function successSaveUserDynamicSystem(data){
 function successDeleteSavedDS(data){
     //alert(data);
 }
+
+// PDE
+function SolvePDE(){
+    // make data
+    k = 0;
+    k0 = 0;
+    var requestData = {};
+    requestData['request type'] = 4;
+    requestData['variables'] = 'x, u';
+    
+    start_values = [];
+    jQuery('.inputstart').each(function(i, elem){
+        if ($(elem).val() != ""){
+            k0++;
+            start_values.push(parseFloat($(elem).val()));
+        }   
+    });
+    requestData['start values[]'] = start_values;
+
+    functions = [];
+    jQuery('.inputeq').each(function(i, elem){
+        if ($(elem).val() != ""){
+            k++;
+            functions.push($(elem).val().slice(($(elem).val().indexOf(')/dt=') + 5)));
+        }
+    });
+    requestData['functions[]'] = functions;
+
+    additional_equations = [];
+    jQuery('.inputparam').each(function(i, elem){
+        if ($(elem).val() != ""){
+            nameeq = $($(elem).parent().parent().children()[0]).children()[0].value;
+            additional_equations.push(nameeq + $(elem).val());
+        }
+    });
+    requestData['additional equations'] = '';
+    requestData['time'] = parseFloat(jQuery("#time").val());
+    requestData['dt'] = parseFloat(jQuery("#dt").val());
+    requestData['ExplicitNumericalMethodCode'] = 0; //ExplicitNumericalMethodCode;
+
+    request = {
+        'request type': 4,
+        'data': JSON.stringify(requestData)
+    }
+
+    console.log(request);
+
+    if (Object.values(requestData).length > 2 && k == k0){
+        successAlert(true);
+        jQuery.post(
+            'https://' + ip + ':5000',
+            request,
+            success
+        );
+    }
+    else{
+        /*
+        var code = jQuery(".code");
+        var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕВЕРНЫЙ ФОРМАТ ЗНАЧЕНИЙ</div>');
+        code.prepend(d);
+        $('#navbarDropdownMenuLink').popover('show');
+        jQuery("#error_alert").delay(1000).fadeOut(100);
+        */
+    }
+}
+
 
 // web graph
 function onDraw()
@@ -1762,8 +2162,7 @@ function savetocsv() {
 }
 */
 /*
-in jQuery
-// file
+
 $('#submit-file').on("click",function(e){
     e.preventDefault();
     $('#files').parse({

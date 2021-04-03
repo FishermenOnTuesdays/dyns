@@ -13,6 +13,8 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
         <script src="scripts/jquery-ui.min.js"></script>
         <link rel = "stylesheet" href="scripts/jquery-ui.min.css"/>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         
         <!--                 project code                 -->
         <script src="plot.js"></script>
@@ -44,7 +46,6 @@
                         <img src="logo.svg" height="150">
                     </div>
                 </div>
-
                 <!--            nav frame            -->
                 <nav class="navbar navbar-expand navbar-light bg-black rounded m10">
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,6 +63,9 @@
                                     <a class="dropdown-item" href="#" id="shilnikov">Аттрактор Шильникова</a>
                                     <a class="dropdown-item" href="#" id="aizawa">Аттрактор Айзава</a>
                                 </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-primary" id="makePDEInputFrameButton">УРЧП</a>
                             </li>
                             
                             <!-- Button trigger modal -->
@@ -213,133 +217,135 @@
                         </form>
                     </div>
                 </nav>
-                
-                <!--           ODEs input frame            -->
-                <div class="row m10">
-                    <div class="col-8 p-0 pr-1">
-                        <!--            main input frame            -->
-                        <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="maininput" >
-                            <div class="row justify-content-start p-1 ml-1">
-                                <div class="col col-20 p-1 h5 text-white">начальные условия</div>
-                                <div class="col col-75 p-1 h5 text-white" id="ODEstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются автономные и неавтономные уравнения, переменными могут быть любые комбинации букв" rel="popover" data-placement="left" data-trigger="hover">
-                                    дифференциальные уравнения
-                                </div>
-                            </div>
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
-                                    <div class="col col-75"><input type="text" class="form-control inputeq" id="x1" placeholder="" value="d()/dt="></div>
-                                    <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
-                                    <div class="col col-75"><input type="text" class="form-control inputeq" id="x2" placeholder="" value="d()/dt="></div>
-                                    <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
-                                    <div class="col col-75"><input type="text" class="form-control inputeq" id="x3" placeholder="" value="d()/dt="></div>
-                                    <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                </div>
-                            </div>
-                        </fieldset>
 
-                        <!--            add row button            -->
-                        <div class="row justify-content-center mt-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-primary btn-block" id="addx">добавить уравнение</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 p-0 pl-1">
-                        <!--            parameters input frame            -->
-                        <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="paraminput">
-                            <div class="row justify-content-start p-1 ml-1">
-                                <div class="col-12 p-1 h5 text-white" id="PARAMStitle" aria-haspopup="true" aria-expanded="false" data-content="Определяются автоматически, необходимо только ввести их значения" rel="popover" data-placement="left" data-trigger="hover">параметры</div>
-                            </div>
-                            <!--
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param1name" value="name ="></div>
-                                    <div class="col col-10"><input type="text" class="form-control" id="param1" placeholder="значение"></div>
+                <div id="InputFrame">
+                    <!--           ODEs input frame            -->
+                    <div class="row m10">
+                        <div class="col-8 p-0 pr-1">
+                            <!--            main input frame            -->
+                            <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="maininput" >
+                                <div class="row justify-content-start p-1 ml-1">
+                                    <div class="col col-20 p-1 h5 text-white">начальные условия</div>
+                                    <div class="col col-75 p-1 h5 text-white" id="ODEstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются автономные и неавтономные уравнения, переменными могут быть любые комбинации букв" rel="popover" data-placement="left" data-trigger="hover">
+                                        дифференциальные уравнения
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param2name"></div>
-                                    <div class="col col-10"><input type="text" class="form-control" id="param2" placeholder=""></div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                                        <div class="col col-75"><input type="text" class="form-control inputeq" id="x1" placeholder="" value="d()/dt="></div>
+                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param3name"></div>
-                                    <div class="col col-10"><input type="text" class="form-control" id="param3" placeholder=""></div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                                        <div class="col col-75"><input type="text" class="form-control inputeq" id="x2" placeholder="" value="d()/dt="></div>
+                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                    </div>
                                 </div>
-                            </div>
-                            -->
-                        </fieldset>
-                    </div>
-                </div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-20 pr-1"><input type="text" class="form-control inputstart" id="x_0" placeholder=""></div>
+                                        <div class="col col-75"><input type="text" class="form-control inputeq" id="x3" placeholder="" value="d()/dt="></div>
+                                        <div class="col col-05"><button class="removeODE btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                    </div>
+                                </div>
+                            </fieldset>
 
-                <!--           Eq input frame            -->
-                <div class="row m10">
-                    <div class="col-12 p-0 pr-1">
-                        <!--            main input frame            -->
-                        <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="eqinput">
-                            <div class="row justify-content-start p-1 ml-1">
-                                <div class="col col-12 p-1 h5 text-white" id="Equationstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются уравнения с переменными из дифференциальных уравнений" rel="popover" data-placement="left" data-trigger="hover">
-                                    уравнения
-                                </div>
-                            </div>
-                            <div class="bg-white rounded shadow p-1 mb-1">
-                                <div class="row no-gutters" style="width:100%;">
-                                    <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
-                                    <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
-                                </div>
-                            </div>
-                        </fieldset>
-
-                        <!--            add eq button            -->
-                        <div class="row justify-content-center mt-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-outline-primary btn-block" id="addeq">добавить уравнение</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!--            secondary input frame            -->
-                <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
-                    <div class="row no-gutters mb-1 ml-1">
-                        <div class="col col-4 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
-                        <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
-                    </div>
-
-                    <div class="row no-gutters mb-1 ml-1">
-                        <div class="col col-3 p-1 m-0">
-                            <!--<button type="button" class="btn bg-primary text-white w100" id="AdaptiveStepToggle">Адаптивный</button>-->
-                            <div class="btn-group dropup" style="width: 100%;">
-                                <button type="button" id="StepToggle" class="btn bg-black text-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Постоянный шаг
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="#" id="FixedStep">Постоянный шаг</a>
-                                    <a class="dropdown-item" href="#" id="AdaptiveStep">Адаптивный шаг</a>
-                                    <a class="dropdown-item" href="#" id="FixedVelocityStep">Фиксированный по скорости</a>
+                            <!--            add row button            -->
+                            <div class="row justify-content-center mt-2">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-primary btn-block" id="addx">добавить уравнение</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
-                        <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+                        <div class="col-4 p-0 pl-1">
+                            <!--            parameters input frame            -->
+                            <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="paraminput">
+                                <div class="row justify-content-start p-1 ml-1">
+                                    <div class="col-12 p-1 h5 text-white" id="PARAMStitle" aria-haspopup="true" aria-expanded="false" data-content="Определяются автоматически, необходимо только ввести их значения" rel="popover" data-placement="left" data-trigger="hover">параметры</div>
+                                </div>
+                                <!--
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param1name" value="name ="></div>
+                                        <div class="col col-10"><input type="text" class="form-control" id="param1" placeholder="значение"></div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param2name"></div>
+                                        <div class="col col-10"><input type="text" class="form-control" id="param2" placeholder=""></div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-2 pr-1"><input type="text" class="form-control" style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: start;" id="param3name"></div>
+                                        <div class="col col-10"><input type="text" class="form-control" id="param3" placeholder=""></div>
+                                    </div>
+                                </div>
+                                -->
+                            </fieldset>
+                        </div>
                     </div>
 
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
+                    <!--           Eq input frame            -->
+                    <div class="row m10">
+                        <div class="col-12 p-0 pr-1">
+                            <!--            main input frame            -->
+                            <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="eqinput">
+                                <div class="row justify-content-start p-1 ml-1">
+                                    <div class="col col-12 p-1 h5 text-white" id="Equationstitle" aria-haspopup="true" aria-expanded="false" data-content="Поддерживаются уравнения с переменными из дифференциальных уравнений" rel="popover" data-placement="left" data-trigger="hover">
+                                        уравнения
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded shadow p-1 mb-1">
+                                    <div class="row no-gutters" style="width:100%;">
+                                        <div class="col col-95"><input type="text" class="form-control eq" id="eq1" placeholder="variable = ..." value=""></div>
+                                        <div class="col col-05"><button class="removeEq btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <!--            add eq button            -->
+                            <div class="row justify-content-center mt-2">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-primary btn-block" id="addeq">добавить уравнение</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--            secondary input frame            -->
+                    <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
+                        <div class="row no-gutters mb-1 ml-1">
+                            <div class="col col-4 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
+                            <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
+                        </div>
+
+                        <div class="row no-gutters mb-1 ml-1">
+                            <div class="col col-3 p-1 m-0">
+                                <!--<button type="button" class="btn bg-primary text-white w100" id="AdaptiveStepToggle">Адаптивный</button>-->
+                                <div class="btn-group dropup" style="width: 100%;">
+                                    <button type="button" id="StepToggle" class="btn bg-black text-white dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Постоянный шаг
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#" id="FixedStep">Постоянный шаг</a>
+                                        <a class="dropdown-item" href="#" id="AdaptiveStep">Адаптивный шаг</a>
+                                        <a class="dropdown-item" href="#" id="FixedVelocityStep">Фиксированный по скорости</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
+                            <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+                        </div>
+
+                        <div class="row justify-content-center">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-primary btn-lg btn-block" id="draw">Построить графики</button>
+                            </div>
                         </div>
                     </div>
                 </div>
