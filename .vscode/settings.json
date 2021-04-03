@@ -1,0 +1,8 @@
+{
+    "liveServer.settings.https": {
+        "enable": true,
+        "cert": "C:\\Code\\DynamicSystems\\dyns\\cert.pem",
+        "key": "C:\\Code\\DynamicSystems\\dyns\\key.pem"
+    },
+    "liveServer.settings.root": "/wwwroot"
+}
