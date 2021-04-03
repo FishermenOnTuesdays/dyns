@@ -285,6 +285,9 @@ class Handler(BaseHTTPRequestHandler):
         elif data['request type'][0] == '3':
             print('Poincare request')
             answer = Poincare(data)
+        elif data['request type'][0] == '4':
+            print('PDE request')
+            answer = Solve(data['data'][0])
         json_string = json.dumps(answer)
         # print('json')
         # print(json_string.encode(encoding='utf_8'))

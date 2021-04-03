@@ -174,7 +174,9 @@ function onStart(){
         jQuery("#makePDEInputFrameButton").on('click', function() {
             makePDEInputFrame();
         });
-    
+        
+        jQuery("#PDEcharts").hide();
+
         jQuery("#charts").hide();
         jQuery("#phasecharts").hide();
         jQuery("#phasechart2").hide();
@@ -750,11 +752,11 @@ function makePDEInputFrame(){
                         <div class="row no-gutters" style="width:100%; font-size: 2em;" id="PDE">
                             \\({ ( }\\)
                             <input id="PDEF1" type="text" class="form-control input-lg" style="width: 28em; height: 2.5em; font-size: 0.5em;">
-                            \\({ ) \\nabla u + }\\)
+                            \\({ ) }\\)
                             \\({ \\frac{\\partial u}{\\partial t} }\\)
-                            \\({ ( }\\)
+                            \\({ + ( }\\)
                             <input id="PDEF2" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
-                            \\({ ) = \\, }\\)
+                            \\({ ) \\nabla u = \\, }\\)
                             <input id="PDEF3" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
                         </div>
                     </div>
@@ -770,6 +772,12 @@ function makePDEInputFrame(){
                     <div class="row justify-content-start p-1 ml-1">
                         <div class="col col-12 p-1 h5 text-white" id="boundaryfunctionstitle" aria-haspopup="true" aria-expanded="false" data-content="Граничные функции" rel="popover" data-placement="left" data-trigger="hover">
                             Граничные функции
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-95"><input type="text" class="form-control boundaryfunction" placeholder="" value=""></div>
+                            <div class="col col-05"><button class="removeboundaryfunction btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
                         </div>
                     </div>
                     <div class="bg-white rounded shadow p-1 mb-1">
@@ -846,7 +854,7 @@ function makePDEInputFrame(){
                             $("#sliderRangePDEparam").slider("option", "max", $(this).val() + 10 * $("#sliderRangePDEparam").slider("option", "step"));
                             $("#sliderRangePDEparam").slider("values", 1, $(this).val());
                         });
-                        $("#inputPARAMStep").on("change paste keyup", function() {
+                        $("#inputPDEparamStep").on("change paste keyup", function() {
                             $("#sliderRangePDEparam").slider("option", "step", $(this).val());
                             $("#sliderRangePDEparam").slider("option", "min", $("#sliderRangePDEparam").slider("option", "min") - 10 * $(this).val());
                             $("#sliderRangePDEparam").slider("option", "max", $("#sliderRangePDEparam").slider("option", "max") + 10 * $(this).val());
@@ -1057,32 +1065,24 @@ function successDeleteSavedDS(data){
 }
 
 // PDE
+var PDEDefaultVarNames = ['x', 'y', 'z', 'w', 'v'];
+var PDEvarlist = [];
+var PDEparamlist = [];
 function SolvePDE(){
     // make data
-    k = 0;
-    k0 = 0;
     var requestData = {};
     requestData['request type'] = 4;
     requestData['variables'] = 'x, u';
-    
-    start_values = [];
-    jQuery('.inputstart').each(function(i, elem){
-        if ($(elem).val() != ""){
-            k0++;
-            start_values.push(parseFloat($(elem).val()));
-        }   
-    });
-    requestData['start values[]'] = start_values;
 
     functions = [];
-    jQuery('.inputeq').each(function(i, elem){
-        if ($(elem).val() != ""){
-            k++;
-            functions.push($(elem).val().slice(($(elem).val().indexOf(')/dt=') + 5)));
-        }
-    });
-    requestData['functions[]'] = functions;
-
+    dudt = jQuery('#PDEF1').val(); // du/dt
+    nabla = jQuery('#PDEF2').val(); // nabla
+    rhs = jQuery('#PDEF3').val(); // right hand side
+    requestData['functions[]'] = [];
+    requestData['functions[]'].push(dudt);
+    requestData['functions[]'] = requestData['functions[]'].concat(nabla.replace(' , ', ',').replace(', ', ',').split(','));
+    requestData['functions[]'].push(rhs);
+    /*
     additional_equations = [];
     jQuery('.inputparam').each(function(i, elem){
         if ($(elem).val() != ""){
@@ -1090,10 +1090,20 @@ function SolvePDE(){
             additional_equations.push(nameeq + $(elem).val());
         }
     });
+    */
     requestData['additional equations'] = '';
+    boundary_functions = [];
+    jQuery('.boundaryfunction').each(function(i, elem){
+        if ($(elem).val() != ""){
+            boundary_functions.push($(elem).val());
+        }
+    });
+    requestData['boundary functions[]'] = boundary_functions;
+    
     requestData['time'] = parseFloat(jQuery("#time").val());
     requestData['dt'] = parseFloat(jQuery("#dt").val());
-    requestData['ExplicitNumericalMethodCode'] = 0; //ExplicitNumericalMethodCode;
+    requestData['step'] = parseFloat(jQuery("#inputPDEparamStep").val());
+    requestData['range[]'] = [parseFloat(jQuery("#inputPDEparamL").val()), parseFloat(jQuery("#inputPDEparamR").val())];
 
     request = {
         'request type': 4,
@@ -1102,25 +1112,129 @@ function SolvePDE(){
 
     console.log(request);
 
-    if (Object.values(requestData).length > 2 && k == k0){
+    if (requestData['boundary functions[]'].length == requestData['functions[]'].length - 1){
         successAlert(true);
         jQuery.post(
             'https://' + ip + ':5000',
             request,
-            success
+            successSolvePDE
         );
     }
     else{
-        /*
-        var code = jQuery(".code");
-        var d = jQuery('<div id="error_alert" class="alert alert-danger text_center m10" role="alert">НЕВЕРНЫЙ ФОРМАТ ЗНАЧЕНИЙ</div>');
-        code.prepend(d);
-        $('#navbarDropdownMenuLink').popover('show');
-        jQuery("#error_alert").delay(1000).fadeOut(100);
-        */
+        alert('ошибка');
     }
 }
+function successSolvePDE(data){
+    inputData = JSON.parse(JSON.parse(data))[0];
+    var timeSequence = inputData['time sequence'];
+    timeSequence.unshift(0.0);
+    var trajectories = inputData['trajectories'];
 
+    jQuery("#PDEcharts").show();
+
+    traces = [];
+    trajectories.forEach(function(trajectory, i){
+        traces.push(
+        {
+            type: 'scatter3d',
+            mode: 'lines',
+            x: trajectory['x'],
+            y: timeSequence,
+            z: trajectory['u'],
+            opacity: 1,
+            line:{
+                colorscale: 'Bluered',
+                color: trajectory['u'],
+                size: 1
+            },
+                    /*
+            marker: {
+                color: '#000000',
+                size: 2,
+            },*/
+            name: 'trajectory' + i,
+        }
+        );
+        /*
+        realu = [];
+        for (let i = 0; i < timeSequence.length; i++){
+        t = timeSequence[i];
+        x = trajectory['x'][i];
+        u = Math.pow(t, 2) / 2 + Math.pow(x, 2) / 4 - Math.pow(x - 2*t, 2) / 4 + Math.cos(x - 2*t) - trajectory['u'][i];
+        realu.push(u);
+        }
+
+        traces.push(
+        {
+            type: 'scatter3d',
+            mode: 'lines',
+            x: trajectory['x'],
+            y: timeSequence,
+            z: realu,
+            opacity: 1,
+            line:{
+                colorscale: 'Bluered',
+                color: '#000000',
+                size: 1
+            },
+            name: 'errtrajectory' + i,
+        }
+        );
+        */
+    });
+
+    config = {responsive: true}
+    Plotly.newPlot('PDELineSurface', traces,
+            {
+                height: 750,
+                displayModeBar: true,
+                margin: {
+                    l: 25,
+                    r: 25,
+                    b: 25,
+                    t: 25,
+                    pad: 1
+                    },
+                scene: {
+                    xaxis:{title: 'x'},
+                    yaxis:{title: 'time'},
+                    zaxis:{title: 'u'},
+                    }
+            }, config
+    );
+
+    var x = [];
+    var u = [];
+    var t = [];
+    for (let i = 0; i < timeSequence.length; i++){
+        for (let j = 0; j < trajectories.length; j++){
+        x.push(trajectories[j]['x'][i]);
+        u.push(trajectories[j]['u'][i]);
+        t.push(timeSequence[i]);
+        }
+    }
+
+    var data = [{
+        opacity:0.8,
+        color: '#000000',
+        type: 'mesh3d',
+        z: u,
+        x: x,
+        y: t,
+    }];
+        
+    var layout = {
+        height: 750,
+        margin: {
+            l: 25,
+            r: 25,
+            b: 25,
+            t: 25,
+            pad: 1
+        }
+    };
+    Plotly.newPlot('PDEMeshSurface', data, layout, config);
+}
 
 // web graph
 function onDraw()
