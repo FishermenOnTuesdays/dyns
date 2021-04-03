@@ -1273,6 +1273,8 @@ function successSolvePDE(data){
         }
     };
     Plotly.newPlot('PDEMeshSurface', data, layout, config);
+
+    updateLayout();
 }
 
 // web graph
