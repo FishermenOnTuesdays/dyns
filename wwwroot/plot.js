@@ -964,6 +964,26 @@ function makePDEInputFrame(){
                 </fieldset>
             </div>
         </div>
+        
+        <!--           true solution input frame            -->
+        <div class="row m10">
+            <div class="col-12 p-0">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center">
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col col-12 p-1 h5 text-white" id="boundaryfunctionstitle" aria-haspopup="true" aria-expanded="false" data-content="Будет построено на том же графике, а также будут построены графики ошибки" rel="popover" data-placement="left" data-trigger="hover">
+                            Истинное решение уравнения <span class="badge badge-secondary">опционально</span>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-1 text-center" style="font-size:1vw;"> u= </div>
+                            <div class="col col-11"><input type="text" class="form-control boundaryfunction" placeholder="" value="" id="trueSolution"></div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
 
         <!--           boundary functions input frame            -->
         <div class="row m10">
