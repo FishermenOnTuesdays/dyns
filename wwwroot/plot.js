@@ -18,6 +18,13 @@ var ODEvarlist = [];
 var ODEparamlist = [];
 var ODEEqParams = {};
 
+// PDE
+var PDEvarlist = [];
+var PDEparamlist = [];
+var PDEInputFields = {};
+var PDEVarFields = {};
+var PDEParams = {};
+
 var ndims;
 var equationTimeSeries = {}, lyapunovTimeSeries = {};
 selectedLyapunovMapParamList = [];
@@ -597,6 +604,20 @@ function ODEchange(element){
 }
 /* makes ODE layout */
 function makeODEInputFrame(){
+
+    jQuery("#PDEcharts").hide();
+
+    jQuery("#charts").hide();
+    jQuery("#phasecharts").hide();
+    jQuery("#phasechart2").hide();
+    jQuery("#phasechart3").hide();
+    jQuery("#3dcharts").hide();
+    //jQuery("#3DStreamtubeCharts").hide(); // deprecated
+    jQuery("#lyapunovchart").hide();
+    jQuery("#LyapunovMap").hide();
+    jQuery("#BifurcationDiagram").hide();
+    jQuery("#Poincarecharts").hide();
+
     codeODEInputFrame = `
         <!--           ODEs input frame            -->
         <div class="row m10">
@@ -740,7 +761,21 @@ function makeODEInputFrame(){
 }
 /* makes PDE layout */
 function makePDEInputFrame(){
-    codePDEInputFrame = `
+
+    jQuery("#PDEcharts").hide();
+
+    jQuery("#charts").hide();
+    jQuery("#phasecharts").hide();
+    jQuery("#phasechart2").hide();
+    jQuery("#phasechart3").hide();
+    jQuery("#3dcharts").hide();
+    //jQuery("#3DStreamtubeCharts").hide(); // deprecated
+    jQuery("#lyapunovchart").hide();
+    jQuery("#LyapunovMap").hide();
+    jQuery("#BifurcationDiagram").hide();
+    jQuery("#Poincarecharts").hide();
+
+    oldcodePDEInputFrame = `
         <!--           PDE input frame            -->
         <div class="row m10">
             <div class="col-12 p-0 pr-1">
@@ -751,13 +786,13 @@ function makePDEInputFrame(){
                     <div class="bg-white rounded shadow p-4 mb-1">
                         <div class="row no-gutters" style="width:100%; font-size: 2em;" id="PDE">
                             \\({ ( }\\)
-                            <input id="PDEF1" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
+                            <input id="dudtInput" type="text" class="form-control input-lg PDEinput" style="width: 10em; height: 2.5em; font-size: 0.5em;">
                             \\({ ) }\\)
                             \\({ \\frac{\\partial u}{\\partial t} }\\)
                             \\({ + ( }\\)
-                            <input id="PDEF2" type="text" class="form-control input-lg" style="width: 28em; height: 2.5em; font-size: 0.5em;">
+                            <input id="nablaInput" type="text" class="form-control input-lg PDEinput" style="width: 28em; height: 2.5em; font-size: 0.5em;">
                             \\({ ) \\nabla u = \\, }\\)
-                            <input id="PDEF3" type="text" class="form-control input-lg" style="width: 10em; height: 2.5em; font-size: 0.5em;">
+                            <input id="rhsInput" type="text" class="form-control input-lg PDEinput" style="width: 10em; height: 2.5em; font-size: 0.5em;">
                         </div>
                     </div>
                 </fieldset>
@@ -881,6 +916,164 @@ function makePDEInputFrame(){
             </div>
         </div>
     `;
+    codePDEInputFrame = `
+        <!--           PDE input frame            -->
+        <div class="row m10">
+            <div class="col-12 p-0 pr-1">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="PDEinput" >
+                    <div class="row justify-content-start p-1 ml-1">
+                    </div>
+                    <div class="bg-white rounded shadow p-4 mb-1">
+                        <div class="row no-gutters" style="width:100%; font-size: 2em;" id="PDE">
+                            <!--     partial entity     -->
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mrow>
+                                <mi>
+                                    <semantics>
+                                        <annotation-xml encoding="application/xhtml+xml">
+                                        <input xmlns="http://www.w3.org/1999/xhtml" type="text" class="PDEInput rounded" id="PDEInput0" style="width: 3em; height: 1.2em;"/>
+                                        </annotation-xml>
+                                    </semantics>
+                                </mi>
+                                <mfrac>
+                                    <mrow>
+                                    <mi>&#x2202;</mi>
+                                    <mi>u</mi>
+                                    </mrow>
+                                    <mrow>
+                                    <mi>&#x2202;</mi>
+                                    <mi>
+                                        <semantics>
+                                            <annotation-xml encoding="application/xhtml+xml">
+                                            <input xmlns="http://www.w3.org/1999/xhtml" type="text" class="PDEInputVar rounded" id="PDEInputVar0" style="width: 1em; height: 1.2em;"/>
+                                            </annotation-xml>
+                                        </semantics>
+                                    </mi>
+                                    </mrow>
+                                </mfrac>
+                                </mrow>
+                            </math>
+                            &plus;
+                            <button type="button" class="btn btn-outline-primary btn-lg mx-1" id="addPDEInput">&plus;</button>
+                            &equals;&nbsp;&nbsp;
+                            <input xmlns="http://www.w3.org/1999/xhtml" type="text" class="rounded my-1" style="width: 5em; height: 1.2em;" id="rhsInput"/>
+                        </div>
+
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <!--           boundary functions input frame            -->
+        <div class="row m10">
+            <div class="col-12 p-0">
+                <!--            main input frame            -->
+                <fieldset class="shadow p-2 rounded bg-transparent justify-content-center" id="boundaryfunctioninput">
+                    <div class="row justify-content-start p-1 ml-1">
+                        <div class="col col-12 p-1 h5 text-white" id="boundaryfunctionstitle" aria-haspopup="true" aria-expanded="false" data-content="Граничные функции, заданные через параметр p" rel="popover" data-placement="left" data-trigger="hover">
+                            Граничные функции в параметрической форме
+                        </div>
+                    </div>
+                    <div class="bg-white rounded shadow p-1 mb-1">
+                        <div class="row no-gutters" style="width:100%;">
+                            <div class="col col-1 text-center" style="font-size:1vw;"> u(<b>p</b>)= </div>
+                            <div class="col col-11"><input type="text" class="form-control boundaryfunction" placeholder="" value="" id="boundaryfunctionu"></div>
+                        </div>
+                    </div>
+                    <div class="row no-gutters mb-1 rounded" id="PDEparamSlider">
+                        <div class="col-12 zero-padding rounded">
+                            <div class="row no-gutters justify-content-center align-self-center bg-light rounded">
+                                <div class="col-1 text-center my-2" style="font-size:1vw;"> <b>p</b> </div>
+                                <div class="col-10 justify-content-center align-self-center">
+                                    <div class="row no-gutters" style="width: 100%;">
+                                        <div class="col-2 justify-content-center align-self-center">
+                                            <input type="text" class="form-control"
+                                                style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;"
+                                                id="inputPDEparamL" value="-10">
+                                        </div>
+                                        <div class="col-8 justify-content-center align-self-center">
+                                            <div id="sliderRangePDEparam"
+                                                class="ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content">
+                                                <div class="ui-slider-range ui-corner-all ui-widget-header" style="width: 10%; left: 45%;">
+                                                </div>
+                                                <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"
+                                                    style="left: 45%;"></span><span tabindex="0"
+                                                    class="ui-slider-handle ui-corner-all ui-state-default" style="left: 55%;"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 justify-content-center align-self-center"> <input type="text" class="form-control"
+                                                style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;"
+                                                id="inputPDEparamR" value="10"> </div>
+                                    </div>
+                                </div>
+                                <div class="col-1 text-center my-auto"> <input type="text" class="form-control"
+                                        style="border: none; border-width: 0; box-shadow: none; background-color:transparent; text-align: center;"
+                                        id="inputPDEparamStep" value="1"> </div>
+                            </div>
+                        </div>
+                        <script> 
+                            $(function() {
+                                $("#sliderRangePDEparam").slider({
+                                    range: true,
+                                    min: -10,
+                                    max: 10,
+                                    step : 1,
+                                    values: [-1, 1],
+                                    slide: function( event, ui ) {
+                                        $("#inputPDEparamL").val(ui.values[0]);
+                                        $("#inputPDEparamR").val(ui.values[1]);
+                                        $("#sliderRangePDEparam").slider("option", "min", ui.values[0] - 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                                        $("#sliderRangePDEparam").slider("option", "max", ui.values[1] + 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                                    }
+                                });
+                                $("#inputPDEparamL").on("change paste keyup", function() {
+                                    $("#sliderRangePDEparam").slider("option", "min", $(this).val() - 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                                    $("#sliderRangePDEparam").slider("values", 0, $(this).val());
+                                });
+                                $("#inputPDEparamR").on("change paste keyup", function() {
+                                    $("#sliderRangePDEparam").slider("option", "max", $(this).val() + 10 * $("#sliderRangePDEparam").slider("option", "step"));
+                                    $("#sliderRangePDEparam").slider("values", 1, $(this).val());
+                                });
+                                $("#inputPDEparamStep").on("change paste keyup", function() {
+                                    $("#sliderRangePDEparam").slider("option", "step", $(this).val());
+                                    $("#sliderRangePDEparam").slider("option", "min", $("#sliderRangePDEparam").slider("option", "min") - 10 * $(this).val());
+                                    $("#sliderRangePDEparam").slider("option", "max", $("#sliderRangePDEparam").slider("option", "max") + 10 * $(this).val());
+                                });
+                            });
+                        </script>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+
+        <!--            secondary input frame            -->
+        <div class="shadow p-2 rounded bg-transparent justify-content-center m10">
+
+            <div class="row no-gutters mb-1 ml-1">
+                <div class="col col-4 p-1 my-auto align-items-center h5 text-white justify-content-end">время   </div>
+                <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="time" placeholder=""></div>
+            </div>
+
+            <div class="row no-gutters mb-1 ml-1">
+                <div class="col col-3 p-1 m-0"></div>
+                <div class="col col-1 p-1 my-auto align-items-center h5 text-white justify-content-end">dt   </div>
+                <div class="col col-8 p-1 bg-white rounded shadow"><input type="text" class="form-control" id="dt" placeholder=""></div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" id="SolvePDE">Построить решение</button>
+                </div>
+            </div>
+        </div>
+    `;
+    $(document).on('change', '.PDEInput', function() {
+        PDEchange(this);
+    });
+    $(document).on('change', '.PDEInputVar', function() {
+        PDEVarchange(this);
+    });
     setTimeout(function () {
         MathJax.typesetPromise();
         updateLayout();
@@ -896,32 +1089,72 @@ function makePDEInputFrame(){
         makeODEInputFrame();
     });
     jQuery('#addboundaryfunction').click(function(){
-        newBoundaryFunction();
+        addBoundaryFunction();
     });
-    jQuery(function(){
-        $(document).on('click', '.removeboundaryfunction', function(){
-            removeBoundaryFunction(this);
-        });
-    });SolvePDE
+    jQuery('#addPDEInput').click(function(){
+        addPDEInput();
+    });
     jQuery('#SolvePDE').click(function(){
         SolvePDE();
     });
 }
 /* creates new boundary function row and updates layout*/
-function newBoundaryFunction(){
+function addPDEInput(){
+    var newPDEInput = `
+        <!--     partial entity     -->
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+            <mrow>
+            <mi>
+                <semantics>
+                    <annotation-xml encoding="application/xhtml+xml">
+                    <input xmlns="http://www.w3.org/1999/xhtml" type="text" class="PDEInput rounded" id="PDEInputii" style="width: 3em; height: 1.2em;"/>
+                    </annotation-xml>
+                </semantics>
+            </mi>
+            <mfrac>
+                <mrow>
+                <mi>&#x2202;</mi>
+                <mi>u</mi>
+                </mrow>
+                <mrow>
+                <mi>&#x2202;</mi>
+                <mi>
+                    <semantics>
+                        <annotation-xml encoding="application/xhtml+xml">
+                        <input xmlns="http://www.w3.org/1999/xhtml" type="text" class="PDEInputVar rounded" id="PDEInputVarii" style="width: 1em; height: 1.2em;"/>
+                        </annotation-xml>
+                    </semantics>
+                </mi>
+                </mrow>
+            </mfrac>
+            </mrow>
+        </math>
+        &plus;
+        `;
+    count = 0;
+    $('.PDEInput').each(function(i, elem){
+        count++;
+    });
+    PDEInputFields['PDEInput' + parseInt(count/2).toString()] = '';
+    PDEVarFields['PDEInputVar' + parseInt(count/2).toString()] = '';
+    newPDEInput = newPDEInput.replaceAll('ii', parseInt(count/2).toString());
+    $('#addPDEInput').before(newPDEInput);
+    setTimeout(function () {
+        MathJax.typesetPromise();
+        updateLayout();
+    }, 100);
+}
+/* creates new boundary function row and updates layout*/
+function addBoundaryFunction(ofvar){
     var newboundaryfunction = `
         <div class="bg-white rounded shadow p-1 mb-1">
             <div class="row no-gutters" style="width:100%;">
-                <div class="col col-95"><input type="text" class="form-control boundaryfunction" placeholder="" value=""></div>
-                <div class="col col-05"><button class="removeboundaryfunction btn btn-outline-light px-0" style="height: 100%; width:100%; text-align:center; vertical-align:middle;">&#x274C;</button></div>
+                <div class="col col-1 text-center" style="font-size:1vw;"> iii </div>
+                <div class="col col-11"><input type="text" class="form-control boundaryfunction" placeholder="" value="" id="boundaryfunctionii"></div>
             </div>
         </div>
         `;
-    count = 0;
-    $('.boundaryfunction').each(function(i, elem){
-        count++;
-    });
-    $('#boundaryfunctioninput').append(newboundaryfunction);
+    $('#boundaryfunctionu').parent().parent().parent().before(newboundaryfunction.replaceAll('iii', ofvar + '(<b>p</b>)=').replaceAll('ii', ofvar));
     updateLayout();
 }
 /* receives .boundaryfunction object, deletes its input row and updates layout */
@@ -1065,23 +1298,166 @@ function successDeleteSavedDS(data){
 }
 
 // PDE
-var PDEDefaultVarNames = ['x', 'y', 'z', 'w', 'v'];
-var PDEvarlist = [];
-var PDEparamlist = [];
+/* receives .PDEInput object, looks for changes and processes if present */
+function PDEchange(element){
+    var fieldValue = element.value;
+    var fieldid = element.id;
+    if (fieldValue == ''){ // means empty field
+        if (PDEvarlist[fieldid] == '') { // means PDE field wasn't defined
+            // for now, let's settle with that if it was not defined, than the parameters and vars were not, too
+        } else {
+            removeItemOnce(ODEvarlist, lastODEvar); // remove last ODE var if present
+            // update params
+            var outerParams = [];
+            // find all parameters not included in this ODE -> outerParams
+            ODEvarlist.forEach(function(variable) {
+                if (variable != lastODEvar) {
+                    ODEEqParams[variable].forEach(function(varparam) {
+                        if (outerParams.indexOf(varparam) == -1)
+                            outerParams.push(varparam);
+                    });
+                }
+            });
+            // remove all parameters not included in outerParams from ODEparamlist
+            ODEEqParams[lastODEvar].forEach(function(eqvarparam) {
+                if (outerParams.indexOf(eqvarparam) == -1) {
+                    deleteParam(eqvarparam);
+                    removeItemAll(ODEparamlist, eqvarparam);
+                }
+            });
+        }
+    } else {
+        // change eqvar
+        eqvar = ODE.slice(2, ODE.indexOf(')/dt='));
+        if (eqvar == '' || eqvar == ' '){ // means no eqvar in this ODE
+            removeItemOnce(ODEvarlist, lastODEvar); // remove last var if present
+            delete ODEEqParams[lastODEvar];
+            // find all parameters not included in this ODE -> outerParams
+            ODEvarlist.forEach(function(variable) {
+                if (variable != lastODEvar) {
+                    ODEEqParams[variable].forEach(function(varparam) {
+                        if (outerParams.indexOf(varparam) == -1)
+                            outerParams.push(varparam);
+                    });
+                }
+            });
+            // remove all parameters not included in outerParams from ODEparamlist
+            ODEEqParams[lastODEvar].forEach(function(eqvarparam) {
+                if (outerParams.indexOf(eqvarparam) == -1) {
+                    deleteParam(eqvarparam);
+                    removeItemAll(ODEparamlist, eqvarparam);
+                }
+            });
+            alert('Вы не указали переменную в дифференциальном уравнении: ' + ODE);
+        } else {
+            // find all parameters not included in this ODE -> outerParams
+            var outerParams = [];
+            ODEvarlist.forEach(function(variable) {
+                if (variable != eqvar) {
+                    ODEEqParams[variable].forEach(function(varparam) {
+                        if (outerParams.indexOf(varparam) == -1)
+                            outerParams.push(varparam);
+                    });
+                }
+            });
+            element.id = eqvar;
+            if (ODEvarlist.indexOf(eqvar) == -1) { // means ODE var changed
+                removeItemOnce(ODEvarlist, lastODEvar); // remove last ODE var
+                if (!(lastODEvar in ODEEqParams)){ /// means ODE var wasn't defined
+                    // for now, let's settle with that if it was not defined, than the parameters were not, too
+                } else {
+                    ODEEqParams[lastODEvar].forEach(function(eqvarparam) {
+                        if (outerParams.indexOf(eqvarparam) == -1) {
+                            deleteParam(eqvarparam);
+                            removeItemAll(ODEparamlist, eqvarparam);
+                        }
+                    });
+                    delete ODEEqParams[lastODEvar]; // remove last ODE var's params from ODEEqParams
+                }
+                ODEvarlist.push(eqvar);
+            }
+            // look for this ODE params
+            ODE = ODE.slice(ODE.indexOf(')/dt=') + 5);
+            //equation = equation.split(eqvar).join(' ');
+            exclusionList.forEach(function(item, i, exclusionList) {
+                ODE = ODE.split(item).join(' ');
+            });
+            ODE = ODE.replace(/\s{2,}/g, ' ');
+            var params = ODE.split(' ');
+            removeItemAll(params, '');
+            ODEEqParams[eqvar] = params;
+            // remove all parameters not included in this ODE and outerParams from ODEparamlist
+            ODEEqParams[eqvar].forEach(function(eqvarparam) {
+                if (eqvarparam == 't') {
+                    deleteParam(eqvarparam);
+                    removeItemAll(ODEparamlist, eqvarparam);
+                } else{
+                    if (ODEvarlist.indexOf(eqvarparam) != -1) {
+                        deleteParam(eqvarparam);
+                        removeItemAll(ODEparamlist, eqvarparam);
+                    } else {
+                        if (outerParams.indexOf(eqvarparam) == -1) {
+                            if (params.indexOf(eqvarparam) == -1) {
+                                deleteParam(eqvarparam);
+                                removeItemAll(ODEparamlist, eqvarparam);
+                            } else {
+                                if (ODEparamlist.indexOf(eqvarparam) == -1) {
+                                    ODEparamlist.push(eqvarparam);
+                                    addParam(eqvarparam);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+}
+/* receives .PDEInputVar object, looks for changes and processes if present */
+function PDEVarchange(element){
+    const newVar = element.value;
+    const fieldid = element.id;
+    const prevVar = PDEVarFields[fieldid];
+    if (newVar == ''){ // means empty field
+        if (prevVar == '') { // means PDE Var field wasn't defined
+            // for now, let's settle with that if it was not defined, than the parameters and vars were not, too
+        } else {
+            removeItemOnce(PDEvarlist, prevVar); // remove previous var if present
+            PDEVarFields[fieldid] = '';
+            removeBoundaryFunction($('#boundaryfunction' + prevVar));
+        }
+    } else {
+        if (prevVar == '') { // means PDE Var field wasn't defined
+            //
+        } else {
+            removeItemOnce(PDEvarlist, prevVar); // remove previous var if present
+            removeBoundaryFunction($('#boundaryfunction' + prevVar));
+        }
+        PDEvarlist.push(newVar); // add new var
+        PDEVarFields[fieldid] = newVar;
+        if (newVar != 't'){
+            addBoundaryFunction(newVar);
+        }
+    }
+}
 function SolvePDE(){
     // make data
     var requestData = {};
     requestData['request type'] = 4;
-    requestData['variables'] = 'x, u';
+    requestData['variables'] = PDEvarlist.join(' ').replace(' t', '').replace('t ', '').replace(' ', ', ') + ', u';
 
     functions = [];
-    dudt = jQuery('#PDEF1').val(); // du/dt
-    nabla = jQuery('#PDEF2').val(); // nabla
-    rhs = jQuery('#PDEF3').val(); // right hand side
-    requestData['functions[]'] = [];
-    requestData['functions[]'].push(dudt);
-    requestData['functions[]'] = requestData['functions[]'].concat(nabla.replace(' , ', ',').replace(', ', ',').split(','));
-    requestData['functions[]'].push(rhs);
+    jQuery('.PDEInput').each(function(i, elem){
+        if ($(elem).val() == ''){
+            //alert('ошибка, у вас пустые есть незаполненные поля в уравнении');
+            //return;
+        } else {
+            functions.push($(elem).val());
+        }
+    });
+    rhs = jQuery('#rhsInput').val(); // right hand side
+    functions.push(rhs);
+    requestData['functions[]'] = functions;
     /*
     additional_equations = [];
     jQuery('.inputparam').each(function(i, elem){
@@ -1270,6 +1646,11 @@ function successSolvePDE(data){
             b: 25,
             t: 25,
             pad: 1
+        },
+        scene: {
+            xaxis:{title: 'x'},
+            yaxis:{title: 'time'},
+            zaxis:{title: 'u'},
         }
     };
     Plotly.newPlot('PDEMeshSurface', data, layout, config);
@@ -2316,8 +2697,8 @@ function savetocsv() {
     }
 }
 */
-/*
 
+/*
 $('#submit-file').on("click",function(e){
     e.preventDefault();
     $('#files').parse({
