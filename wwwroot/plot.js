@@ -971,14 +971,14 @@ function makePDEInputFrame(){
                 <!--            main input frame            -->
                 <fieldset class="shadow p-2 rounded bg-transparent justify-content-center">
                     <div class="row justify-content-start p-1 ml-1">
-                        <div class="col col-12 p-1 h5 text-white" id="boundaryfunctionstitle" aria-haspopup="true" aria-expanded="false" data-content="Будет построено на том же графике, а также будут построены графики ошибки" rel="popover" data-placement="left" data-trigger="hover">
+                        <div class="col col-12 p-1 h5 text-white" id="trueSolutiontitle" aria-haspopup="true" aria-expanded="false" data-content="Будет построено на том же графике, а также будут построены графики ошибки" rel="popover" data-placement="left" data-trigger="hover">
                             Истинное решение уравнения <span class="badge badge-secondary">опционально</span>
                         </div>
                     </div>
                     <div class="bg-white rounded shadow p-1 mb-1">
                         <div class="row no-gutters" style="width:100%;">
                             <div class="col col-1 text-center" style="font-size:1vw;"> u= </div>
-                            <div class="col col-11"><input type="text" class="form-control boundaryfunction" placeholder="" value="" id="trueSolution"></div>
+                            <div class="col col-11"><input type="text" class="form-control" placeholder="" value="" id="trueSolution"></div>
                         </div>
                     </div>
                 </fieldset>
@@ -1104,6 +1104,7 @@ function makePDEInputFrame(){
     jQuery('#makePDEInputFrameButton').remove();
     document.getElementById("time").defaultValue = "10";
     document.getElementById("dt").defaultValue = "0.01";
+    $('#trueSolutiontitle').popover();
     $('#boundaryfunctionstitle').popover();
     $("#makeODEInputFrameButton").on('click', function() {
         makeODEInputFrame();
@@ -1467,6 +1468,10 @@ function SolvePDE(){
     requestData['variables'] = PDEvarlist.join(' ').replace(' t', '').replace('t ', '').replace(' ', ', ') + ', u';
 
     functions = [];
+    if (PDEvarlist.indexOf('t') == -1){
+        functions.push('0');
+    }
+    
     jQuery('.PDEInput').each(function(i, elem){
         if ($(elem).val() == ''){
             //alert('ошибка, у вас пустые есть незаполненные поля в уравнении');
@@ -1508,7 +1513,7 @@ function SolvePDE(){
 
     console.log(request);
 
-    if (requestData['boundary functions[]'].length == requestData['functions[]'].length - 1){
+    if (true || requestData['boundary functions[]'].length == requestData['functions[]'].length - 1){
         successAlert(true);
         jQuery.post(
             'https://' + ip + ':5000',
@@ -1527,59 +1532,67 @@ function successSolvePDE(data){
     var trajectories = inputData['trajectories'];
 
     jQuery("#PDEcharts").show();
+    jQuery('#PDEErrGraphs').hide();
 
     traces = [];
     trajectories.forEach(function(trajectory, i){
         traces.push(
-        {
-            type: 'scatter3d',
-            mode: 'lines',
-            x: trajectory['x'],
-            y: timeSequence,
-            z: trajectory['u'],
-            opacity: 1,
-            line:{
-                //colorscale: 'Bluered',
-                color: trajectory['u'],
-                size: 1
-            },
-                    /*
-            marker: {
-                color: '#000000',
-                size: 2,
-            },*/
-            name: 'trajectory' + i,
-        }
-        );
-        /*
-        realu = [];
-        for (let i = 0; i < timeSequence.length; i++){
-        t = timeSequence[i];
-        x = trajectory['x'][i];
-        u = Math.pow(t, 2) / 2 + Math.pow(x, 2) / 4 - Math.pow(x - 2*t, 2) / 4 + Math.cos(x - 2*t) - trajectory['u'][i];
-        realu.push(u);
-        }
+            {
+                type: 'scatter3d',
+                mode: 'lines',
+                x: trajectory['x'],
+                y: timeSequence,
+                z: trajectory['u'],
+                opacity: 1,
+                line:{
+                    //colorscale: 'Bluered',
+                    color: trajectory['u'],
+                    size: 1
+                },
+                        /*
+                marker: {
+                    color: '#000000',
+                    size: 2,
+                },*/
+                name: 'trajectory' + i,
+            });
+        ///*
+        if (jQuery('#trueSolution').val() != ''){
+            U = jQuery('#trueSolution').val();
+            trueu = [];
+            for (let i = 0; i < timeSequence.length; i++){
+            t = timeSequence[i];
+            x = trajectory['x'][i];
+            //t^2/2+x^2/4-(x-2*t)^2/4+cos(x-2*t)
+            u = math.evaluate(U, {
+                x: x,
+                t: t
+            });
+            //u = Math.pow(t, 2) / 2 + Math.pow(x, 2) / 4 - Math.pow(x - 2*t, 2) / 4 + Math.cos(x - 2*t) - trajectory['u'][i];
+            trueu.push(u);
+            }
 
-        traces.push(
-        {
-            type: 'scatter3d',
-            mode: 'lines',
-            x: trajectory['x'],
-            y: timeSequence,
-            z: realu,
-            opacity: 1,
-            line:{
-                colorscale: 'Bluered',
-                color: '#000000',
-                size: 1
-            },
-            name: 'errtrajectory' + i,
+            traces.push(
+            {
+                type: 'scatter3d',
+                mode: 'lines',
+                x: trajectory['x'],
+                y: timeSequence,
+                z: trueu,
+                opacity: 1,
+                line:{
+                    colorscale: 'Bluered',
+                    color: '#000000',
+                    size: 1
+                },
+                name: 'realtrajectory' + i,
+            }
+            );
         }
-        );
-        */
+        //*/
     });
 
-    config = {responsive: true}
+    var config = {responsive: true}
     Plotly.newPlot('PDELineSurface', traces,
             {
                 height: 750,
@@ -1598,7 +1611,10 @@ function successSolvePDE(data){
                     }
             }, config
     );
-    
+
+    //          Surface Plots
+    //  Main Surface Plot
+    var data = [];
     /*
     var x = [];
     var u = [];
@@ -1642,8 +1658,8 @@ function successSolvePDE(data){
         }
         u.push(temp);
     }
-
-    var data = [{
+    data.push({
+        name: 'Решение',
         type: 'surface',
         colorscale: 'Bluered',
         lighting: {
@@ -1656,7 +1672,39 @@ function successSolvePDE(data){
         z: u,
         x: x,
         y: timeSequence,
-    }];
+    });
+    if (jQuery('#trueSolution').val() != ''){
+        U = jQuery('#trueSolution').val();
+        var trueu = [];
+        for (let i = 0; i < timeSequence.length; i++){
+            temp = [];
+            _t = timeSequence[i];
+            for (let j = 0; j < trajectories.length; j++){
+                _x = trajectories[j]['x'][i];
+                temp.push(math.evaluate(U, {
+                    x: _x,
+                    t: _t
+                }));
+            }
+            trueu.push(temp);
+        }
+
+        data.push({
+            name: 'Истинное решение',
+            type: 'surface',
+            colorscale: 'Greens',
+            lighting: {
+                ambient:  0.8,
+                diffuse:  0.8,
+                specular:  0,
+                roughness:  1,
+                fresnel:  2.2
+            },
+            z: trueu,
+            x: x,
+            y: timeSequence,
+        });
+    }
         
     var layout = {
         height: 750,
@@ -1674,6 +1722,100 @@ function successSolvePDE(data){
         }
     };
     Plotly.newPlot('PDEMeshSurface', data, layout, config);
+
+    //  Main Surface Plot
+    /*
+    var x = [];
+    var u = [];
+    var t = [];
+    for (let i = 0; i < timeSequence.length; i++){
+        for (let j = 0; j < trajectories.length; j++){
+        x.push(trajectories[j]['x'][i]);
+        u.push(trajectories[j]['u'][i]);
+        t.push(timeSequence[i]);
+        }
+    }
+
+    var data = [{
+        opacity:0.8,
+        color: '#000000',
+        type: 'mesh3d',
+        z: u,
+        x: x,
+        y: t,
+    }];
+        
+    var layout = {
+        height: 750,
+        margin: {
+            l: 25,
+            r: 25,
+            b: 25,
+            t: 25,
+            pad: 1
+        }
+    };
+    Plotly.newPlot('PDEMeshSurface', data, layout, config);
+    */
+    var data = [];
+    if (jQuery('#trueSolution').val() != ''){
+
+        jQuery('#PDEErrGraphs').show();
+
+        maxerr = 0;
+        maxprocerr = 0;
+
+        U = jQuery('#trueSolution').val();
+        var erru = [];
+        for (let i = 0; i < timeSequence.length; i++){
+            temp = [];
+            for (let j = 0; j < trajectories.length; j++){
+                err = math.abs(u[i][j] - trueu[i][j]);
+                if (err > maxerr) {
+                    maxerr = err;
+                    maxprocerr = maxerr / math.abs(trueu[i][j]) * 100;
+                    if (maxprocerr < 0.001){
+                        maxprocerr = 'менее 0.001';
+                    } else if (maxprocerr > 100) {
+                        maxprocerr = 'более 100'
+                    }
+                }
+                temp.push(err);// / math.abs(trueu[i][j]) * 100);
+            }
+            erru.push(temp);
+        }
+        var layout = {
+            title: 'максимальная ошибка: ' + maxprocerr + '%',
+            height: 750,
+            margin: {
+                l: 25,
+                r: 25,
+                b: 25,
+                t: 25,
+                pad: 1
+            },
+            scene: {
+                xaxis:{title: 'x'},
+                yaxis:{title: 'time'},
+                zaxis:{title: 'u'},
+            }
+        };
+        Plotly.newPlot('PDEErrSurface', [{
+            name: 'ошибка',
+            type: 'surface',
+            colorscale: 'RdBu',
+            lighting: {
+                ambient:  0.8,
+                diffuse:  0.8,
+                specular:  0,
+                roughness:  1,
+                fresnel:  2.2
+            },
+            z: erru,
+            x: x,
+            y: timeSequence,
+        }], layout, config);
+    }
 
     updateLayout();
 }
