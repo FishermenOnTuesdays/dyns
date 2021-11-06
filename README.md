@@ -7,7 +7,7 @@ ODE solving:
 ![image](https://user-images.githubusercontent.com/69370969/140618210-2eeb08b9-539b-4d09-9f89-e1977c24e979.png)
 
 PDE sloving:
-![image](https://user-images.githubusercontent.com/69370969/140618400-0fc77b20-4ad9-4555-b9e1-a10f6550fd78.png)
+![image](https://user-images.githubusercontent.com/69370969/140618520-ab16711a-9425-49b0-add4-ad7f12d9e4c0.png)
 
 ODE of 2nd order solving:
 ![image](https://user-images.githubusercontent.com/69370969/140618418-89f58777-22f0-4cf7-88fd-c1bfb558d560.png)
