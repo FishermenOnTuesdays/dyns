@@ -1506,6 +1506,8 @@ function SolvePDE(){
     requestData['step'] = parseFloat(jQuery("#inputPDEparamStep").val());
     requestData['range[]'] = [parseFloat(jQuery("#inputPDEparamL").val()), parseFloat(jQuery("#inputPDEparamR").val())];
 
+    requestData['uuid'] = sha512(Math.random().toString());
+
     request = {
         'request type': 4,
         'data': JSON.stringify(requestData)
@@ -1816,6 +1818,9 @@ function successSolvePDE(data){
             y: timeSequence,
         }], layout, config);
     }
+
+    // draw using THREE.js
+    DrawSurface('surface.obj');
 
     updateLayout();
 }

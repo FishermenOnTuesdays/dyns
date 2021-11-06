@@ -16,8 +16,16 @@
         <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.3.1/math.js" integrity="sha512-Fd1dBD9iAiA2a6/hW6aJBbPCFr8ANUt9AS99aeK9vKh1LLRs1N7daoYLZ7qQ76ruhTEuA6wt6nFnHqV+QR1kQw==" crossorigin="anonymous"></script>
+        <script src="scripts/sha512.min.js"></script>
+
+        <script src="scripts/three.min.js"></script>
+		<script src="scripts/OrbitControls.js"></script>
+		<script src="scripts/OBJLoader.js"></script>
+		<script src="scripts/MTLLoader.js"></script>
+		<script src="scripts/VertexNormalsHelper.js"></script>
         <!--                 project code                 -->
         <script src="plot.js"></script>
+        <script src="surfaceVisualization.js"></script>
         
 
         <!--           old animated background            -->
@@ -26,7 +34,6 @@
         <!--        for VANTA animated background         -->
         <!--<script src="scripts/p5.min.js"></script>-->
         <!--<script src="scripts/vanta.topology.min.js"></script>-->
-        <script src="scripts/three.min.js"></script>
         <script src="scripts/vanta.fog.min.js"></script>
         <!--<script src="scripts/vanta.birds.min.js"></script>-->
 
@@ -66,6 +73,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-primary" id="makePDEInputFrameButton">УРЧП</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://dyns.mephi.ru/experimental/SecondOrderODE/" class="nav-link text-primary">ОДУ 2го порядка</a>
                             </li>
                             
                             <!-- Button trigger modal -->
@@ -875,7 +885,7 @@
                     <div id='PDEErrSurface'><!-- Plotly chart will be drawn inside this DIV --></div>
                 </div>
                 <div class="col-6 py-auto px-auto">
-                    
+                    <div id='PDESurfaceDiv'><canvas class="scene" id="PDESurface"></canvas></div>
                 </div>
             </div>
         </div>
