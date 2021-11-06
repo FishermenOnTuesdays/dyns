@@ -13,6 +13,7 @@ import pandas as pd
 import os
 import sqlite3 as sl
 import ssl
+import dyns
 
 
 def resource_path(relative_path):
@@ -112,11 +113,11 @@ def Poincare(data):
     '''
     # send json string
     value = data['data'][0]
-    #print(value)
+    # print(value)
     # text_file = open("send.txt", "w")
     # text_file.write(value)
     # text_file.close()
-    #print(value)
+    # print(value)
     value = bytes(value, 'UTF-8')  # Needed in Python 3.
     solver.stdin.write(value)
     solver.stdin.flush()
@@ -129,7 +130,7 @@ def Poincare(data):
     res['intersections3D'] = np.array(res['intersections3D']).astype(float).transpose().tolist()
     # print('solved at', time.time() - starting_time, 'seconds')
     ans = json.dumps(res)
-    #print(ans)
+    # print(ans)
     return ans
 
 
@@ -161,6 +162,7 @@ def Bifurcation(requestData):
     ans = result.decode('utf-8')
     # print('solved in', time.time() - start, 'seconds')
     return ans
+
 
 '''
 def Trajectory(requestData):
@@ -239,6 +241,7 @@ def LyapunovMap(requestData):
     return ans
 '''
 
+
 # forward request to Solver
 def Solve(request):
     solver = Solver()
@@ -250,6 +253,17 @@ def Solve(request):
     # print('result = ', result.decode('utf-8'))
     # print('solved in', time.time() - start, 'seconds')
     return result.decode('utf-8')
+
+def SecondOrderODESolve(request):
+    print(request)  # log input data
+    request = json.loads(request)
+    functions = [(f, 'x') for f in request['functions']]
+    boundaries = np.asarray(request['boundaries'])
+    bounds = (request['bounds'][0], request['bounds'][1])
+    Num = (request['N'])
+    solver = dyns.SecondOrderODESolver(functions, boundaries, bounds, Num)
+    solution = solver.GetSolution()
+    return solution.tolist()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -300,6 +314,9 @@ class Handler(BaseHTTPRequestHandler):
         elif data['request type'][0] == '4':
             print('PDE request')
             answer = Solve(data['data'][0])
+        elif data['request type'][0] == 'SecondOrderODESolver':
+            print('SecondOrderODESolver request')
+            answer = SecondOrderODESolve(data['data'][0])
         json_string = json.dumps(answer)
         # print('json')
         # print(json_string.encode(encoding='utf_8'))
