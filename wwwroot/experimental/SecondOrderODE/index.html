@@ -1,0 +1,317 @@
+<html>
+    <head>
+        <title>DynS</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+        <!--<link rel="icon" href="icon.ico" type="image/x-icon">-->
+
+        <!--                 dependencies                 -->
+		
+        <script src="../../scripts/jquery-3.5.0.min.js"></script>
+        <script src="../../scripts/plotly.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.3.1/math.js" integrity="sha512-Fd1dBD9iAiA2a6/hW6aJBbPCFr8ANUt9AS99aeK9vKh1LLRs1N7daoYLZ7qQ76ruhTEuA6wt6nFnHqV+QR1kQw==" crossorigin="anonymous"></script>
+
+        <script src="../../scripts/three.min.js"></script>
+        <!--                 project code                 -->
+		
+        <script src="script.js"></script>
+        
+
+        <!--           old animated background            -->
+        <!--<script src="animation.js"></script>-->
+
+        <!--        for VANTA animated background         -->
+        <!--<script src="scripts/p5.min.js"></script>-->
+        <!--<script src="scripts/vanta.topology.min.js"></script>-->
+        <script src="../../scripts/vanta.fog.min.js"></script>
+        <!--<script src="scripts/vanta.birds.min.js"></script>-->
+
+        <!--                main css file                 -->
+        <link rel = "stylesheet" href="../../custom.css"/>
+
+    </head>
+
+    <body style="margin-top: -10px;">
+        
+        <div class="container-fluid" id="mainbody">
+            <!--            main            -->
+            <div class="container">
+                <!--            logo            -->
+                <div class="row m10">
+                    <div class="col-8">
+                        <img src="../../logo.svg" height="150">
+                    </div>
+                </div>
+                <!--            nav frame            -->
+                <nav class="navbar navbar-expand navbar-light bg-black rounded m10">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-primary" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-content="Здесь можно ознакомится с примерами вводных данных" rel="popover" data-placement="left" data-original-title="Есть вопросы?" data-trigger="hover">
+                                    Примеры
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="#" id="">в разработке</a>
+                                </div>
+                            </li>
+                        </ul>
+                        <div id="ModalHolder">
+                            <!-- Login Modal -->
+                            <div class="modal fade" id="LoginModal" data-backdrop="static" tabindex="-1" aria-labelledby="LoginModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="LoginModalLabel">Войдите в аккаунт</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form class="form">
+												<h5 class="modal-title text-center text-danger">пока не работает тоже, да и пока не нужно особо</h5>
+                                                <div class="form-group mx-3">
+                                                    <label for="inputLogin">Логин: </label>
+                                                    <input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="...">
+                                                    <!--<input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
+                                                </div>
+                                                <div class="form-group mx-3">
+                                                    <label for="inputPassword">Пароль: </label>
+                                                    <input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="...">
+                                                    <!--<input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                                        <button type="button" id="submit-login" class="btn btn-primary">Войти</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form class="form-inline my-2 my-lg-0">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#LoginModal" id="loginButton">Войти</button>
+                        </form>
+                    </div>
+                </nav>
+
+                <div id="InputFrame">        
+                    <!--           ODE input frame            -->
+                    <div class="row m10">
+                        <div class="col-12 p-0 pr-1">
+                            <!--            main input frame            -->
+                            <fieldset class="shadow p-2 rounded bg-white justify-content-center" id="maininput" >
+                                <div class="row justify-content-start p-1 ml-1">
+                                    <div class="col col-12 p-1 h5 text-black">
+										<!--
+										$$
+										\displaylines{
+										ODE \space\space is \space\space y'' + P·y' + Q·y = F \\
+										The \space boundary \space conditions \space are: \\
+										A1 ·y'(a) + A2 ·y(a) = A3 \\
+										B1 ·y'(b) + B2 ·y(b) = B3 \\
+										where \space\space x∈[a,b] \\
+										}
+										$$
+										-->
+										<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+											<mtable rowspacing=".5em" columnspacing="1em" displaystyle="true">
+											  <mtr>
+												<mtd>
+												  <mi>ODE is </mi>
+												  <mtext>&#xA0;</mtext>
+												  <msup>
+													<mi>y</mi>
+													<mo data-mjx-alternate="1">&#x2033;</mo>
+												  </msup>
+												  <mo>+</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+														<input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="10" name="n" id="px"/></input>
+													</annotation-xml>
+												  </semantics>
+												  <mo>&#xB7;</mo>
+												  <msup>
+													<mi>y</mi>
+													<mo data-mjx-alternate="1">&#x2032;</mo>
+												  </msup>
+												  <mo>+</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+														<input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="10" name="n" id="qx"/></input>
+													</annotation-xml>
+												  </semantics>
+												  <mo>&#xB7;</mo>
+												  <mi>y</mi>
+												  <mo>=</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+														<input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="20" name="n" id="phix"/></input>
+													</annotation-xml>
+												  </semantics>
+												</mtd>
+											  </mtr>
+											  <mtr>
+												<mtd>
+												  <mi>The boundary conditions are:</mi>
+												</mtd>
+											  </mtr>
+											  <mtr>
+												<mtd>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="A1" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												  <mo>&#xB7;</mo>
+												  <msup>
+													<mi>y</mi>
+													<mo data-mjx-alternate="1">&#x2032;</mo>
+												  </msup>
+												  <mo stretchy="false">(</mo>
+												  <mi>a</mi>
+												  <mo stretchy="false">)</mo>
+												  <mo>+</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="A2" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												  <mo>&#xB7;</mo>
+												  <mi>y</mi>
+												  <mo stretchy="false">(</mo>
+												  <mi>a</mi>
+												  <mo stretchy="false">)</mo>
+												  <mo>=</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="A3" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												</mtd>
+											  </mtr>
+											  <mtr>
+												<mtd>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="B1" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												  <mo>&#xB7;</mo>
+												  <msup>
+													<mi>y</mi>
+													<mo data-mjx-alternate="1">&#x2032;</mo>
+												  </msup>
+												  <mo stretchy="false">(</mo>
+												  <mi>b</mi>
+												  <mo stretchy="false">)</mo>
+												  <mo>+</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="B2" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												  <mo>&#xB7;</mo>
+												  <mi>y</mi>
+												  <mo stretchy="false">(</mo>
+												  <mi>b</mi>
+												  <mo stretchy="false">)</mo>
+												  <mo>=</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="B3" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												</mtd>
+											  </mtr>
+											  <mtr>
+												<mtd>
+												  <mi>where</mi>
+												  <mi>x</mi>
+												  <mo>&#x2208;</mo>
+												  <mo stretchy="false">[</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="leftbound" placeholder="a" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												  <mo>,</mo>
+												  <semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+													 <input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="rightbound" placeholder="b" /></input>
+													</annotation-xml>
+											  	  </semantics>
+												  <mo stretchy="false">]</mo>
+												</mtd>
+											  </mtr>
+											  <mtr>
+												<mtd>
+													<semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+														<input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="1" name="n" id="N" value="100"/></input>
+													</annotation-xml>
+													</semantics>
+													<mtext>&#xA0;</mtext>
+												  	<mi> is number of points of the partition for approximation</mi>
+												</mtd>
+											  </mtr>
+											  <mtr>
+												<mtd>
+													<mi>Draw true solution: y(x)=</mi>
+													<mtext>&#xA0;</mtext>
+													<semantics>
+													<annotation-xml encoding="application/xhtml+xml">
+														<input xmlns="http://www.w3.org/1999/xhtml" class="rounded" style="text-align:right" type="text" size="40" name="n" id="truesolution" value=""/></input>
+													</annotation-xml>
+													</semantics>
+													<mtext>&#xA0;</mtext>
+													<mi>(optional)</mi>
+												</mtd>
+											  </mtr>
+											</mtable>
+										  </math>
+									</div>
+                                </div>
+								<button type="button" class="btn btn-primary btn-lg btn-block" id="DrawSolution">Построить решение</button>
+                            </fieldset>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 code"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--            ODE charts frame            -->
+        <div class="container-fluid" id="charts" style="margin-bottom: 2em;">
+            <!--            chart XYt frame            -->
+            <div class="container-fluid shadow p-3 mb-5 bg-white rounded ml-1" style="width: 100%;">
+                <div id="chartYX"></div>
+            </div>
+        </div>
+
+        <!--            credits           -->
+        <div class="container-fluid" id="credits">
+            <div class="row">
+                <div class="col-12 bg-primary text-white"><h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ МИФИ. 2021</h6></div>
+            </div>
+        </div>
+    
+    </body>
+
+</html>
