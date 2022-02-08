@@ -96,6 +96,10 @@ function DrawSolution(){
     }
 
 }
+
+/**
+ * returns Plotly lines trace object.
+ */
 function makeTrace(x, y, name){
     return {
         x: x,
@@ -106,10 +110,14 @@ function makeTrace(x, y, name){
         name: name
     };
 }
-function makePlots(X, Y, names, name){
+/**
+ * make Plotly plot using 2 dimensional arrays and their names for specified chart_id.
+ * uses makeTrace() function to make traces
+ */
+function makePlots(X, Y, names, chart_id){
     var traces = Array(X.length).fill().map((_, i) => makeTrace(X[i], Y[i], names[i]));
     var config = {responsive: true}
-    Plotly.newPlot(name, traces, {
+    Plotly.newPlot(chart_id, traces, {
         displayModeBar: true,
         margin: {
         t: 20, //top margin
