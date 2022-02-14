@@ -4,5 +4,6 @@
         "cert": "C:\\Code\\DynamicSystems\\dyns\\cert.pem",
         "key": "C:\\Code\\DynamicSystems\\dyns\\key.pem"
     },
-    "liveServer.settings.root": "/wwwroot"
+    "liveServer.settings.root": "/wwwroot",
+    "liveServer.settings.port": 5575
 }

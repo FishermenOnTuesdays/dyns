@@ -37,9 +37,14 @@
 
     </head>
 
-    <body style="margin-top: -10px;">
+    <body style="background-color: #000000;" id="body">
         
-        <div class="container-fluid" id="mainbody">
+        <!--            top frame           -->
+        <div class="container-fluid p-1" id="mainbody">
+            <!-- style="background-color: #007bff;
+            opacity: 1;
+            background-image: radial-gradient(circle at center center, #000000, #007bff), repeating-radial-gradient(circle at center center, #000000, #000000, 18px, transparent 36px, transparent 18px);
+            background-blend-mode: multiply;"> -->
             <!--            main            -->
             <div class="container">
                 <!--            logo            -->
@@ -77,7 +82,7 @@
                                         </div>
                                         <div class="modal-body">
                                             <form class="form">
-												<h5 class="modal-title text-center text-danger">пока не работает тоже, да и пока не нужно особо</h5>
+												<h5 class="modal-title text-center text-danger">пока не работает</h5>
                                                 <div class="form-group mx-3">
                                                     <label for="inputLogin">Логин: </label>
                                                     <input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="...">
@@ -363,25 +368,25 @@
                 </div>
 
             </div>
-
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 code"></div>
-                </div>
-            </div>
-
         </div>
 
         <!--            charts frame            -->
-        <div class="container-fluid" id="charts" style="margin-bottom: 2em;">
+        <div class="container-fluid m-1 p-3 pr-4" id="charts">
             <!--            3DSurfaceChart frame            -->
-            <div class="container-fluid shadow p-3 bg-white rounded" style="width: 100%;">
+            <div class="container-fluid shadow bg-white rounded p-2">
                 <div id="3DSurfaceChart"></div>
             </div>
         </div>
 
+
         <!--            credits           -->
         <div class="container-fluid" id="credits">
+          <div class="row">
+              <div class="col-12 bg-primary text-white"><h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ МИФИ. 2022</h6></div>
+          </div>
+        </div>
+        <!--            pre - credits           --> <!-- needed for correct always on bottom position -->
+        <div class="container-fluid" id="precredits" style="position:fixed; bottom:0;">
             <div class="row">
                 <div class="col-12 bg-primary text-white"><h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ МИФИ. 2022</h6></div>
             </div>

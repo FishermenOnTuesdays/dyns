@@ -30,11 +30,14 @@ def api():
                 payload['tau']
             )
             response = jsonify({
-                'data': hPDE.Solution().astype(float).tolist()
+                'error': None,
+                'z_data': hPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
+                'x': hPDE.GetXs(),
+                't': hPDE.GetTs()
             })
             print("--- HyperbolicPartialDifferentialEquation solved in %s seconds ---" % (time.time() - start_time))
     else:
-        response = jsonify({'error': 228})
+        response = jsonify({'error': 'unsupported request type'})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response, 200
 

@@ -20,7 +20,7 @@ function onStart(){
     jQuery(function(){
 
         effectVANTA = VANTA.FOG({
-            el: "#mainbody",
+            el: "#body",
             mouseControls: true,
             touchControls: true,
             gyroControls: false,
@@ -33,6 +33,8 @@ function onStart(){
         });
 
         jQuery("#charts").hide();
+        jQuery("#credits").hide();
+        jQuery("#precredits").show();
         jQuery("#DrawSolution").click(DrawSolution);
 
         //example hPDEs
@@ -69,12 +71,12 @@ function successAlert(state) {
         //jQuery(".code").prepend(success_alert_html)
         //add spinner to button
         var spinner_html = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
-        jQuery("#draw").text("");
-        jQuery("#draw").append(spinner_html);
+        jQuery("#DrawSolution").text("");
+        jQuery("#DrawSolution").append(spinner_html);
     } else{
         //jQuery("#success_alert").delay(500).fadeOut(100)
-        jQuery("#draw").empty();
-        jQuery("#draw").text("Построить графики");
+        jQuery("#DrawSolution").empty();
+        jQuery("#DrawSolution").text("Построить график");
     }
 }
 // web graph
@@ -111,8 +113,17 @@ function DrawSolution(){
     );
 
     function successhPDE(data){
+        jQuery("#charts").show();
+        jQuery("#credits").show();
+        jQuery("#precredits").hide();
+        successAlert(false);
+
         console.log(data);
-        jQuery("#charts").show(),
+
+        // z_data = JSON.parse(data['z_data']);
+        // z_data = data['z_data'];
+
+        
         // if (jQuery("#truesolution").val() == ''){
         //     makePlot(linspace(a, b, N), data, 'chartYX')
         // } else {
@@ -121,100 +132,56 @@ function DrawSolution(){
         // }
         // successAlert(false),
 
-        successAlert(false)
+        
 
         var chartData = [{
-            z: data['data'],
+            x: data['x'],
+            y: data['t'],
+            z: data['z_data'],
             type: 'surface'
          }];
         
+        // var layout = {
+        //     displayModeBar: true,
+        //     margin: {
+        //     t: 20, //top margin
+        //     l: 20, //left margin
+        //     r: 20, //right margin
+        //     b: 20 //bottom margin
+        //     },
+        //     xaxis: {
+        //         title: 'x',
+        //         constrain: 'range'
+        //         }, 
+        //     yaxis: {
+        //         title: 't',
+        //         scaleanchor: 'x'
+        //         }
+        // };
         var layout = {
-            displayModeBar: true,
+            scene: {
+                xaxis:{title: 'x'},
+                yaxis:{title: 't'},
+                zaxis:{title: 'u'},
+                },
+            autosize: true,
+            height: 850,
             margin: {
-            t: 20, //top margin
-            l: 20, //left margin
-            r: 20, //right margin
-            b: 20 //bottom margin
+             l: 0,
+             r: 0,
+             b: 0,
+             t: 0,
+             pad: 1
             },
-            xaxis: {
-                constrain: 'range'
-                }, 
-            yaxis: {
-                scaleanchor: 'x'
-                }
         };
         var config = {responsive: true};
         Plotly.newPlot('3DSurfaceChart', chartData, layout, config);
-        }
+        };
 
-}
-
-/**
- * returns Plotly lines trace object.
- */
-function makeTrace(x, y, name){
-    return {
-        x: x,
-        y: y,
-        mode: 'lines',
-        line: {shape: 'spline'},
-        type: 'scatter',
-        name: name
-    }
-}
-/**
- * make Plotly plot using 2 dimensional arrays and their names for specified chart_id.
- * uses makeTrace() function to make traces
- */
-function makePlots(X, Y, names, chart_id){
-    var traces = Array(X.length).fill().map((_, i) => makeTrace(X[i], Y[i], names[i]));
-    var config = {responsive: true};
-    Plotly.newPlot(chart_id, traces, {
-        displayModeBar: true,
-        margin: {
-        t: 20, //top margin
-        l: 20, //left margin
-        r: 20, //right margin
-        b: 20 //bottom margin
-        },
-        xaxis: {
-            constrain: 'range'
-            }, 
-        yaxis: {
-            scaleanchor: 'x'
-            }
-    },
-    config);
-}
-function makePlot(x, y, name){
-    var traces = [{
-        x: x,
-        y: y,
-        mode: 'lines',
-        line: {shape: 'spline'},
-        type: 'scatter'
-    }];
-    var config = {responsive: true};
-    Plotly.newPlot(name, traces, {
-        displayModeBar: true,
-        margin: {
-        t: 20, //top margin
-        l: 20, //left margin
-        r: 20, //right margin
-        b: 20 //bottom margin
-        },
-        xaxis: {
-            constrain: 'range'
-            }, 
-        yaxis: {
-            scaleanchor: 'x'
-            }
-    },
-    config);
+        delay(1000).then(() => updateLayout());
+        
 }
 
-// utility func
-/* applies string func on array */
-function applyStringFunc(stringfunc, X){
-    return Array(X.length).fill().map((_, i) => math.evaluate(stringfunc, {x: X[i]}) )
-}
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+  }
