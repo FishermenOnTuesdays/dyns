@@ -1,8 +1,9 @@
 {
     "liveServer.settings.https": {
         "enable": true,
-        "cert": "C:\\Code\\DynamicSystems\\dyns\\cert.pem",
-        "key": "C:\\Code\\DynamicSystems\\dyns\\key.pem"
+        "cert": "D:/Code/DynamicSystems/CODE/dyns/cert.pem",
+        "key": "D:/Code/DynamicSystems/CODE/dyns/key.pem",
+        "passphrase": "12345"
     },
     "liveServer.settings.root": "/wwwroot",
     "liveServer.settings.port": 5575

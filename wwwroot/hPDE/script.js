@@ -3,7 +3,7 @@ localhost_ip = '127.0.0.1';
 local_ip = '192.168.31.80';
 dyns_ip = '85.143.113.155';
 dyns_web = 'dyns.mephi.ru';
-var ip = localhost_ip;
+var ip = local_ip;
 
 // UI
 var effectVANTA;
@@ -42,6 +42,7 @@ function onStart(){
             jQuery("#sample1").click(function(){
                 $('#fx').text('1'),
                 $('#gx').text('1'),
+		$('#qx').text('0'),
                 $('#phix').text('sin(x)'),
                 $('#psix').text('0'),
                 $('#alpha1').text(0),
@@ -85,6 +86,7 @@ function DrawSolution(){
     var request = {
         'f': $('#fx').text(),
         'g': $('#gx').text(),
+	'q': $('#qx').text(),
         'phi': $('#phix').text(),
         'psi': $('#psix').text(),
         'alpha1': parseFloat($('#alpha1').text()),
@@ -104,7 +106,7 @@ function DrawSolution(){
     successAlert(true);
 
     jQuery.post(
-        'http://' + ip + ':5000/api',
+        'https://' + ip + ':5001/api',
         {
             'request type': 'HyperbolicPartialDifferentialEquation',
             'payload': JSON.stringify(request)

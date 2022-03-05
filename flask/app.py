@@ -2,24 +2,17 @@ import json, time
 
 from flask import Flask, request, render_template, jsonify
 
-import dyns
+import pydyns as dyns
 
 app = Flask(__name__)
 
 
-@app.route('/api', methods=['GET', 'POST'])
-def api():
-    # handle the POST request
-    if request.method == 'POST':
-        request_type = request.form['request type']
-        payload = json.loads(request.form['payload'])
-        # print(request_type, payload)
+def HyperbolicPartialDifferentialEquation(payload):
 
-        if request_type == 'HyperbolicPartialDifferentialEquation':
-            start_time = time.time()
-            hPDE = dyns.HyperbolicPartialDifferentialEquation(
+    hPDE = dyns.HyperbolicPartialDifferentialEquation(
                 payload['f'],
                 payload['g'],
+                payload['q'],
                 payload['phi'],
                 payload['psi'],
                 (payload['alpha1'], payload['beta1'], payload['gamma1']),
@@ -29,13 +22,56 @@ def api():
                 payload['h'],
                 payload['tau']
             )
-            response = jsonify({
-                'error': None,
-                'z_data': hPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
-                'x': hPDE.GetXs(),
-                't': hPDE.GetTs()
-            })
-            print("--- HyperbolicPartialDifferentialEquation solved in %s seconds ---" % (time.time() - start_time))
+    return jsonify({
+        'error': None,
+        'z_data': hPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
+        'x': hPDE.GetXs(),
+        't': hPDE.GetTs()
+    })
+
+
+def ParabolicPartialDifferentialEquation(payload):
+    hPDE = dyns.ParabolicPartialDifferentialEquation(
+                payload['q'],
+                payload['k'],
+                payload['f'],
+                payload['phi'],
+                (payload['alpha1'], payload['beta1'], payload['gamma1']),
+                (payload['alpha2'], payload['beta2'], payload['gamma2']),
+                (payload['a'], payload['b']),
+                payload['T'],
+                payload['h'],
+                payload['tau'],
+                10, # payload['rarefaction_ratio_x'],
+                10 # payload['rarefaction_ratio_t']
+            )
+    return jsonify({
+        'error': None,
+        'z_data': hPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
+        'x': hPDE.GetXs(),
+        't': hPDE.GetTs()
+    })
+
+
+@app.route('/api', methods=['GET', 'POST'])
+def api():
+    # handle the POST request
+    if request.method == 'POST':
+        start_time = time.perf_counter()
+
+        request_type = request.form['request type']
+        payload = json.loads(request.form['payload'])
+        # print(request_type, payload)
+
+        match request_type:
+            case 'HyperbolicPartialDifferentialEquation':
+                response = HyperbolicPartialDifferentialEquation(payload)
+            case 'ParabolicPartialDifferentialEquation':
+                response = ParabolicPartialDifferentialEquation(payload)
+            case _:
+                response = jsonify({'error': 'unsupported request type'})
+
+        print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))
     else:
         response = jsonify({'error': 'unsupported request type'})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -43,4 +79,4 @@ def api():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(ssl_context=('cert.pem', 'key.pem'), port=5001, host="0.0.0.0")
