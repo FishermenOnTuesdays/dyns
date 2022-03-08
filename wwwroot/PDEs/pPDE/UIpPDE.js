@@ -27,8 +27,8 @@ jQuery(function(){
             $('#a').text(0),
             $('#b').text(6.28),
             $('#T').text(10),
-            $('#h').text(0.01),
-            $('#tau').text(0.01)
+            $('#h').text(0.1),
+            $('#tau').text(0.1)
         });
     }
 })
