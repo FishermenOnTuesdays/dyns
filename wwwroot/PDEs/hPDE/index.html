@@ -1,0 +1,448 @@
+<html>
+
+<head>
+  <title>DynS</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+  <!--<link rel="icon" href="icon.ico" type="image/x-icon">-->
+
+  <!--                 dependencies                 -->
+  <script src="../../scripts/jquery-3.5.0.min.js"></script>
+  <script src="../../scripts/plotly.min.js"></script>
+  <link rel="stylesheet" href="../../css/bootstrap.min.css">
+  <script src="../../scripts/bootstrap.bundle.min.js"></script>
+  <script src="../../scripts/polyfill.min.js"></script>
+  <script id="MathJax-script" async src="../../scripts/tex-mml-chtml.js"></script>
+  <script src="../../scripts/math.js"></script>
+
+  <script src="../../scripts/three.min.js"></script>
+
+  <!--        for VANTA animated background         -->
+  <script src="../../scripts/vanta.fog.min.js"></script>
+
+  <!--                 project code                 -->
+
+  <script src="../config.js"></script>
+  <script src="../utils.js"></script>
+  <script src="../requestHandler.js"></script>
+  <script src="UIhPDE.js"></script>
+
+  <!--                main css file                 -->
+  <link rel="stylesheet" href="../../custom.css" />
+
+
+
+</head>
+
+<body style="background-color: #000000;" id="body">
+
+  <!--            top frame           -->
+  <div class="container-fluid p-1" id="mainbody">
+    <!-- style="background-color: #007bff;
+          opacity: 1;
+          background-image: radial-gradient(circle at center center, #000000, #007bff), repeating-radial-gradient(circle at center center, #000000, #000000, 18px, transparent 36px, transparent 18px);
+          background-blend-mode: multiply;"> -->
+    <!--            main            -->
+    <div class="container">
+      <!--            logo            -->
+      <div class="row m10">
+        <div class="col-8">
+          <img src="../../logo.svg" height="150">
+        </div>
+      </div>
+      <!--            nav frame            -->
+      <nav class="navbar navbar-expand navbar-light bg-black rounded m10">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle text-primary" href="#" id="navbarDropdownMenuLink" role="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                data-content="Здесь можно ознакомится с примерами вводных данных" rel="popover" data-placement="left"
+                data-original-title="Есть вопросы?" data-trigger="hover">
+                Примеры
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="#" id="sample1">пример 1</a>
+              </div>
+            </li>
+          </ul>
+          <div id="ModalHolder">
+            <!-- Login Modal -->
+            <div class="modal fade" id="LoginModal" data-backdrop="static" tabindex="-1"
+              aria-labelledby="LoginModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="LoginModalLabel">Войдите в аккаунт</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form class="form">
+                      <h5 class="modal-title text-center text-danger">пока не работает</h5>
+                      <div class="form-group mx-3">
+                        <label for="inputLogin">Логин: </label>
+                        <input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp"
+                          placeholder="...">
+                        <!--<input type="login" class="form-control" id="inputLogin" aria-describedby="loginHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
+                      </div>
+                      <div class="form-group mx-3">
+                        <label for="inputPassword">Пароль: </label>
+                        <input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp"
+                          placeholder="...">
+                        <!--<input type="password" class="form-control" id="inputPassword" aria-describedby="passwordHelp" placeholder="..." style="border: none; border-width: 0; box-shadow: none; background-color:transparent;">-->
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="button" id="submit-login" class="btn btn-primary">Войти</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <form class="form-inline my-2 my-lg-0">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#LoginModal"
+              id="loginButton">Войти</button>
+          </form>
+        </div>
+      </nav>
+
+      <div id="InputFrame">
+        <!--           ODE input frame            -->
+        <div class="row m10">
+          <div class="col-12 p-0 pr-1">
+            <!--            main input frame            -->
+            <fieldset class="shadow p-2 rounded bg-white justify-content-center" id="maininput">
+              <div class="row justify-content-start p-1 ml-1">
+                <div class="col col-12 p-1 h5 text-black">
+                  <!-- $$
+                                      \begin{cases}
+                                      u_{tt} = f(x)\frac{\partial}{\partial x}\big(g(x)\frac{\partial u}{\partial x}\big), \quad x \in (a,b), \quad 0 < t < T</t>\\
+                                      u(x,0) = \phi(x) \\
+                                      u_t(x,0) = \psi(x) \\
+                                      \alpha_1 u_x(a,t) + \beta_1 u(a,t) = \gamma_1 \\
+                                      \alpha_2 u_x(b,t) + \beta_2 u(b,t) = \gamma_2
+                                      \end{cases}
+                                      $$ -->
+                  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                    <mrow data-mjx-texclass="INNER">
+                      <mo data-mjx-texclass="OPEN">{</mo>
+                      <mtable columnalign="left left" columnspacing="1em" rowspacing=".2em">
+                        <mtr>
+                          <mtd>
+                            <msub>
+                              <mi>u</mi>
+                              <mrow data-mjx-texclass="ORD">
+                                <mi>t</mi>
+                                <mi>t</mi>
+                              </mrow>
+                            </msub>
+                            <mo>=</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="fx" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 3ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mfrac>
+                              <mi>&#x2202;</mi>
+                              <mrow>
+                                <mi>&#x2202;</mi>
+                                <mi>x</mi>
+                              </mrow>
+                            </mfrac>
+                            <mrow data-mjx-texclass="ORD">
+                              <mo minsize="1.2em" maxsize="1.2em">(</mo>
+                            </mrow>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="gx" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 3ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mfrac>
+                              <mrow>
+                                <mi>&#x2202;</mi>
+                                <mi>u</mi>
+                              </mrow>
+                              <mrow>
+                                <mi>&#x2202;</mi>
+                                <mi>x</mi>
+                              </mrow>
+                            </mfrac>
+                            <mrow data-mjx-texclass="ORD">
+                              <mo minsize="1.2em" maxsize="1.2em">)</mo>
+                            </mrow>
+                            <mi>+</mi>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="qx" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 3ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo>,</mo>
+                            <mstyle scriptlevel="0">
+                              <mspace width="1em"></mspace>
+                            </mstyle>
+                            <mi>x</mi>
+                            <mo>&#x2208;</mo>
+                            <mo stretchy="false">(</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="a" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo>,</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="b" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo stretchy="false">)</mo>
+                            <mo>,</mo>
+                            <mstyle scriptlevel="0">
+                              <mspace width="1em"></mspace>
+                            </mstyle>
+                            <mn>0</mn>
+                            <mo>&lt;</mo>
+                            <mi>t</mi>
+                            <mo>&lt;</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="T" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 3ch; display: block; text-align:left"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                          </mtd>
+                        </mtr>
+                        <mtr>
+                          <mtd>
+                            <mi>u</mi>
+                            <mo stretchy="false">(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="phix" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 3ch; display: block; text-align:left"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                          </mtd>
+                        </mtr>
+                        <mtr>
+                          <mtd>
+                            <msub>
+                              <mi>u</mi>
+                              <mi>t</mi>
+                            </msub>
+                            <mo stretchy="false">(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="psix" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 3ch; display: block; text-align:left"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                          </mtd>
+                        </mtr>
+                        <mtr>
+                          <mtd>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="alpha1" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo>&nbsp;</mo>
+                            <msub>
+                              <mi>u</mi>
+                              <mi>x</mi>
+                            </msub>
+                            <mo stretchy="false">(</mo>
+                            <mi>a</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo stretchy="false">)</mo>
+                            <mo>+</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="beta1" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo>&nbsp;</mo>
+                            <mi>u</mi>
+                            <mo stretchy="false">(</mo>
+                            <mi>a</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="gamma1" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                          </mtd>
+                        </mtr>
+                        <mtr>
+                          <mtd>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="alpha2" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo>&nbsp;</mo>
+                            <msub>
+                              <mi>u</mi>
+                              <mi>x</mi>
+                            </msub>
+                            <mo stretchy="false">(</mo>
+                            <mi>b</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo stretchy="false">)</mo>
+                            <mo>+</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="beta2" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mo>&nbsp;</mo>
+                            <mi>u</mi>
+                            <mo stretchy="false">(</mo>
+                            <mi>b</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span id="gamma2" class="input" role="textbox" type="text"
+                                  style="border-bottom: solid; min-width: 1ch; display: block; text-align:right"
+                                  contenteditable></span>
+                              </annotation-xml>
+                            </semantics>
+                          </mtd>
+                        </mtr>
+                      </mtable>
+                      <mo data-mjx-texclass="CLOSE" fence="true" stretchy="true" symmetric="true"></mo>
+                    </mrow>
+                  </math>
+                  <!-- Здесь 
+                                      $$
+                                      f(x) \in C[a,b], \quad g(x) \in C^1[a,b], \quad \phi(x) \in C^2[a,b], \quad \psi(x) \in C[a,b],
+                                      \alpha_i, \beta_i, \gamma_i, a, b \in \mathbb{R} \\
+                                      $$ -->
+                  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                    <mtable rowspacing=".5em" columnspacing="1em" displaystyle="true">
+                      <mtr>
+                        <mtd>
+                          <mi>где</mi>
+                          <mstyle scriptlevel="0">
+                            <mspace width="0.25em"></mspace>
+                          </mstyle>
+                          <mi>h</mi>
+                          <mi>=</mi>
+                          <semantics>
+                            <annotation-xml encoding="application/xhtml+xml">
+                              <span id="h" class="input" role="textbox" type="text"
+                                style="border-bottom: solid; min-width: 3ch; display: block; text-align:right"
+                                contenteditable></span>
+                            </annotation-xml>
+                          </semantics>
+                          <mi>,</mi>
+                          <mstyle scriptlevel="0">
+                            <mspace width="1em"></mspace>
+                          </mstyle>
+                          <mi>&#964;</mi>
+                          <mi>=</mi>
+                          <semantics>
+                            <annotation-xml encoding="application/xhtml+xml">
+                              <span id="tau" class="input" role="textbox" type="text"
+                                style="border-bottom: solid; min-width: 3ch; display: block; text-align:right"
+                                contenteditable></span>
+                            </annotation-xml>
+                          </semantics>
+                        </mtd>
+                      </mtr>
+                    </mtable>
+                  </math>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary btn-lg btn-block" id="DrawSolution">Построить
+                решение</button>
+            </fieldset>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!--            charts frame            -->
+  <div class="container-fluid m-1 p-3 pr-4" id="charts">
+    <!--            3DSurfaceChart frame            -->
+    <div class="container-fluid shadow bg-white rounded p-2">
+      <div id="3DSurfaceChart"></div>
+    </div>
+  </div>
+
+
+  <!--            credits           -->
+  <div class="container-fluid" id="credits">
+    <div class="row">
+      <div class="col-12 bg-primary text-white">
+        <h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ
+          МИФИ. 2022</h6>
+      </div>
+    </div>
+  </div>
+  <!--            pre - credits           -->
+  <!-- needed for correct always on bottom position -->
+  <div class="container-fluid" id="precredits" style="position:fixed; bottom:0;">
+    <div class="row">
+      <div class="col-12 bg-primary text-white">
+        <h6 style="text-align:center; vertical-align: middle; height: 1.5em; margin-top: 0.5em;">Разработано в НИЯУ
+          МИФИ. 2022</h6>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
