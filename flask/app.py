@@ -31,13 +31,13 @@ def HyperbolicPartialDifferentialEquation(payload):
 
 
 def ParabolicPartialDifferentialEquation(payload):
-    hPDE = dyns.ParabolicPartialDifferentialEquation(
+    pPDE = dyns.ParabolicPartialDifferentialEquation(
                 payload['q'],
                 payload['k'],
                 payload['f'],
                 payload['phi'],
-                (payload['alpha1'], payload['beta1'], payload['gamma1']),
-                (payload['alpha2'], payload['beta2'], payload['gamma2']),
+                [payload['alpha1'], payload['beta1'], payload['gamma1']],
+                [payload['alpha2'], payload['beta2'], payload['gamma2']],
                 (payload['a'], payload['b']),
                 payload['T'],
                 payload['h'],
@@ -47,9 +47,9 @@ def ParabolicPartialDifferentialEquation(payload):
             )
     return jsonify({
         'error': None,
-        'z_data': hPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
-        'x': hPDE.GetXs(),
-        't': hPDE.GetTs()
+        'z_data': pPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
+        'x': pPDE.GetXs(),
+        't': pPDE.GetTs()
     })
 
 
