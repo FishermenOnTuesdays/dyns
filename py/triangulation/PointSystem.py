@@ -48,7 +48,7 @@ class PointSystem:
         self.triangulation = Delaunay(self.points)
         self.edges = self.calculateEdges(self.triangulation)
 
-    def evaluate(self, f: callable):
+    def evaluate(self, f: callable) -> float:
         # f = lambda point: random.random()
         good = 0
         sum_distance = 0
@@ -99,6 +99,6 @@ class PointSystem:
 
     def Mutate(self):
         self.RandomWiggle()
-        # self.Add()
+        self.Add()
         # self.Remove()
         self.update()
