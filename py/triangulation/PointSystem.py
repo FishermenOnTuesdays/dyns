@@ -12,7 +12,7 @@ class PointSystem:
     characteristic_distance: float
     N: int
     M: int
-    boundary_points: list[np.array]
+    boundary_points: np.array
 
     @staticmethod
     def bin_array(num: int, m: int) -> np.array:
@@ -32,12 +32,12 @@ class PointSystem:
     def __init__(self, M: int, N: int):
         self.M = M
         self.N = N
-        self.points = np.random.rand(self.M - 4, self.N)
+        self.points = np.random.rand(self.M - 2**self.N, self.N)
         self.boundary_points = np.array([self.bin_array(i, self.N) for i in range(2**self.N)], dtype=float)
         self.points = np.concatenate(
             (
                 self.points,
-                self.boundary_points.copy()
+                self.boundary_points
             ), axis=0
         )
         self.triangulation = Delaunay(self.points)
@@ -63,24 +63,29 @@ class PointSystem:
             if PecletNumber < 2:
                 good += 1
             
-        self.characteristic_distance = sum_distance / self.points.shape[0]
+        self.characteristic_distance = sum_distance / self.M
+        # self.characteristic_distance = 1 / self.M ** 2 * np.pi
 
+        # return np.log(good / len(self.edges))
         return good / len(self.edges)
 
     def RandomWiggle(self):
         for point in self.points:
-            if not np.any(np.all(point == self.boundary_points, axis=1)):
-                if random.random() < 0.25:
+            if not (point in self.boundary_points):
+                if random.random() < 0.5:
                     offset = np.random.uniform(low=-self.characteristic_distance, high=self.characteristic_distance, size=(self.N,))
                     point += offset
                     if not ((np.zeros(point.shape) < point).min() and (point < np.ones(point.shape)).min()):
-                        point -= offset     # вернули обратно
+                        # ставим на границу за которую вышел
+                        point[point > 1] = 1
+                        point[point < 0] = 0
+                        # point -= offset     # вернули обратно
         self.triangulation = None
         self.edges = None
     
     def Add(self):
         for _ in range(self.M):
-            if random.random() < 0.01:
+            if random.random() < 0.05:
                 point = np.random.rand(self.N)
                 self.points = np.vstack((self.points, point))
                 self.M += 1
@@ -89,10 +94,11 @@ class PointSystem:
     
     def Remove(self):
         for _ in range(self.M):
-            if random.random() < 0.01:
-                point = random.choice(self.points)
-                if not np.any(np.all(point == self.boundary_points, axis=1)):
-                    self.points = np.delete(self.points, np.argwhere(self.points == point))
+            if random.random() < 0.05:
+                i = random.choice(range(self.M))
+                point = self.points[i]
+                if not(point in self.boundary_points):
+                    self.points = np.delete(self.points, i, axis = 0)
                     self.M -= 1
         self.triangulation = None
         self.edges = None
@@ -100,5 +106,5 @@ class PointSystem:
     def Mutate(self):
         self.RandomWiggle()
         self.Add()
-        # self.Remove()
+        self.Remove()
         self.update()
