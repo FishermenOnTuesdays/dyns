@@ -36,7 +36,7 @@ class PointSystem:
         self.boundary_points = np.array([self.bin_array(i, self.N) for i in range(2**self.N)], dtype=float)
 
         if square_grid:
-            h = 1/np.sqrt(M)
+            h = 1/(np.sqrt(M) - 1)
             points = list()
             for i in np.arange(0, 1 + h, h):
                 for j in np.arange(0, 1 + h, h):
