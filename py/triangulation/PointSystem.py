@@ -1,4 +1,4 @@
-import random
+import random, copy
 from dataclasses import dataclass
 
 import numpy as np
@@ -14,6 +14,7 @@ class PointSystem:
     M: int
     boundary_points: np.array
     last_evaluation: float
+    min_edge_length: float
 
     @staticmethod
     def bin_array(num: int, m: int) -> np.array:
@@ -56,6 +57,7 @@ class PointSystem:
         self.edges = self.calculateEdges(self.triangulation)
         self.characteristic_distance = None
         self.last_evaluation = None
+        self.min_edge_length = None
     
     def update(self):
         self.triangulation = Delaunay(self.points)
@@ -63,8 +65,9 @@ class PointSystem:
 
     def evaluate(self, f: callable) -> float:
         # f = lambda point: random.random()
-        good = 0
+        # good = 0
         sum_distance = 0
+        max_PN = 0
         for edge in self.edges:
             a = self.points[edge[0]]
             b = self.points[edge[1]]
@@ -72,22 +75,40 @@ class PointSystem:
             distance = np.linalg.norm(a - b)
             sum_distance += distance
             PecletNumber = abs(f(midPoint) * distance)
-
-            if PecletNumber < 2:
-                good += 1
+            if PecletNumber > max_PN:
+                max_PN = PecletNumber
+            if self.min_edge_length == None or distance < self.min_edge_length:
+                self.min_edge_length = distance
+            # if PecletNumber < 2:
+            #     good += 1
             
         self.characteristic_distance = sum_distance / self.M
         # self.characteristic_distance = 1 / self.M ** 2 * np.pi
 
         # return np.log(good / len(self.edges))
-        self.last_evaluation = good / len(self.edges)
+        # self.last_evaluation = good / len(self.edges)
+        self.last_evaluation = max_PN
         return self.last_evaluation
+    
+    @staticmethod
+    def grad(f: callable, X: float, h: float):
+        res = np.zeros(X.shape)
+        for index in range(X.shape[0]):
+            xa, xb = copy.deepcopy(X), copy.deepcopy(X)
+            xa[index] += h/2
+            xb[index] -= h/2
+            fa = f(xa)
+            fb = f(xb)
+            res[index] = (fa - fb)/h
+        return res
 
-    def RandomWiggle(self):
+    def RandomWiggle(self, f: callable):
         for point in self.points:
             if not (point in self.boundary_points):
                 if random.random() < 0.1:
-                    offset = np.random.uniform(low=-self.characteristic_distance/np.pi**3, high=self.characteristic_distance/np.pi**3, size=(self.N,))
+                    random_offset = np.random.uniform(low=-self.characteristic_distance/np.pi**3, high=self.characteristic_distance/np.pi**3, size=(self.N,))
+                    grad_offset = self.grad(f, point, self.min_edge_length / 100) * np.linalg.norm(random_offset) / 10
+                    offset = random_offset + grad_offset
                     point += offset
                     if not ((np.zeros(point.shape) < point).min() and (point < np.ones(point.shape)).min()):
                         # ставим на границу за которую вышел
@@ -117,9 +138,9 @@ class PointSystem:
         self.triangulation = None
         self.edges = None
 
-    def Mutate(self):
-        self.RandomWiggle()
-        if self.last_evaluation < 1:
-            self.Add()
+    def Mutate(self, f: callable):
+        self.RandomWiggle(f)
+        # if self.last_evaluation < 1:
+        self.Add()
         self.Remove()
         self.update()
