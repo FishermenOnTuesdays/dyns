@@ -16,20 +16,33 @@ class PointSystem:
     last_evaluation: float
     min_edge_length: float
 
+    edges_dict: dict
+
     @staticmethod
     def bin_array(num: int, m: int) -> np.array:
         """Convert a positive integer num into an m-bit bit vector"""
         return np.array(list(np.binary_repr(num).zfill(m))).astype(np.int8)
     
     @staticmethod
-    def calculateEdges(triangulation: Delaunay) -> set:
+    def calculateEdges(triangulation: Delaunay) -> tuple[set, dict]:
         """Get set of edges from the simplices"""
         edges = set()
+        edges_dict = dict()
         for simplex in triangulation.simplices:
             for i in range(simplex.shape[0]):
                 for j in range(i + 1, simplex.shape[0]):
-                    edges.add((simplex[i], simplex[j]))
-        return edges
+                    a = simplex[i]
+                    b = simplex[j]
+                    edges.add((a, b))
+                    if not (a in edges_dict):
+                        edges_dict[a] = set()
+                    if not (b in edges_dict):
+                        edges_dict[b] = set()
+                    edges_dict[a].add(b)
+                    edges_dict[b].add(a)
+        if triangulation.npoints > len(edges_dict):
+            xxxxxx = 1
+        return edges, edges_dict
 
     def __init__(self, M: int, N: int, square_grid=False):
         self.M = M
@@ -54,7 +67,7 @@ class PointSystem:
             )
         
         self.triangulation = Delaunay(self.points)
-        self.edges = self.calculateEdges(self.triangulation)
+        self.edges, self.edges_dict = self.calculateEdges(self.triangulation)
         self.characteristic_distance = None
         self.last_evaluation = None
         self.min_edge_length = None
