@@ -40,8 +40,6 @@ class PointSystem:
                         edges_dict[b] = set()
                     edges_dict[a].add(b)
                     edges_dict[b].add(a)
-        if triangulation.npoints > len(edges_dict):
-            xxxxxx = 1
         return edges, edges_dict
 
     def __init__(self, M: int, N: int, square_grid=False):
