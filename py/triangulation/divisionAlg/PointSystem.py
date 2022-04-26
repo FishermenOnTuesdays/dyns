@@ -41,9 +41,39 @@ class PointSystem:
 
     def __init__(self, N: int, position: np.ndarray, size: np.ndarray, V: Callable[[np.ndarray], np.ndarray], K: Callable[[np.ndarray], float]):
 
-        if N == 2:
+        if N < 1:
+            raise ValueError
 
-            self.N = 2
+        elif N == 1:
+
+            self.N = N
+            self.V = V
+            self.K = K
+            self.position = position
+            self.size = size
+
+            x = position[0]
+            length = size[0]
+
+            x1 = x - length/2
+            x2 = x + length/2
+
+            nx = np.array([1])
+
+            self.points = set()
+
+            self.points.add(x1)
+            self.points.add(x2)
+            self.points.add(x)
+
+            self.alphas = np.abs(np.array([
+                ( np.dot(self.V(np.array([(x2+x)/2])), nx) * np.abs(x2-x) ) / self.K(np.array([(x2+x)/2])),
+                ( np.dot(self.V(np.array([(x1+x)/2])), -nx) * np.abs(x-x1) ) / self.K(np.array([(x1+x)/2]))
+            ]))
+
+        elif N == 2:
+
+            self.N = N
             self.V = V
             self.K = K
             self.position = position
@@ -87,8 +117,23 @@ class PointSystem:
         return np.max(self.alphas) < 2
     
     def propagate(self):
+
+        if self.N == 1:
+
+            if self.isValid():
+                return
+            else:
+
+                PSs = [
+                    PointSystem(self.N, np.array([self.position[0] - self.size[0]/4]), self.size/2, self.V, self.K),
+                    PointSystem(self.N, np.array([self.position[0] + self.size[0]/4]), self.size/2, self.V, self.K)
+                ]
+
+                for PS in PSs:
+                    if not PS.isValid(): PS.propagate()
+                    self.points = self.points | PS.points
         
-        if self.N == 2:
+        elif self.N == 2:
 
             if self.isValid():
                 return
@@ -104,4 +149,6 @@ class PointSystem:
                 for PS in PSs:
                     if not PS.isValid(): PS.propagate()
                     self.points = self.points | PS.points
+        else:
+            raise NotImplementedError
 
