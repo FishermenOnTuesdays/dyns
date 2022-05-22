@@ -24,6 +24,7 @@ class PointSystem:
     max_edge: float
 
     alphas: np.ndarray
+    alphasMiddle: np.ndarray
     eps: float
 
     res: any
@@ -37,12 +38,19 @@ class PointSystem:
         x2 = X + length/2
         nx = np.array([1])
 
-        opt_f = lambda x: x if x < 2 else x**2 #np.exp(10000*(np.abs(x)-2)) + 1
+        # opt_f = lambda x: x if x < 2 else x**2 #np.exp(10000*(np.abs(x)-2)) + 1
 
-        eq1 = ( np.dot(self.V(np.array([(x2+x)/2])), nx) * np.abs(x2-x) ) / self.K(np.array([(x2+x)/2]))
-        eq2 = ( np.dot(self.V(np.array([(x1+x)/2])), -nx) * np.abs(x-x1) ) / self.K(np.array([(x1+x)/2]))
+        alpha1 = np.abs( ( np.dot(self.V(np.array([(x2+x)/2])), nx) * np.abs(x2-x) ) / self.K(np.array([(x2+x)/2])) )
+        alpha2 = np.abs( ( np.dot(self.V(np.array([(x1+x)/2])), -nx) * np.abs(x-x1) ) / self.K(np.array([(x1+x)/2])) )
 
-        return (opt_f(np.abs(eq1)) + opt_f(np.abs(eq2))) / 2
+        # return (alpha1 + alpha2) / 2
+        
+        # d1 = np.abs(x - x1)
+        # d2 = np.abs(x2 - x)
+        # return (alpha1/d1 + alpha2/d2) / 2
+
+        return np.sqrt(alpha1 * alpha2)
+        # return 1 / (1/alpha1+1/alpha2)
 
     def equations2(self, vars):
         x, y = vars
@@ -84,6 +92,11 @@ class PointSystem:
 
             self.points.add(x1)
             self.points.add(x2)
+
+            self.alphasMiddle = np.abs(np.array([
+                ( np.dot(self.V(np.array([(x2+x)/2])), nx) * np.abs(x2-x) ) / self.K(np.array([(x2+x)/2])),
+                ( np.dot(self.V(np.array([(x1+x)/2])), -nx) * np.abs(x-x1) ) / self.K(np.array([(x1+x)/2]))
+            ]))
 
             bnds = [ [x1, x2] ]
 
@@ -130,7 +143,7 @@ class PointSystem:
                 ( np.dot(self.V(np.array([(x1+x)/2])), -nx) * np.abs(x-x1) ) / self.K(np.array([(x1+x)/2]))
             ]))
 
-        elif N == 1:    # divide in the middle
+        elif N == 1:    # divide in the middle7
 
             x = position[0]
             length = size[0]
@@ -203,10 +216,11 @@ class PointSystem:
                 return
             else:
 
-                PSs = [
-                    PointSystem(self.N, np.array([self.position[0] - self.size[0]/4]), self.size/2, self.V, self.K, eps=self.eps),
-                    PointSystem(self.N, np.array([self.position[0] + self.size[0]/4]), self.size/2, self.V, self.K, eps=self.eps)
-                ]
+                PSs = []
+                # if self.alphas[0] >= 2 or self.size/2 > self.eps: PSs.append(PointSystem(self.N, np.array([self.position[0] - self.size[0]/4]), self.size/2, self.V, self.K, eps=self.eps))
+                PSs.append(PointSystem(self.N, np.array([self.position[0] - self.size[0]/4]), self.size/2, self.V, self.K, eps=self.eps))
+                # if self.alphas[1] >= 2 or self.size/2 > self.eps: PSs.append(PointSystem(self.N, np.array([self.position[0] + self.size[0]/4]), self.size/2, self.V, self.K, eps=self.eps))
+                PSs.append(PointSystem(self.N, np.array([self.position[0] + self.size[0]/4]), self.size/2, self.V, self.K, eps=self.eps))
 
                 for PS in PSs:
                     if not PS.isValid(): PS.propagate()
