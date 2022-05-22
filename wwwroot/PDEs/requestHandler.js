@@ -131,7 +131,7 @@ function TwoDimensionalHeatEquationRequest(){
         
         spinnerToggle('DrawSolution', false);
 
-        startAnimation = animate3DSurfacePlot('3DSurfaceChart', data['x'], data['y'], data['u'], 'x', 'y', 'u')
+        startAnimation = animate3DSurfacePlot('3DSurfaceChart', data['x'], data['y'], data['u'], data['t'], 'x', 'y', 'u')
 
         delay(500).then(() => updateLayout());
         jQuery("#Animate").on('click', function() {

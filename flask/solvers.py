@@ -38,9 +38,6 @@ def TwoDimensionalHeatEquation(
         for j in range(N_y):
             U[0][i][j] = u0(Xs[i], Ys[j])
 
-    A = np.zeros((N_x, N_x))
-    B = np.zeros(N_x)
-
     for n in range(1, M):
         U_half = np.zeros((N_x, N_y))
         for j in range(0, N_y):
@@ -49,8 +46,8 @@ def TwoDimensionalHeatEquation(
             elif j == N_y - 1:
                 U_half[:,N_y - 1] = np.fromiter(map(lambda x : mu_d(x, Ts[n]), Xs), float)
             else:
-                A.fill(0)
-                B.fill(0)
+                A = np.zeros((N_x, N_x))
+                B = np.zeros(N_x)
                 for i in range(0, N_x):
                     if i == 0:
                         A[0][0] = 1
@@ -71,8 +68,8 @@ def TwoDimensionalHeatEquation(
             elif i == N_x - 1:
                 U[n][N_x - 1] = np.fromiter(map(lambda y : mu_b(y, Ts[n]), Ys), float)
             else:
-                A.fill(0)
-                B.fill(0)
+                A = np.zeros((N_y, N_y))
+                B = np.zeros(N_y)
                 for j in range(0, N_y):
                     if j == 0:
                         A[0][0] = 1
@@ -86,7 +83,7 @@ def TwoDimensionalHeatEquation(
                         A[j][j+1] = tau/2/h_y**2*q_y(Xs[i], Ys[j])*k_y(Xs[i], (Ys[j]+Ys[j+1])/2)
                         B[j] = -(U_half[i][j] + tau/2 * (f(Xs[i], Ys[j], Ts[n]) + q_x(Xs[i], Ys[j])/h_x**2*(k_x((Xs[i] + Xs[i+1])/2, Ys[j])*(U_half[i+1][j] - U_half[i][j]) - k_x((Xs[i]+Xs[i-1])/2, Ys[j])*(U_half[i][j] - U_half[i-1][j]))))
                 U[n][i] = np.linalg.solve(A, B)
-    
+    U = np.array(list(map(np.transpose, [ut for ut in U])))
     return U, Xs, Ys, Ts
 
     # # a = 0
