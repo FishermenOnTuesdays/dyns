@@ -66,8 +66,8 @@ def ParabolicPartialDifferentialEquation(payload):
                 payload['T'],
                 payload['h'],
                 payload['tau'],
-                10, # payload['rarefaction_ratio_x'],
-                10 # payload['rarefaction_ratio_t']
+                1, # payload['rarefaction_ratio_x'],
+                1 # payload['rarefaction_ratio_t']
             )
     return jsonify({
         'error': None,

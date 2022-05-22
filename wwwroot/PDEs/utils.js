@@ -51,13 +51,14 @@ function getMax(a){
     return Math.max(...a.map(e => Array.isArray(e) ? getMax(e) : e));
   }
 
-function draw3DSurfacePlot(element_id, x, y, z, xaxis='x', yaxis='y', zaxis='z') {
+function draw3DSurfacePlot(element_id, x, y, z, xaxis='x', yaxis='y', zaxis='z', colorscale='') {
     
     var chartData = [{
         x: x,
         y: y,
         z: z,
-        type: 'surface'
+        type: 'surface',
+        colorscale: colorscale,
     }];
 
     var layout = {
@@ -78,6 +79,103 @@ function draw3DSurfacePlot(element_id, x, y, z, xaxis='x', yaxis='y', zaxis='z')
     };
     var config = {responsive: true};
     Plotly.newPlot(element_id, chartData, layout, config);
+    
+}
+
+function animate2DLinePlot(element_id, x, t, xs, xaxis='x', yaxis='y') {
+    
+    y_min = getMin(xs)
+    y_max = getMax(xs)
+    var chartData = [{
+        x: x,
+        y: xs[0],
+        name: 't=0',
+        type: 'scatter',
+        mode: 'lines+markers',
+        marker: {
+            color: xs[0],
+            colorscale: 'Blackbody',
+            cmin: y_min,
+            cmax: y_max,
+            size: 8
+          },
+        line: {
+            color: 'black'
+        }
+    }];
+    var layout = {
+        xaxis:{title: xaxis},
+        yaxis:{
+            title: yaxis,
+            range: [y_min, y_max],
+        },
+        autosize: true,
+        showlegend: true,
+        height: 850,
+        margin: {
+         l: 50,
+         r: 50,
+         b: 50,
+         t: 50,
+         pad: 2
+        },
+    };
+    var config = {responsive: true};
+
+    var frames = []
+    var frame_names = []
+    xs.forEach((_x, i) => {
+        if (i >= 0) {
+            let frame_name = 't='+i
+            frame_names.push(frame_name)
+            frames.push(
+                {
+                data: [{
+                        x: x,
+                        y: _x,
+                        name: frame_name,
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        marker: {
+                            color: _x,
+                            colorscale: 'Blackbody',
+                            cmin: y_min,
+                            cmax: y_max,
+                            size: 8
+                          },
+                        line: {
+                            color: 'black'
+                        }
+                    }],
+                name: frame_name
+                }
+            )
+        }
+      });
+
+    Plotly.newPlot(
+        element_id, chartData, layout, config
+        ).then(function () {
+            Plotly.addFrames(element_id, frames);
+        });
+      
+    function startAnimation() {
+        Plotly.animate(element_id, frame_names, {
+            frame: [
+            {duration: 250},
+            {duration: 100},
+            ],
+            transition: [
+            {duration: 200, easing: 'elastic-in'},
+            {duration: 50, easing: 'cubic-in'},
+            ],
+            mode: 'afterall'
+        })
+    }
+
+    // setTimeout(function(){startAnimation()}, 1000);
+
+    return startAnimation;
     
 }
 
@@ -120,7 +218,7 @@ function animate3DSurfacePlot(element_id, x, y, zs, t, xaxis='x', yaxis='y', zax
     var frames = []
     var frame_names = []
     zs.forEach((z, i) => {
-        if (i > 0) {
+        if (i >= 0) {
             let frame_name = 'frame'+i
             frame_names.push(frame_name)
             frames.push(

@@ -83,9 +83,13 @@ function ParabolicPDESolutionRequest(){
         
         spinnerToggle('DrawSolution', false);
 
-        draw3DSurfacePlot('3DSurfaceChart', data['x'], data['t'], data['z_data'], 'x', 't', 'u')
+        draw3DSurfacePlot('3DSurfaceChart', data['x'], data['t'], data['z_data'], 'x', 't', 'u', 'Blackbody');
+        startAnimation = animate2DLinePlot('animate2DLinePlot', data['x'], data['t'], data['z_data'], 'x', 'u')
 
-        delay(1000).then(() => updateLayout());
+        delay(500).then(() => updateLayout());
+        jQuery("#Animate").on('click', function() {
+            startAnimation()
+        });
     };        
 }
 
