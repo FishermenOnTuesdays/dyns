@@ -17,16 +17,16 @@ def FunctionStringToLambda(function_string: str, variables: str) -> callable:
     match variables:
         case 'xy':
             # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
-            return lambdify((x, y), expr, 'numpy')
+            return lambdify((x, y), expr, modules=['numpy', 'sympy'])
         case 'xt':
             # return lambda x, t: expr.evalf(subs={'x': x, 't': t})#cexprtk.evaluate_expression(function_string, {'x': x, 't': t})
-            return lambdify((x, t), expr, 'numpy')
+            return lambdify((x, t), expr, modules=['numpy', 'sympy'])
         case 'yt':
             # return lambda y, t: expr.evalf(subs={'y': y, 't': t})#cexprtk.evaluate_expression(function_string, {'y': y, 't': t})
-            return lambdify((y, t), expr, 'numpy')
+            return lambdify((y, t), expr, modules=['numpy', 'sympy'])
         case 'xyt':
             # return lambda x, y, t: expr.evalf(subs={'x': x, 'y': y, 't': t})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y, 't': t})
-            return lambdify((x, y, t), expr, 'numpy')
+            return lambdify((x, y, t), expr, modules=['numpy', 'sympy'])
         case _:
             raise NotImplementedError
 
