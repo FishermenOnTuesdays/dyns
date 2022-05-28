@@ -3,7 +3,7 @@ import json, time
 from flask import Flask, request, render_template, jsonify
 # import cexprtk
 import sympy
-from sympy.abc import x, y, t
+from sympy.abc import x, y, t, u
 from sympy.utilities.lambdify import lambdify
 
 import pydyns as dyns
@@ -15,6 +15,12 @@ app = Flask(__name__)
 def FunctionStringToLambda(function_string: str, variables: str) -> callable:
     expr = sympy.sympify(function_string)
     match variables:
+        case 'x':
+            # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
+            return lambdify((x), expr, modules=['numpy', 'sympy'])
+        case 't':
+            # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
+            return lambdify((t), expr, modules=['numpy', 'sympy'])
         case 'xy':
             # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
             return lambdify((x, y), expr, modules=['numpy', 'sympy'])
@@ -27,6 +33,9 @@ def FunctionStringToLambda(function_string: str, variables: str) -> callable:
         case 'xyt':
             # return lambda x, y, t: expr.evalf(subs={'x': x, 'y': y, 't': t})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y, 't': t})
             return lambdify((x, y, t), expr, modules=['numpy', 'sympy'])
+        case 'uxt':
+            # return lambda x, y, t: expr.evalf(subs={'x': x, 'y': y, 't': t})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y, 't': t})
+            return lambdify((u, x, t), expr, modules=['numpy', 'sympy'])
         case _:
             raise NotImplementedError
 
@@ -55,25 +64,39 @@ def HyperbolicPartialDifferentialEquation(payload):
 
 
 def ParabolicPartialDifferentialEquation(payload):
-    pPDE = dyns.ParabolicPartialDifferentialEquation(
-                payload['q'],
-                payload['k'],
-                payload['f'],
-                payload['phi'],
-                [payload['alpha1'], payload['beta1'], payload['gamma1']],
-                [payload['alpha2'], payload['beta2'], payload['gamma2']],
-                (payload['a'], payload['b']),
+    # pPDE = dyns.ParabolicPartialDifferentialEquation(
+    #             payload['q'],
+    #             payload['k'],
+    #             payload['f'],
+    #             payload['phi'],
+    #             [payload['alpha1'], payload['beta1'], payload['gamma1']],
+    #             [payload['alpha2'], payload['beta2'], payload['gamma2']],
+    #             (payload['a'], payload['b']),
+    #             payload['T'],
+    #             payload['h'],
+    #             payload['tau'],
+    #             1, # payload['rarefaction_ratio_x'],
+    #             1 # payload['rarefaction_ratio_t']
+    #         )
+    U, Xs, Ts = solvers.ParabolicPartialDifferentialEquation(
+                FunctionStringToLambda(payload['q'], 'uxt'),
+                FunctionStringToLambda(payload['k'], 'uxt'),
+                FunctionStringToLambda(payload['f'], 'uxt'),
+                FunctionStringToLambda(payload['phi'], 'x'),
+                [FunctionStringToLambda(payload['alpha1'], 't'), FunctionStringToLambda(payload['beta1'], 't'), FunctionStringToLambda(payload['gamma1'], 't')],
+                [FunctionStringToLambda(payload['alpha2'], 't'), FunctionStringToLambda(payload['beta2'], 't'), FunctionStringToLambda(payload['gamma2'], 't')],
+                payload['a'], payload['b'],
                 payload['T'],
                 payload['h'],
                 payload['tau'],
-                1, # payload['rarefaction_ratio_x'],
-                1 # payload['rarefaction_ratio_t']
+                # 1, # payload['rarefaction_ratio_x'],
+                # 1 # payload['rarefaction_ratio_t']
             )
     return jsonify({
         'error': None,
-        'z_data': pPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
-        'x': pPDE.GetXs(),
-        't': pPDE.GetTs()
+        'z_data': U.tolist(),#pPDE.Solution().astype(float).tolist(), #json.dumps(hPDE.Solution().astype(float).tolist())
+        'x': Xs.tolist(),#pPDE.GetXs(),
+        't': Ts.tolist()#pPDE.GetTs()
     })
 
 
