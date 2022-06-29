@@ -23,7 +23,7 @@ function HyperbolicPDESolutionRequest(){
     spinnerToggle('DrawSolution', true);
 
     jQuery.post(
-        `https://${ip}:${port}/api`,
+        `https://${ip}/api`,
         {
             'request type': 'HyperbolicPartialDifferentialEquation',
             'payload': JSON.stringify(request)
@@ -68,7 +68,7 @@ function ParabolicPDESolutionRequest(){
     spinnerToggle('DrawSolution', true);
 
     jQuery.post(
-        `https://${ip}:${port}/api`,
+        `https://${ip}/api`,
         {
             'request type': 'ParabolicPartialDifferentialEquation',
             'payload': JSON.stringify(request)
@@ -120,7 +120,7 @@ function TwoDimensionalHeatEquationRequest(){
     spinnerToggle('DrawSolution', true);
 
     jQuery.post(
-        `https://${ip}:${port}/api`,
+        `https://${ip}/api`,
         {
             'request type': '2DimensionalHeatEquation',
             'payload': JSON.stringify(request)
