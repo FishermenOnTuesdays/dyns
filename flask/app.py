@@ -132,6 +132,17 @@ def TwoDimensionalHeatEquation(payload):
         't': Ts.tolist(),
     })
 
+def SecondOrderODE(request):
+    print(request)  # log input data
+    # request = json.loads(request)
+    functions = [(f, 'x') for f in request['functions']]
+    boundaries = np.asarray(request['boundaries'])
+    bounds = (request['bounds'][0], request['bounds'][1])
+    Num = (request['N'])
+    solver = dyns.SecondOrderODESolver(functions, boundaries, bounds, Num)
+    solution = solver.GetSolution()
+    return jsonify(solution.tolist())
+
 # LEGACY FUNCTIONS
 def MainTrajectory(payload):
     dynamic_system = dyns.DynamicSystem(payload['start values[]'], payload['functions[]'], payload['variables'], payload['additional equations'])
@@ -260,6 +271,8 @@ def api():
             case '2DimensionalHeatEquation':
                 payload = json.loads(request.form['payload'])
                 response = TwoDimensionalHeatEquation(payload)
+            case 'SecondOrderODESolver':
+                response = SecondOrderODE(json.loads(request.form['data']))
             case 'login':
                 response = Login(request.form)
             case 'saveUserDynamicSystem':

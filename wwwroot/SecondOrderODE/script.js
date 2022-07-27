@@ -1,10 +1,3 @@
-// global vars
-localhost_ip = '127.0.0.1';
-local_ip = '192.168.31.80';
-dyns_ip = '85.143.113.155';
-dyns_web = 'dyns.mephi.ru';
-var ip = localhost_ip;
-
 // UI
 var effectVANTA;
 // launch UI
@@ -77,13 +70,13 @@ function DrawSolution(){
     console.log(request);
     successAlert(true);
     jQuery.post(
-        'https://' + ip + ':5000',
+        '/api',
         request,
         success
     );
 
     function success(data){
-        var data = JSON.parse(data);
+        // var data = JSON.parse(data);
         console.log(data);
         jQuery("#charts").show();
         if (jQuery("#truesolution").val() == ''){
