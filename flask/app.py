@@ -191,6 +191,13 @@ def MainTrajectory(payload):
         'comment': comment
     })
 
+def Poincare(payload):
+    intersections2D, intersections3D = dyns.GetPoincareMap(tuple(payload['plane equation[]']), payload['trajectory[]'])
+    return jsonify({
+        'intersections2D': np.array(intersections2D[1:]).astype(float).transpose().tolist(),
+        'intersections3D': np.array(intersections3D[1:]).astype(float).transpose().tolist()
+    })
+
 # DB FUNCTIONS
 def Login(payload):
     con = sl.connect('dyns.db')
@@ -249,7 +256,6 @@ def deleteUserDynamicSystem(payload):
     return jsonify('access denied')
 
 
-
 @app.route('/status', methods=['GET'])
 def default():
     return 'DynS Flask server. STATE: OK'
@@ -281,6 +287,8 @@ def api():
                 response = deleteUserDynamicSystem(request.form)
             case '0':
                 response = MainTrajectory(json.loads(request.form['data']))
+            case '3':
+                response = Poincare(json.loads(request.form['data']))
             case _:
                 response = jsonify({'error': 'unsupported request type'})
 

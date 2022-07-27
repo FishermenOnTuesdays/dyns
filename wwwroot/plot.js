@@ -2239,7 +2239,7 @@ function makePoincareUI(){
 }
 function successPoincare(data){
 
-    var data = JSON.parse(JSON.parse(data));
+    // var data = JSON.parse(JSON.parse(data));
     // get plane params
     var A = parseFloat(document.getElementById('inputA').value);
     var B = parseFloat(document.getElementById('inputB').value);
