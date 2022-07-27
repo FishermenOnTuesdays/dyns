@@ -5,14 +5,18 @@ from flask import Flask, request, render_template, jsonify
 import sympy
 from sympy.abc import x, y, t, u
 from sympy.utilities.lambdify import lambdify
+import pandas as pd
+import numpy as np
+import sqlite3 as sl
 
 import pydyns as dyns
 import solvers
 
 app = Flask(__name__)
 
-
+# TECHICAL
 def FunctionStringToLambda(function_string: str, variables: str) -> callable:
+    """ Takes a string and returns a lambda function """
     expr = sympy.sympify(function_string)
     match variables:
         case 'x':
@@ -39,7 +43,7 @@ def FunctionStringToLambda(function_string: str, variables: str) -> callable:
         case _:
             raise NotImplementedError
 
-
+# DYNS FUNCTIONS
 def HyperbolicPartialDifferentialEquation(payload):
 
     hPDE = dyns.HyperbolicPartialDifferentialEquation(
@@ -61,7 +65,6 @@ def HyperbolicPartialDifferentialEquation(payload):
         'x': hPDE.GetXs(),
         't': hPDE.GetTs()
     })
-
 
 def ParabolicPartialDifferentialEquation(payload):
     # pPDE = dyns.ParabolicPartialDifferentialEquation(
@@ -99,7 +102,6 @@ def ParabolicPartialDifferentialEquation(payload):
         't': Ts.tolist()#pPDE.GetTs()
     })
 
-
 def TwoDimensionalHeatEquation(payload):
 
     U, Xs, Ys, Ts = solvers.TwoDimensionalHeatEquation(
@@ -130,27 +132,142 @@ def TwoDimensionalHeatEquation(payload):
         't': Ts.tolist(),
     })
 
-@app.route('/', methods=['GET'])
+# LEGACY FUNCTIONS
+def MainTrajectory(payload):
+    dynamic_system = dyns.DynamicSystem(payload['start values[]'], payload['functions[]'], payload['variables'], payload['additional equations'])
+    dynamic_system.SetDt(payload['dt'])
+    match payload['ExplicitNumericalMethodCode']:
+        case 0:
+            dynamic_system.explicit_method = dyns.DynamicSystem.ExplicitNumericalMethod.RungeKuttaFourthOrder;
+        case 1:
+            dynamic_system.explicit_method = dyns.DynamicSystem.ExplicitNumericalMethod.AdaptiveRungeKuttaFourthOrder;
+        case 2:
+            dynamic_system.explicit_method = dyns.DynamicSystem.ExplicitNumericalMethod.FixedVRungeKuttaFourthOrder;
+        case 3:
+            dynamic_system.explicit_method = dyns.DynamicSystem.ExplicitNumericalMethod.EulerExplicit;
+        case _:
+            pass
+    trajectoryPointList = dynamic_system.GetTrajectory(payload['time'])
+    timeSequence = dynamic_system.GetTimeSequence()
+    comment = dynamic_system.GetErrorComment()
+    if comment == "Infinity trajectory":
+        dynamic_system.SetCurrentPointOfTrajectory(payload['starting_values'])
+    dynamic_system.SetDt(payload['dt'])
+    series_of_spectrum_lyapunov_exponents = dynamic_system.GetTimeSeriesSpectrumLyapunov(payload['time']);
+    variables = payload['variables'].split(', ')
+    # dt = payload['dt']
+
+    # convert trajectory list to dict by variable
+    trajectory = {
+        't': timeSequence
+    }
+    trajlen = len(trajectoryPointList)
+    if (trajlen > 0):
+        maxtrajlen = 100000
+        step = trajlen // maxtrajlen
+        if step < 1: step = 1
+        for i in range(0, trajlen - 1, step):
+            point = trajectoryPointList[i]
+            for j, var in enumerate(variables):
+                if var not in trajectory:
+                    trajectory[var] = []
+                trajectory[var].append(float(point[j]))
+
+    return jsonify({
+        'trajectory': trajectory,
+        'time sequence': timeSequence,
+        'series of spectrum lyapunov exponents': series_of_spectrum_lyapunov_exponents,
+        'comment': comment
+    })
+
+# DB FUNCTIONS
+def Login(payload):
+    con = sl.connect('dyns.db')
+    login = payload['login']
+    password = payload['password']
+    users = pd.read_sql("SELECT * FROM USERS WHERE " + "login = '" + login + "' AND password = '" + password + "'", con)
+    if users.values.shape[0] > 0:
+        user = users.values[0].tolist()
+        systems = pd.read_sql("SELECT * FROM DYNAMICSYSTEMS WHERE " + "user_id = '" + str(user[0]) + "'", con)
+        con.close()
+        return jsonify({
+            'user': user,
+            'data': systems.values.tolist()
+        })
+    con.close()
+    return jsonify('access denied')
+
+def saveUserDynamicSystem(payload):
+    con = sl.connect('dyns.db')
+    login = payload['login']
+    password = payload['password']
+    users = pd.read_sql("SELECT * FROM USERS WHERE " + "login = '" + login + "' AND password = '" + password + "'", con)
+    if users.values.shape[0] > 0:
+        user = users.values[0].tolist()
+        user_id = user[0]
+        userDynamicSystemJSON = payload['data']
+        title = payload['title']
+        sqlinsert = 'INSERT INTO DYNAMICSYSTEMS (user_id, title, data) values(?, ?, ?)'
+        data = [
+            (user_id, title, userDynamicSystemJSON),
+        ]
+        with con:
+            con.executemany(sqlinsert, data)
+        con.commit()
+        con.close()
+        return jsonify('success')
+    con.close()
+    return jsonify('access denied')
+
+def deleteUserDynamicSystem(payload):
+    con = sl.connect('dyns.db')
+    login = payload['login']
+    password = payload['password']
+    users = pd.read_sql("SELECT * FROM USERS WHERE " + "login = '" + login + "' AND password = '" + password + "'", con)
+    if users.values.shape[0] > 0:
+        user = users.values[0].tolist()
+        user_id = user[0]
+        title = payload['title']
+        userDynamicSystemJSON = payload['data']
+        con.execute("DELETE FROM DYNAMICSYSTEMS WHERE user_id = ? AND title = ? AND data = ?",
+                    (user_id, title, userDynamicSystemJSON,))
+        con.commit()
+        con.close()
+        return jsonify('success')
+    con.close()
+    return jsonify('access denied')
+
+
+
+@app.route('/status', methods=['GET'])
 def default():
     return 'DynS Flask server. STATE: OK'
 
-@app.route('/api', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def api():
     # handle the POST request
     if request.method == 'POST':
         start_time = time.perf_counter()
-
         request_type = request.form['request type']
-        payload = json.loads(request.form['payload'])
-        print(request_type, payload)
 
         match request_type:
             case 'HyperbolicPartialDifferentialEquation':
+                payload = json.loads(request.form['payload'])
                 response = HyperbolicPartialDifferentialEquation(payload)
             case 'ParabolicPartialDifferentialEquation':
+                payload = json.loads(request.form['payload'])
                 response = ParabolicPartialDifferentialEquation(payload)
             case '2DimensionalHeatEquation':
+                payload = json.loads(request.form['payload'])
                 response = TwoDimensionalHeatEquation(payload)
+            case 'login':
+                response = Login(request.form)
+            case 'saveUserDynamicSystem':
+                response = saveUserDynamicSystem(request.form)
+            case 'deleteUserDynamicSystem':
+                response = deleteUserDynamicSystem(request.form)
+            case '0':
+                response = MainTrajectory(json.loads(request.form['data']))
             case _:
                 response = jsonify({'error': 'unsupported request type'})
 
@@ -162,4 +279,5 @@ def api():
 
 
 if __name__ == '__main__':
-    app.run(ssl_context=('cert.pem', 'key.pem'), port=5001, host="0.0.0.0", threaded=True)
+#    app.run(ssl_context=('cert.pem', 'key.pem'), port=5001, host="0.0.0.0", threaded=True)
+    app.run(port=5001, host="0.0.0.0", threaded=True)
