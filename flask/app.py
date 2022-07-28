@@ -194,8 +194,8 @@ def MainTrajectory(payload):
 def Poincare(payload):
     intersections2D, intersections3D = dyns.GetPoincareMap(tuple(payload['plane equation[]']), payload['trajectory[]'])
     return jsonify({
-        'intersections2D': np.array(intersections2D[1:]).astype(float).transpose().tolist(),
-        'intersections3D': np.array(intersections3D[1:]).astype(float).transpose().tolist()
+        'intersections2D': np.array(intersections2D).astype(float).transpose().tolist(),
+        'intersections3D': np.array(intersections3D).astype(float).transpose().tolist()
     })
 
 def LyapunovMap(payload):
@@ -212,7 +212,35 @@ def LyapunovMap(payload):
 		payload['dt']
     )
     return jsonify({
-        'lyapunov_map': lyapunov_map#np.array(lyapunov_map).astype(float).tolist()
+        'lyapunov_map': lyapunov_map
+    })
+
+def Bifurcation(payload):
+    print(
+        payload['start values'],
+        payload['functions'],
+        payload['variables'],
+        payload['additional equations'],
+        payload['time'],
+        payload['dt'],
+        payload['parameter'],
+        tuple(payload['range']),
+        payload['step']
+        )
+    bifurcation_map = dyns.GetBifurcationMap(
+        np.array(payload['start values']).astype(float).tolist(),
+        payload['functions'],
+        payload['variables'],
+        payload['additional equations'],
+        float(payload['time']),
+        float(payload['dt']),
+        payload['parameter'],
+        tuple(payload['range']),
+        payload['step']
+        )
+    print(bifurcation_map)
+    return jsonify({
+        'bifurcation_map': bifurcation_map
     })
 
 # DB FUNCTIONS
@@ -306,6 +334,8 @@ def api():
                 response = MainTrajectory(json.loads(request.form['data']))
             case '1':
                 response = LyapunovMap(json.loads(request.form['data']))
+            case '2':
+                response = Bifurcation(json.loads(request.form['data']))
             case '3':
                 response = Poincare(json.loads(request.form['data']))
             case _:

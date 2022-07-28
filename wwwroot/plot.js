@@ -2682,13 +2682,16 @@ function makeBifurcationDiagram(){
     requestData['step'] = parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'Step').val());
     BifurcationDiagramRange = [parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'L').val()), parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'R').val()), parseFloat($('#BifurcationDiagraminput' + requestData['parameter'] + 'Step').val())];
 
-    console.log(requestData);
+    console.log(JSON.stringify(requestData));
     if (Object.values(requestData).length > 2 && k == k0 && (paramcount == 1)){
         successAlertBifurcationDiagram(true);
         //requestData['request type'] = 'main';
         jQuery.post(
             '/api',
-            requestData,
+            {
+                'request type': 2,
+                'data': JSON.stringify(requestData)
+            },
             successBifurcationDiagram
         );
     }
@@ -2702,14 +2705,15 @@ function makeBifurcationDiagram(){
     }
 }
 function successBifurcationDiagram(data){
-    if (data.length < 10){
-        alert('что-то пошло не так');
-    }
-    BifurcationData = JSON.parse(JSON.parse(data));
+    // if (data.length < 10){
+    //     alert('что-то пошло не так');
+    // }
+    // BifurcationData = JSON.parse(JSON.parse(data));
+    // BifurcationData = data;
     //BifurcationPoints = [].concat(...BifurcationData['BifurcationMap']);
     successAlertBifurcationDiagram(false);
 
-    drawBifurcationDiagram(BifurcationData['BifurcationMap']);
+    drawBifurcationDiagram(data['bifurcation_map']);
 }
 function drawBifurcationDiagram(data){
 
