@@ -198,6 +198,23 @@ def Poincare(payload):
         'intersections3D': np.array(intersections3D[1:]).astype(float).transpose().tolist()
     })
 
+def LyapunovMap(payload):
+    lyapunov_map = dyns.GetMapLyapunovExponents(
+        payload['start values[]'],
+		payload['functions[]'],
+		payload['variables'],
+        payload['additional equations'],
+		tuple(payload['parameters[]']),
+		tuple(payload['ranges[]']),
+		tuple(payload['steps[]']),
+		payload['time'],
+		payload['time'],
+		payload['dt']
+    )
+    return jsonify({
+        'lyapunov_map': lyapunov_map#np.array(lyapunov_map).astype(float).tolist()
+    })
+
 # DB FUNCTIONS
 def Login(payload):
     con = sl.connect('dyns.db')
@@ -287,6 +304,8 @@ def api():
                 response = deleteUserDynamicSystem(request.form)
             case '0':
                 response = MainTrajectory(json.loads(request.form['data']))
+            case '1':
+                response = LyapunovMap(json.loads(request.form['data']))
             case '3':
                 response = Poincare(json.loads(request.form['data']))
             case _:

@@ -2543,7 +2543,8 @@ function successLyapunovMap(data){
     }
     successAlertLyapunovMap(false);
     //LyapunovMapData = JSON.parse(JSON.parse(data))[0];
-    LyapunovMapData = getLyapunovMapData(JSON.parse(JSON.parse(data))[0]);
+    // LyapunovMapData = getLyapunovMapData(JSON.parse(JSON.parse(data))[0]);
+    LyapunovMapData = getLyapunovMapData(data['lyapunov_map']);
     drawLyapunovMap(LyapunovMapData['x'], LyapunovMapData['y'], LyapunovMapData['lyap']);
 }
 function drawLyapunovMap(x, y, z){
