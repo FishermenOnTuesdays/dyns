@@ -1515,6 +1515,7 @@ function SolvePDE(){
     }
 
     console.log(request);
+    console.log(JSON.stringify(requestData));
 
     if (true || requestData['boundary functions[]'].length == requestData['functions[]'].length - 1){
         successAlert(true);

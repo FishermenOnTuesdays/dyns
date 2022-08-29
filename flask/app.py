@@ -216,17 +216,6 @@ def LyapunovMap(payload):
     })
 
 def Bifurcation(payload):
-    print(
-        payload['start values'],
-        payload['functions'],
-        payload['variables'],
-        payload['additional equations'],
-        payload['time'],
-        payload['dt'],
-        payload['parameter'],
-        tuple(payload['range']),
-        payload['step']
-        )
     bifurcation_map = dyns.GetBifurcationMap(
         np.array(payload['start values']).astype(float).tolist(),
         payload['functions'],
@@ -238,9 +227,49 @@ def Bifurcation(payload):
         tuple(payload['range']),
         payload['step']
         )
-    print(bifurcation_map)
     return jsonify({
         'bifurcation_map': bifurcation_map
+    })
+
+def PartialDifferentialEquationFirstOrder(payload):
+    print(
+        payload['boundary functions[]'],
+        payload['range[]'][0],
+        payload['range[]'][1],
+        payload['step'],
+        payload['functions[]'],
+        payload['variables'],
+        payload['additional equations'],
+        payload['dt']
+    )
+    equation = dyns.PartialDifferentialEquation(
+        payload['boundary functions[]'],
+        payload['range[]'][0],
+        payload['range[]'][1],
+        payload['step'],
+        payload['functions[]'],
+        payload['variables'],
+        payload['additional equations'],
+        payload['dt']
+    )
+    solution_surface = equation.GetSolution(payload['time'])
+    timeSequence = equation.GetTimeSequence()
+    timeSequence.insert(0, 0)
+
+    trajectories = list()
+
+    for i in range(len(solution_surface)):
+        trajectories.append(dict())
+        for j in range(len(payload['variables'])):
+            trajectory_variable: list[float] = list()
+            for point in solution_surface[i]:
+                trajectory_variable.append(point[j])
+            trajectories[i][payload['variables'][j]] = trajectory_variable
+    print(timeSequence)
+    print(trajectories)
+    return jsonify({
+        'time sequence': timeSequence,
+        'trajectories': trajectories
     })
 
 # DB FUNCTIONS
@@ -338,6 +367,8 @@ def api():
                 response = Bifurcation(json.loads(request.form['data']))
             case '3':
                 response = Poincare(json.loads(request.form['data']))
+            case '4':
+                response = PartialDifferentialEquationFirstOrder(json.loads(request.form['data']))
             case _:
                 response = jsonify({'error': 'unsupported request type'})
 
