@@ -1,4 +1,5 @@
 import json, time
+import traceback
 
 from flask import Flask, request, render_template, jsonify
 # import cexprtk
@@ -11,6 +12,7 @@ import sqlite3 as sl
 
 import pydyns as dyns
 import solvers
+from optctrl import solvers as optctrl_solvers
 
 app = Flask(__name__)
 
@@ -45,7 +47,6 @@ def FunctionStringToLambda(function_string: str, variables: str) -> callable:
 
 # DYNS FUNCTIONS
 def HyperbolicPartialDifferentialEquation(payload):
-
     hPDE = dyns.HyperbolicPartialDifferentialEquation(
                 payload['f'],
                 payload['g'],
@@ -103,7 +104,6 @@ def ParabolicPartialDifferentialEquation(payload):
     })
 
 def TwoDimensionalHeatEquation(payload):
-
     U, Xs, Ys, Ts = solvers.TwoDimensionalHeatEquation(
         FunctionStringToLambda(payload['qxyX'], 'xy'),
         FunctionStringToLambda(payload['KxyX'], 'xy'),
@@ -133,14 +133,18 @@ def TwoDimensionalHeatEquation(payload):
     })
 
 def SecondOrderODE(request):
-    print(request)  # log input data
-    # request = json.loads(request)
     functions = [(f, 'x') for f in request['functions']]
     boundaries = np.asarray(request['boundaries'])
     bounds = (request['bounds'][0], request['bounds'][1])
     Num = (request['N'])
     solver = dyns.SecondOrderODESolver(functions, boundaries, bounds, Num)
     solution = solver.GetSolution()
+    return jsonify(solution.tolist())
+
+def GaussianElimination(request):
+    matrix = np.asarray(request['matrix'])
+    vector = np.asarray(request['vector'])
+    solution = solvers.GaussianElimination(matrix, vector)
     return jsonify(solution.tolist())
 
 # LEGACY FUNCTIONS
@@ -330,6 +334,7 @@ def deleteUserDynamicSystem(payload):
     return jsonify('access denied')
 
 
+
 @app.route('/status', methods=['GET'])
 def default():
     return 'DynS Flask server. STATE: OK'
@@ -341,40 +346,49 @@ def api():
         start_time = time.perf_counter()
         request_type = request.form['request type']
 
-        match request_type:
-            case 'HyperbolicPartialDifferentialEquation':
-                payload = json.loads(request.form['payload'])
-                response = HyperbolicPartialDifferentialEquation(payload)
-            case 'ParabolicPartialDifferentialEquation':
-                payload = json.loads(request.form['payload'])
-                response = ParabolicPartialDifferentialEquation(payload)
-            case '2DimensionalHeatEquation':
-                payload = json.loads(request.form['payload'])
-                response = TwoDimensionalHeatEquation(payload)
-            case 'SecondOrderODESolver':
-                response = SecondOrderODE(json.loads(request.form['data']))
-            case 'login':
-                response = Login(request.form)
-            case 'saveUserDynamicSystem':
-                response = saveUserDynamicSystem(request.form)
-            case 'deleteUserDynamicSystem':
-                response = deleteUserDynamicSystem(request.form)
-            case '0':
-                response = MainTrajectory(json.loads(request.form['data']))
-            case '1':
-                response = LyapunovMap(json.loads(request.form['data']))
-            case '2':
-                response = Bifurcation(json.loads(request.form['data']))
-            case '3':
-                response = Poincare(json.loads(request.form['data']))
-            case '4':
-                response = PartialDifferentialEquationFirstOrder(json.loads(request.form['data']))
-            case _:
-                response = jsonify({'error': 'unsupported request type'})
-
-        print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))
+        try:
+            match request_type:
+                case 'HyperbolicPartialDifferentialEquation':
+                    payload = json.loads(request.form['payload'])
+                    response = HyperbolicPartialDifferentialEquation(payload)
+                case 'ParabolicPartialDifferentialEquation':
+                    payload = json.loads(request.form['payload'])
+                    response = ParabolicPartialDifferentialEquation(payload)
+                case '2DimensionalHeatEquation':
+                    payload = json.loads(request.form['payload'])
+                    response = TwoDimensionalHeatEquation(payload)
+                case 'SecondOrderODESolver':
+                    response = SecondOrderODE(json.loads(request.form['data']))
+                case 'GaussianElimination':
+                    response = GaussianElimination(json.loads(request.form['data']))
+                case 'login':
+                    response = Login(request.form)
+                case 'saveUserDynamicSystem':
+                    response = saveUserDynamicSystem(request.form)
+                case 'deleteUserDynamicSystem':
+                    response = deleteUserDynamicSystem(request.form)
+                case '0':
+                    response = MainTrajectory(json.loads(request.form['data']))
+                case '1':
+                    response = LyapunovMap(json.loads(request.form['data']))
+                case '2':
+                    response = Bifurcation(json.loads(request.form['data']))
+                case '3':
+                    response = Poincare(json.loads(request.form['data']))
+                case '4':
+                    response = PartialDifferentialEquationFirstOrder(json.loads(request.form['data']))
+                case 'optctrl':
+                    response = optctrl_solvers.OptimalControl(request)
+                case _:
+                    response = jsonify({'error': 'unsupported request type'})
+            print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))
+        except Exception as e:
+            # print all the exception details
+            print(e)
+            traceback.print_exc()
+            response = jsonify({'response': 'error', 'error': 'exception'})
     else:
-        response = jsonify({'error': 'unsupported request type'})
+        response = jsonify({'response': 'error', 'error': 'unsupported request type'})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response, 200
 

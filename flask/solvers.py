@@ -170,3 +170,24 @@ def ParabolicPartialDifferentialEquation(q, k, f, phi, mu_a, mu_b, a: float, b: 
                 U[m] = TDMA(*ABCD(U[m], U[m-1], xs, k, q, f, mu_a, mu_b, t, tau, h, N))
 
     return U, xs, ts
+
+def GaussianElimination(A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    '''Gaussian elimination algorithm.'''
+    # check if the matrix is square
+    assert A.shape[0] == A.shape[1], 'Matrix is not square'
+    # check if vector b is of the right size
+    assert A.shape[0] == b.shape[0], 'Vector b is of the wrong size'
+
+    N = A.shape[0]
+
+    # Forward elimination
+    for k in range(N-1):
+        for i in range(k+1, N):
+            if A[i, k] != 0.0:
+                lam = A[i, k]/A[k, k]
+                A[i, k+1:N] = A[i, k+1:N] - lam*A[k, k+1:N]
+                b[i] = b[i] - lam*b[k]
+    # Back substitution
+    for k in range(N-1, -1, -1):
+        b[k] = (b[k] - np.dot(A[k, k+1:N], b[k+1:N]))/A[k, k]
+    return b
