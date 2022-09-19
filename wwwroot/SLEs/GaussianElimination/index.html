@@ -46,16 +46,26 @@
             <div class="col">
               <h2 class="text-center mb-3">Метод Гаусса</h2>
               <h5 class="text-start m-3">Выберите пример или введите значения</h5>
-              <form class="p-0 m-0" id="GaussianElimination" name="GaussianElimination">
+              <form class="p-0 m-0" name="GaussianElimination">
                 <div class="list-group my-1">
                   <li class="list-group-item">
                     <label for="example_num" class="form-label h5">Пример</label>
                     <select class="form-select" id="example_num">
                       <option selected>Выбрать пример</option>
-                      <!-- 30 variants -->
-                      <option value="1" data-example='{"table_A":[[1,1,1],[1,2,2],[2,6,6]],"vector_b":[1,1,1]}'>1</option>
+                      <option value="1" data-example='{"table_A":[[1,1,1],[1,2,2],[2,7,6]],"vector_b":[1,1,1]}'>1</option>
                       <option value="2" data-example='{"table_A":[[1,1,1],[1,1,2],[3,5,5]],"vector_b":[1,1,1]}'>2</option>
                       <option value="3" data-example='{"table_A":[[1,1,1],[2,2,2],[3,3,3]],"vector_b":[1,2,3]}'>3</option>
+                    </select>
+                  </li>
+                </div>
+              </form>
+              <form class="needs-validation p-0 m-0" id="GaussianElimination" name="GaussianElimination">
+                <div class="list-group my-1">
+                  <li class="list-group-item">
+                    <label for="SLE_method" class="form-label h5">Метод решения</label>
+                    <select autocomplete="off" class="form-select" id="SLE_method" required="">
+                      <option selected value="default">Классический метод Гаусса</option>
+                      <option value="pivot">Метод Гаусса с выбором главного элемента</option>
                     </select>
                   </li>
                 </div>
@@ -94,9 +104,9 @@
                   </li>
                     
                 </div>
-                <button class="w-100 btn btn-secondary btn-lg my-1" type="button" id="randomizeButton">Заполнить случайными значениями</button>
                 <button class="w-100 btn btn-primary btn-lg mt-1" type="submit" id="submitButton">Решить</button>
               </form>
+              <button class="w-100 btn btn-secondary btn-lg my-1" type="button" id="randomizeButton">Заполнить случайными значениями</button>
             </div>
           </section>
         </div>

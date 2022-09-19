@@ -33,7 +33,7 @@ function createLatexMatrixEquation_AxeB(size, table_id){
         tableHTML += '<mtd>';
         tableHTML += '<semantics>';
         tableHTML += '<annotation-xml encoding="application/xhtml+xml">';
-        tableHTML += '<span id="'+table_id+'vector_x'+i+'" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:center">'+'x'+i+'</span>';
+        tableHTML += '<span id="vector_x'+i+'" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:center">'+'x'+i+'</span>';
         tableHTML += '</annotation-xml>';
         tableHTML += '</semantics>';
         tableHTML += '</mtd>';
@@ -96,6 +96,7 @@ $(document).ready(function() {
                 document.getElementById(cell_id).innerHTML = Math.floor(Math.random() * 10);
             }
             document.getElementById('vector_b'+i).innerHTML = Math.floor(Math.random() * 10);
+            document.getElementById('vector_x'+i).innerHTML = 'x'+i;
         }
         MathJax.typeset();
         });

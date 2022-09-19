@@ -177,6 +177,8 @@ def GaussianElimination(A: np.ndarray, b: np.ndarray) -> np.ndarray:
     assert A.shape[0] == A.shape[1], 'Matrix is not square'
     # check if vector b is of the right size
     assert A.shape[0] == b.shape[0], 'Vector b is of the wrong size'
+    # check if the matrix is not singular
+    assert np.linalg.det(A) != 0, 'Matrix is singular'
 
     N = A.shape[0]
 
@@ -198,6 +200,8 @@ def GaussianEliminationWithPivot(A: np.ndarray, b: np.ndarray) -> np.ndarray:
     assert A.shape[0] == A.shape[1], 'Matrix is not square'
     # check if vector b is of the right size
     assert A.shape[0] == b.shape[0], 'Vector b is of the wrong size'
+    # check if the matrix is not singular
+    assert np.linalg.det(A) != 0, 'Matrix is singular'
 
     N = A.shape[0]
 
@@ -205,9 +209,7 @@ def GaussianEliminationWithPivot(A: np.ndarray, b: np.ndarray) -> np.ndarray:
     for k in range(N-1):
         # Search the pivot
         p = np.argmax(np.abs(A[k:N, k])) + k
-        if A[p, k] == 0:
-            print('Matrix is singular!')
-            return
+        assert A[p, k] != 0, 'Matrix is singular!'
         # Change the rows
         if p != k:
             A[[k, p]] = A[[p, k]]

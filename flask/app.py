@@ -145,16 +145,39 @@ def SecondOrderODE(request):
     return jsonify(solution.tolist())
 
 def GaussianElimination(request: Request) -> Response:
-    matrix = np.array(request.form.get('matrix', None)).astype(np.float)
-    vector = np.array(request.form.get('vector', None)).astype(np.float)
-    match request.form.get('method', None):
-        case 'default':
-            solution = solvers.GaussianElimination(matrix, vector)
-        case 'pivot':
-            solution = solvers.GaussianEliminationWithPivot(matrix, vector)
-        case _:
-            raise NotImplementedError
-    return jsonify(solution.tolist())
+    try:
+        matrix = np.array(json.loads(request.form.get('matrix', None))).astype(np.float)
+        vector = np.array(json.loads(request.form.get('vector', None))).astype(np.float)
+        match request.form.get('SLE_method', None):
+            case 'default':
+                solution = solvers.GaussianElimination(matrix.copy(), vector.copy()).tolist()
+            case 'pivot':
+                solution = solvers.GaussianEliminationWithPivot(matrix.copy(), vector.copy()).tolist()
+            case _:
+                raise NotImplementedError
+        # check if solution is correct
+        if np.allclose(np.dot(matrix, solution), vector):
+            # truncate solution
+            solution = [round(x, 5) for x in solution]
+            return jsonify({
+                'response': 'OK',
+                'x': solution
+            })
+        else:
+            match request.form.get('SLE_method', None):
+                case 'default':
+                    error_text = 'Cannot solve the system of linear equations with given matrix and vector using classic Gaussian elimination'
+                case 'pivot':
+                    error_text = 'Cannot solve the system of linear equations with given matrix and vector using Gaussian elimination with pivot'
+            return jsonify({
+                'response': 'error',
+                'error': error_text
+            })
+    except Exception as e:
+        return jsonify({
+            'response': 'error',
+            'error': str(e)
+        })
 
 # LEGACY FUNCTIONS
 def MainTrajectory(payload):
