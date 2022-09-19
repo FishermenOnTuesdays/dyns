@@ -1,10 +1,9 @@
 import json, time
 import traceback
 
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify, Request, Response
 # import cexprtk
 import sympy
-from sympy.abc import x, y, t, u
 from sympy.utilities.lambdify import lambdify
 import pandas as pd
 import numpy as np
@@ -12,13 +11,17 @@ import sqlite3 as sl
 
 import pydyns as dyns
 import solvers
-from optctrl import solvers as optctrl_solvers
+try:
+    from optctrl import solvers as optctrl_solvers
+except ImportError:
+    pass
 
-app = Flask(__name__)
+
 
 # TECHICAL
 def FunctionStringToLambda(function_string: str, variables: str) -> callable:
     """ Takes a string and returns a lambda function """
+    from sympy.abc import x, y, t, u
     expr = sympy.sympify(function_string)
     match variables:
         case 'x':
@@ -141,10 +144,16 @@ def SecondOrderODE(request):
     solution = solver.GetSolution()
     return jsonify(solution.tolist())
 
-def GaussianElimination(request):
-    matrix = np.asarray(request['matrix'])
-    vector = np.asarray(request['vector'])
-    solution = solvers.GaussianElimination(matrix, vector)
+def GaussianElimination(request: Request) -> Response:
+    matrix = np.array(request.form.get('matrix', None)).astype(np.float)
+    vector = np.array(request.form.get('vector', None)).astype(np.float)
+    match request.form.get('method', None):
+        case 'default':
+            solution = solvers.GaussianElimination(matrix, vector)
+        case 'pivot':
+            solution = solvers.GaussianEliminationWithPivot(matrix, vector)
+        case _:
+            raise NotImplementedError
     return jsonify(solution.tolist())
 
 # LEGACY FUNCTIONS
@@ -333,8 +342,9 @@ def deleteUserDynamicSystem(payload):
     con.close()
     return jsonify('access denied')
 
-
-
+# FLASK
+app = Flask(__name__)
+# ROUTES
 @app.route('/status', methods=['GET'])
 def default():
     return 'DynS Flask server. STATE: OK'
@@ -359,8 +369,6 @@ def api():
                     response = TwoDimensionalHeatEquation(payload)
                 case 'SecondOrderODESolver':
                     response = SecondOrderODE(json.loads(request.form['data']))
-                case 'GaussianElimination':
-                    response = GaussianElimination(json.loads(request.form['data']))
                 case 'login':
                     response = Login(request.form)
                 case 'saveUserDynamicSystem':
@@ -379,8 +387,14 @@ def api():
                     response = PartialDifferentialEquationFirstOrder(json.loads(request.form['data']))
                 case 'optctrl':
                     response = optctrl_solvers.OptimalControl(request)
+                case 'SLE':
+                    match request.form['SLE_type']:
+                        case 'GaussianElimination':
+                            response = GaussianElimination(request)
+                        case _:
+                            response = jsonify({'response': 'error', 'error': 'SLE type not found'})
                 case _:
-                    response = jsonify({'error': 'unsupported request type'})
+                    response = jsonify({'response': 'error', 'error': 'unsupported request type'})
             print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))
         except Exception as e:
             # print all the exception details
@@ -388,7 +402,7 @@ def api():
             traceback.print_exc()
             response = jsonify({'response': 'error', 'error': 'exception'})
     else:
-        response = jsonify({'response': 'error', 'error': 'unsupported request type'})
+        response = jsonify({'response': 'error', 'error': 'unsupported request method'})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response, 200
 

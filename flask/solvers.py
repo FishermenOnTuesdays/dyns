@@ -172,7 +172,7 @@ def ParabolicPartialDifferentialEquation(q, k, f, phi, mu_a, mu_b, a: float, b: 
     return U, xs, ts
 
 def GaussianElimination(A: np.ndarray, b: np.ndarray) -> np.ndarray:
-    '''Gaussian elimination algorithm.'''
+    '''Gaussian elimination without changing the input data'''
     # check if the matrix is square
     assert A.shape[0] == A.shape[1], 'Matrix is not square'
     # check if vector b is of the right size
@@ -182,6 +182,37 @@ def GaussianElimination(A: np.ndarray, b: np.ndarray) -> np.ndarray:
 
     # Forward elimination
     for k in range(N-1):
+        for i in range(k+1, N):
+            if A[i, k] != 0.0:
+                lam = A[i, k]/A[k, k]
+                A[i, k+1:N] = A[i, k+1:N] - lam*A[k, k+1:N]
+                b[i] = b[i] - lam*b[k]
+    # Back substitution
+    for k in range(N-1, -1, -1):
+        b[k] = (b[k] - np.dot(A[k, k+1:N], b[k+1:N]))/A[k, k]
+    return b
+
+def GaussianEliminationWithPivot(A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    '''Gaussian elimination with the choice of the pivot with the largest absolute value without changing the input data'''
+    # check if the matrix is square
+    assert A.shape[0] == A.shape[1], 'Matrix is not square'
+    # check if vector b is of the right size
+    assert A.shape[0] == b.shape[0], 'Vector b is of the wrong size'
+
+    N = A.shape[0]
+
+    # Forward elimination
+    for k in range(N-1):
+        # Search the pivot
+        p = np.argmax(np.abs(A[k:N, k])) + k
+        if A[p, k] == 0:
+            print('Matrix is singular!')
+            return
+        # Change the rows
+        if p != k:
+            A[[k, p]] = A[[p, k]]
+            b[[k, p]] = b[[p, k]]
+        # Elimination
         for i in range(k+1, N):
             if A[i, k] != 0.0:
                 lam = A[i, k]/A[k, k]
