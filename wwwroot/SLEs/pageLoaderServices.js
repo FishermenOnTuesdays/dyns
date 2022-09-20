@@ -23,7 +23,9 @@ function sendFormData(FD) {
           var input = document.getElementById('vector_x' + i);
           input.innerHTML = data.x[i - 1];
         }
-
+        // set mse value to input
+        var euclidean = document.getElementById('error');
+        euclidean.innerHTML = data.euclidean;
         break;
       case 'error':
         alert(data.error);

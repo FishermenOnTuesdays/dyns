@@ -93,10 +93,11 @@ $(document).ready(function() {
         for (var i = 1; i <= size; i++) {
             for (var j = 1; j <= size; j++) {
                 cell_id = 'table_A' + (i*multiplicator + j);
-                document.getElementById(cell_id).innerHTML = Math.floor(Math.random() * 10);
+                document.getElementById(cell_id).innerHTML = Math.random();//Math.floor(Math.random() * 10);
             }
-            document.getElementById('vector_b'+i).innerHTML = Math.floor(Math.random() * 10);
+            document.getElementById('vector_b'+i).innerHTML = Math.random();//Math.floor(Math.random() * 10);
             document.getElementById('vector_x'+i).innerHTML = 'x'+i;
+            document.getElementById('error').innerHTML = '';
         }
         MathJax.typeset();
         });

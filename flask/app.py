@@ -156,19 +156,25 @@ def GaussianElimination(request: Request) -> Response:
             case _:
                 raise NotImplementedError
         # check if solution is correct
+        # delta = np.allclose(np.dot(matrix, solution), vector)
+        delta = np.mean(np.abs(np.dot(matrix, solution) - vector))
+        numpy_solution = np.linalg.solve(matrix, vector).tolist()
+        # euclidean distance
+        euclidean = np.linalg.norm(np.array(solution) - np.array(numpy_solution))
         if np.allclose(np.dot(matrix, solution), vector):
             # truncate solution
             solution = [round(x, 5) for x in solution]
             return jsonify({
                 'response': 'OK',
-                'x': solution
+                'x': solution,
+                'euclidean': euclidean
             })
         else:
             match request.form.get('SLE_method', None):
                 case 'default':
-                    error_text = 'Cannot solve the system of linear equations with given matrix and vector using classic Gaussian elimination'
+                    error_text = f'Cannot solve the system of linear equations with given matrix and vector using classic Gaussian elimination: {delta}'
                 case 'pivot':
-                    error_text = 'Cannot solve the system of linear equations with given matrix and vector using Gaussian elimination with pivot'
+                    error_text = f'Cannot solve the system of linear equations with given matrix and vector using Gaussian elimination with pivot: {delta}'
             return jsonify({
                 'response': 'error',
                 'error': error_text
