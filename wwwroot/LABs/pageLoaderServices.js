@@ -53,8 +53,8 @@ function sendFormData(FD) {
   });
 
   // Set up our request
-  // XHR.open("POST", "/api");
-  XHR.open("POST", "http://localhost:5001/");
+  XHR.open("POST", "/api");
+  // XHR.open("POST", "http://localhost:5001/");
 
   // The data sent is what the user provided in the form
   XHR.send(FD);
