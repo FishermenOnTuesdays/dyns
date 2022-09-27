@@ -53,8 +53,8 @@ function sendFormData(FD) {
   });
 
   // Set up our request
-  XHR.open("POST", "/api");
-  // XHR.open("POST", "http://localhost:5001/");
+  // XHR.open("POST", "/api");
+  XHR.open("POST", "http://localhost:5001/");
 
   // The data sent is what the user provided in the form
   XHR.send(FD);
@@ -65,7 +65,7 @@ $(
   function () {
     var includes = $('[data-include]')
     $.each(includes, function () {
-      var file = '/SLEs/views/' + $(this).data('include') + '.html'
+      var file = '/LABs/views/' + $(this).data('include') + '.html'
       $(this).load(file)
     }).promise().done(function(){
 
@@ -122,62 +122,7 @@ $(
   }
 );
 
-$(document).ready(function() {
-  // new ClipboardJS('.btn');
-  
-  $('select').on('change', function(e){
-    try {
-      example_num = this.value;
-      let example_data_json = this.options[this.selectedIndex].getAttribute("data-example");
-      let example_data = JSON.parse(example_data_json);
-      // console.log(example_data);
-      for (const [key, value] of Object.entries(example_data)) {
-        if (key.includes('table')) {
-          let size = value.length;
-          let smallest10exp = Math.ceil(Math.log10(size));
-          let multiplicator = Math.pow(10, smallest10exp);
-          for (var i = 0; i < size; i++) {
-            for (let j = 0; j < value[i].length; j++) {
-              cell_id = key + ((i+1)*multiplicator + (j+1));
-              document.getElementById(cell_id).innerHTML = value[i][j];
-            }
-          }
-        } else {
-          if (key.includes('vector')) {
-            for (let i = 0; i < value.length; i++) {
-              cell_id = key + (i+1);
-              document.getElementById(cell_id).innerHTML = value[i];
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    sle_type = this.parentNode.parentNode.parentNode.name;
-    form = document.getElementById(sle_type);
-    const FD = new FormData(form);
-    FD.append('request type', 'SLE');
-    FD.append('SLE_type', sle_type);
-    FD.append('SLE_method', document.getElementById('SLE_method').value);
-    let matrix = [];
-    let vector = [];
-    var N = parseInt(document.getElementById('i0N').value);
-    let smallest10exp = Math.ceil(Math.log10(N));
-    let multiplicator = Math.pow(10, smallest10exp);
-    for (let i = 0; i < N; i++) {
-      let row = [];
-      for (let j = 0; j < N; j++) {
-        row.push(parseFloat(document.getElementById('table_A' + ((i+1)*multiplicator + (j+1))).innerHTML));
-      }
-      matrix.push(row);
-    }
-    for (let i = 0; i < N; i++) {
-      vector.push(parseFloat(document.getElementById('vector_b' + (i+1)).innerHTML));
-    }
-    FD.append('matrix', JSON.stringify(matrix));
-    FD.append('vector', JSON.stringify(vector));
-    sendFormData(FD);
-  });
+// $(document).ready(function() {
+//   // new ClipboardJS('.btn');
 
-});
+// });
