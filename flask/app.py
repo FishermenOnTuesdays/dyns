@@ -144,45 +144,47 @@ def SecondOrderODE(request):
     solution = solver.GetSolution()
     return jsonify(solution.tolist())
 
-def GaussianElimination(request: Request) -> Response:
+def SLE(request: Request) -> Response:
     try:
         matrix = np.array(json.loads(request.form.get('matrix', None))).astype(np.float)
         vector = np.array(json.loads(request.form.get('vector', None))).astype(np.float)
+    except:
+        return jsonify({'response': 'error', 'error': 'Invalid matrix or vector'})
+    try:
         match request.form.get('SLE_method', None):
-            case 'default':
+            case 'Gauss-classic':
                 solution = solvers.GaussianElimination(matrix.copy(), vector.copy()).tolist()
-            case 'pivot':
+            case 'Gauss-pivot':
                 solution = solvers.GaussianEliminationWithPivot(matrix.copy(), vector.copy()).tolist()
+            case 'Seidel':
+                solution = solvers.Seidel(matrix.copy(), vector.copy()).tolist()
+            case 'Jacobi':
+                solution = solvers.Jacobi(matrix.copy(), vector.copy()).tolist()
             case _:
-                raise NotImplementedError
-        # check if solution is correct
-        # delta = np.allclose(np.dot(matrix, solution), vector)
-        delta = np.mean(np.abs(np.dot(matrix, solution) - vector))
-        numpy_solution = np.linalg.solve(matrix, vector).tolist()
-        # euclidean distance
-        euclidean = np.linalg.norm(np.array(solution) - np.array(numpy_solution))
-        if np.allclose(np.dot(matrix, solution), vector):
-            # truncate solution
-            solution = [round(x, 5) for x in solution]
-            return jsonify({
-                'response': 'OK',
-                'x': solution,
-                'euclidean': euclidean
-            })
-        else:
-            match request.form.get('SLE_method', None):
-                case 'default':
-                    error_text = f'Cannot solve the system of linear equations with given matrix and vector using classic Gaussian elimination: {delta}'
-                case 'pivot':
-                    error_text = f'Cannot solve the system of linear equations with given matrix and vector using Gaussian elimination with pivot: {delta}'
-            return jsonify({
-                'response': 'error',
-                'error': error_text
-            })
+                return jsonify({'response': 'error', 'error': 'SLE type not found'})
     except Exception as e:
         return jsonify({
             'response': 'error',
             'error': str(e)
+        })
+    # check if solution is correct
+    # delta = np.allclose(np.dot(matrix, solution), vector)
+    delta = np.mean(np.abs(np.dot(matrix, solution) - vector))
+    numpy_solution = np.linalg.solve(matrix, vector).tolist()
+    # euclidean distance
+    euclidean = np.linalg.norm(np.array(solution) - np.array(numpy_solution))
+    if np.allclose(np.dot(matrix, solution), vector):
+        # truncate solution
+        solution = [round(x, 5) for x in solution]
+        return jsonify({
+            'response': 'OK',
+            'x': solution,
+            'euclidean': euclidean
+        })
+    else:
+        return jsonify({
+            'response': 'error',
+            'error': f'Cant solve the system of linear equations with given matrix and vector using method {request.form.get("SLE_method", None)} delta = {delta}',
         })
 
 # LEGACY FUNCTIONS
@@ -417,11 +419,7 @@ def api():
                 case 'optctrl':
                     response = optctrl_solvers.OptimalControl(request)
                 case 'SLE':
-                    match request.form['SLE_type']:
-                        case 'GaussianElimination':
-                            response = GaussianElimination(request)
-                        case _:
-                            response = jsonify({'response': 'error', 'error': 'SLE type not found'})
+                    response = SLE(request)
                 case _:
                     response = jsonify({'response': 'error', 'error': 'unsupported request type'})
             print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))

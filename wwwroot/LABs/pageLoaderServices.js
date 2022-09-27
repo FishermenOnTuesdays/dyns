@@ -90,7 +90,7 @@ $(
                     form = document.getElementById(this.name);
                     const FD = new FormData(form);
                     FD.append('request type', 'SLE');
-                    FD.append('SLE_type', this.name);
+                    // FD.append('SLE_type', this.name);
                     FD.append('SLE_method', document.getElementById('SLE_method').value);
                     let matrix = [];
                     let vector = [];

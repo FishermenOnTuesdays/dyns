@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import fsolve
 # from joblib import Parallel, delayed
 # from numba import jit
+MACHINE_EPSILON = np.finfo(float).eps
 
 # @jit
 def TwoDimensionalHeatEquation(
@@ -224,3 +225,32 @@ def GaussianEliminationWithPivot(A: np.ndarray, b: np.ndarray) -> np.ndarray:
     for k in range(N-1, -1, -1):
         b[k] = (b[k] - np.dot(A[k, k+1:N], b[k+1:N]))/A[k, k]
     return b
+
+def Seidel(A: np.ndarray, b: np.ndarray, eps: float = MACHINE_EPSILON, max_it: int = 1000) -> np.ndarray:
+    x = np.zeros(len(A))
+    x_new = np.zeros(len(A))
+    it = 0
+    while it < max_it:
+        for i in range(len(A)):
+            x_new[i] = (b[i] - np.sum(A[i][:i] * x_new[:i]) - np.sum(A[i][i+1:] * x[i+1:])) / A[i][i] 
+        if np.linalg.norm(x_new - x) < eps:
+            break
+        x = x_new.copy()
+        it += 1
+    else:
+        raise ValueError('Method did not converge')
+    return x
+
+def Jacobi(A: np.ndarray, b: np.ndarray, eps: float = MACHINE_EPSILON, max_it: int = 1000) -> np.ndarray:
+    x = x_new = np.zeros(len(A))
+    D = np.diag(np.diag(A))
+    it = 0
+    while it < max_it:
+        x_new = x + np.dot(np.linalg.inv(D), b - np.dot(A, x))
+        if np.linalg.norm(x_new - x) < eps:
+            break
+        x = x_new.copy()
+        it += 1
+    else:
+        raise ValueError('Method did not converge')
+    return x
