@@ -1,5 +1,7 @@
+from typing import Callable
 import numpy as np
 from scipy.optimize import fsolve
+from scipy.sparse import csr_matrix
 # from joblib import Parallel, delayed
 # from numba import jit
 MACHINE_EPSILON = np.finfo(float).eps
@@ -254,3 +256,81 @@ def Jacobi(A: np.ndarray, b: np.ndarray, eps: float = MACHINE_EPSILON, max_it: i
     else:
         raise ValueError('Method did not converge')
     return x
+
+# Poisson equation
+def min_error(A, b):
+    x = np.zeros(len(b))
+    A = csr_matrix(A)
+    r = A.dot(x) - b
+    while np.linalg.norm(r) > 10**(-5):
+        r = A.dot(x) - b
+        x -= r.dot(r) / r.dot(A.dot(r)) * r
+    return x
+
+def min_res(A, b):
+    x = np.zeros(len(b))
+    A = csr_matrix(A)
+    r = A.dot(x) - b
+    while np.linalg.norm(r) > 10**(-5):
+        r = A.dot(x) - b
+        Ar = A.dot(r)
+        x -= Ar.dot(r) / Ar.dot(Ar) * r
+    return x
+
+def GetPoissonSLE(x_min, x_max, y_min, y_max, border_x_min, border_x_max, border_y_min, border_y_max, f, Nx, Ny):
+    hx = (x_max - x_min) / (Nx - 1)
+    hy = (y_max - y_min) / (Ny - 1)
+    N1 = Nx - 2
+    N2 = Ny - 2
+    A = np.zeros((N1 * N2, N1 * N2))
+    b = np.zeros(N1 * N2)
+    for i in range(N2):
+        for j in range(N1):
+            k = i * N1 + j
+            A[k, k] = 2 / hx**2 + 2 / hy**2
+            if j > 0:
+                A[k, k - 1] = -1/hx**2
+            else:
+                b[k] += 1/hx**2 * border_x_min(y_min + (i+1) * hy)
+            if j < N1 - 1:
+                A[k, k + 1] = -1/hx**2
+            else:
+                b[k] += 1/hx**2 * border_x_max(y_min + (i+1) * hy)
+            if i > 0:
+                A[k, k - N1] = -1/hy**2
+            else:
+                b[k] += 1/hy**2 * border_y_min(x_min + (j+1) * hx)
+            if i < N2 - 1:
+                A[k, k + N1] = -1/hy**2
+            else:
+                b[k] += 1/hy**2 * border_y_max(x_min + (j+1) * hx)
+            b[k] += -f(x_min + (j+1) * hx, y_min + (i+1) * hy)
+    return A, b
+
+def PoissonEquationMakeFullSolution(
+    x_min: float, x_max: float,
+    y_min: float, y_max: float,
+    border_x_min: Callable[[float], float], border_x_max: Callable[[float], float],
+    border_y_min: Callable[[float], float], border_y_max: Callable[[float], float],
+    f: Callable[[float, float], float],
+    Nx: int, Ny: int,
+    solveSLE: Callable[[np.ndarray, np.ndarray], np.ndarray] = np.linalg.solve
+    ) -> np.ndarray:
+    ''' Function to solve Poisson equation on rectangle '''
+    hx = (x_max - x_min) / (Nx - 1)
+    hy = (y_max - y_min) / (Ny - 1)
+    N1 = Nx - 2
+    N2 = Ny - 2
+    A, b = GetPoissonSLE(x_min, x_max, y_min, y_max, border_x_min, border_x_max, border_y_min, border_y_max, f, Nx, Ny)
+    u = solveSLE(A, b)
+    U = np.zeros((Nx, Ny))
+    for i in range(N2):
+        for j in range(N1):
+            U[j+1][i+1] = u[i * N1 + j]
+    for i in range(Nx):
+        U[i][0] = border_y_min(x_min + i * hx)
+        U[i][Ny-1] = border_y_max(x_min + i * hx)
+    for i in range(Ny):
+        U[0][i] = border_x_min(y_min + i * hy)
+        U[Nx-1][i] = border_x_max(y_min + i * hy)
+    return U.T

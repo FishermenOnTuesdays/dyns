@@ -27,6 +27,9 @@ def FunctionStringToLambda(function_string: str, variables: str) -> callable:
         case 'x':
             # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
             return lambdify((x), expr, modules=['numpy', 'sympy'])
+        case 'y':
+            # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
+            return lambdify((y), expr, modules=['numpy', 'sympy'])
         case 't':
             # return lambda x, y: expr.evalf(subs={'x': x, 'y': y})#cexprtk.evaluate_expression(function_string, {'x': x, 'y': y})
             return lambdify((t), expr, modules=['numpy', 'sympy'])
@@ -185,6 +188,66 @@ def SLE(request: Request) -> Response:
         return jsonify({
             'response': 'error',
             'error': f'Cant solve the system of linear equations with given matrix and vector using method {request.form.get("SLE_method", None)} delta = {delta}',
+        })
+
+def PoissonEquation(payload):
+    try:
+        f = FunctionStringToLambda(payload['fxy'], 'xy')
+        a = payload['a']
+        b = payload['b']
+        c = payload['c']
+        d = payload['d']
+        mu_a = FunctionStringToLambda(payload['mu_a'], 'y')
+        mu_b = FunctionStringToLambda(payload['mu_b'], 'y')
+        mu_c = FunctionStringToLambda(payload['mu_c'], 'x')
+        mu_d = FunctionStringToLambda(payload['mu_d'], 'x')
+        Nx = payload['Nx']
+        Ny = payload['Ny']
+        method_name = payload['method_name']
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({
+            'response': 'error',
+            'error': str(e)
+        })
+    try:
+        match method_name:
+            case 'min_error':
+                method = solvers.min_error
+            case 'min_res':
+                method = solvers.min_res
+            case _:
+                return jsonify({
+                    'response': 'error',
+                    'error': 'Method not found'
+                })
+        Xs = np.linspace(a, b, Nx)
+        Ys = np.linspace(c, d, Ny)
+        U = solvers.PoissonEquationMakeFullSolution(
+            x_min=a,
+            x_max=b,
+            y_min=c,
+            y_max=d,
+            border_x_min=mu_a,
+            border_x_max=mu_b,
+            border_y_min=mu_c,
+            border_y_max=mu_d,
+            f=f,
+            Nx=Nx,
+            Ny=Ny,
+            solveSLE=method#np.linalg.solve
+            )
+        return jsonify({
+            'response': 'OK',
+            'z_data': U.tolist(),
+            'x': Xs.tolist(),
+            'y': Ys.tolist()
+        })
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({
+            'response': 'error',
+            'error': str(e)
         })
 
 # LEGACY FUNCTIONS
@@ -385,7 +448,10 @@ def api():
     # handle the POST request
     if request.method == 'POST':
         start_time = time.perf_counter()
-        request_type = request.form['request type']
+        try:
+            request_type = request.form['request type']
+        except:
+            request_type = request.json['request type']
 
         try:
             match request_type:
@@ -420,6 +486,9 @@ def api():
                     response = optctrl_solvers.OptimalControl(request)
                 case 'SLE':
                     response = SLE(request)
+                case 'PoissonEquation':
+                    payload = json.loads(request.json['payload'])
+                    response = PoissonEquation(payload)
                 case _:
                     response = jsonify({'response': 'error', 'error': 'unsupported request type'})
             print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))

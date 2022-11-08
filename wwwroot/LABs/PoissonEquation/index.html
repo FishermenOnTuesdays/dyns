@@ -1,0 +1,254 @@
+<html>
+    <head>
+        <title>Уравнение Пуассона | DynS</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!--                 dependencies                 -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.3.1/math.js" integrity="sha512-Fd1dBD9iAiA2a6/hW6aJBbPCFr8ANUt9AS99aeK9vKh1LLRs1N7daoYLZ7qQ76ruhTEuA6wt6nFnHqV+QR1kQw==" crossorigin="anonymous"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+        
+        <script src="/scripts/three.min.js"></script>
+        <script src="/scripts/vanta.fog.min.js"></script>
+        <!--                 styles                 -->
+        <link rel = "stylesheet" href="/css/dyns.css"/>
+        <!--                 scripts                 -->
+        <script type="text/javascript" src="/utils.js"></script>
+        <script type="text/javascript" src="../labs.js"></script>
+        <script type="text/javascript" src="main.js"></script>
+        <script type="text/javascript" src="../pageLoaderServices.js?version=1.0"></script>
+        <script type="text/javascript" src="/scripts/plotly.min.js"></script>
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript" >
+            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+        
+            ym(86309706, "init", {
+                clickmap:true,
+                trackLinks:true,
+                accurateTrackBounce:true
+            });
+        </script>
+        <noscript><div><img src="https://mc.yandex.ru/watch/86309706" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <!-- /Yandex.Metrika counter -->
+    </head>
+    <body class="bg-black" id="vanta">
+      <main class="jumbotron vertical-center p-3 p-md-5">
+        <div class="container p-3 p-md-5">
+          <!-- title -->
+          <div data-include="title"></div>
+          <!-- main content -->
+          <!-- input form -->
+          <section class="row bg-transparent-blur shadow text-white rounded py-3 my-3">
+            <div class="col">
+              <h2 class="text-center mb-3">Уравнение Пуассона</h2>
+              <!-- <form class="needs-validation p-0 m-0" id="PoissonEquation" name="PoissonEquation"> -->
+                <div class="list-group my-1">
+                  <li class="list-group-item">
+                    <label for="method_name" class="form-label h5">Метод решения</label>
+                    <select autocomplete="off" class="form-select" id="method_name" required="">
+                      <option selected value="min_error">Метод наименьшей погрешности</option>
+                      <option value="min_res">Метод наименьших невязок</option>
+                    </select>
+                  </li>
+                </div>
+                <div class="list-group my-1">
+                  <li class="list-group-item">
+                    <label for="i0N" class="form-label h5">Условие</label>
+
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                      <mrow data-mjx-texclass="INNER">
+                        <mo data-mjx-texclass="OPEN">{</mo>
+                        <mtable columnalign="left left" columnspacing="1em" rowspacing=".2em">
+                          <mtr>
+                            <mtd>
+                              <msub>
+                                <mi>u</mi>
+                                <mrow data-mjx-texclass="ORD">
+                                  <mi>x</mi>
+                                  <mi>x</mi>
+                                </mrow>
+                              </msub>
+                              <mo>+</mo>
+                              <msub>
+                                <mi>u</mi>
+                                <mrow data-mjx-texclass="ORD">
+                                  <mi>y</mi>
+                                  <mi>y</mi>
+                                </mrow>
+                              </msub>
+                              <mo>=</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="fxy" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                            </mtd>
+                          </mtr>
+                          <mtr>
+                            <mtd>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="a" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 2ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>&lt;</mo>
+                              <mi>x</mi>
+                              <mo>&lt;</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="b" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 2ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                              <mstyle scriptlevel="0">
+                                <mspace width="1em"></mspace>
+                              </mstyle>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="c" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 2ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>&lt;</mo>
+                              <mi>y</mi>
+                              <mo>&lt;</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="d" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 2ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                            </mtd>
+                          </mtr>
+                          <mtr>
+                            <mtd>
+                              <mi>u</mi>
+                              <mo stretchy="false">(</mo>
+                              <mi>a</mi>
+                              <mo>,</mo>
+                              <mi>y</mi>
+                              <mo stretchy="false">)</mo>
+                              <mo>=</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="mu_a" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                            </mtd>
+                          </mtr>
+                          <mtr>
+                            <mtd>
+                              <mi>u</mi>
+                              <mo stretchy="false">(</mo>
+                              <mi>b</mi>
+                              <mo>,</mo>
+                              <mi>y</mi>
+                              <mo stretchy="false">)</mo>
+                              <mo>=</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="mu_b" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                            </mtd>
+                          </mtr>
+                          <mtr>
+                            <mtd>
+                              <mi>u</mi>
+                              <mo stretchy="false">(</mo>
+                              <mi>x</mi>
+                              <mo>,</mo>
+                              <mi>c</mi>
+                              <mo stretchy="false">)</mo>
+                              <mo>=</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="mu_c" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                            </mtd>
+                          </mtr>
+                          <mtr>
+                            <mtd>
+                              <mi>u</mi>
+                              <mo stretchy="false">(</mo>
+                              <mi>x</mi>
+                              <mo>,</mo>
+                              <mi>d</mi>
+                              <mo stretchy="false">)</mo>
+                              <mo>=</mo>
+                              <semantics>
+                                <annotation-xml encoding="application/xhtml+xml">
+                                  <span xmlns="http://www.w3.org/1999/xhtml" id="mu_d" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                                </annotation-xml>
+                              </semantics>
+                              <mo>,</mo>
+                            </mtd>
+                          </mtr>
+                        </mtable>
+                        <mo data-mjx-texclass="CLOSE" fence="true" stretchy="true" symmetric="true"></mo>
+                      </mrow>
+                    </math>
+
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                      <mtable rowspacing=".5em" columnspacing="1em" displaystyle="true">
+                        <mtr>
+                          <mtd>
+                            <mi>&#x433;&#x434;&#x435;</mi>
+                            <mstyle scriptlevel="0">
+                              <mspace width="0.25em"></mspace>
+                            </mstyle>
+                            <msub>
+                              <mi>N</mi>
+                              <mi>x</mi>
+                            </msub>
+                            <mi>=</mi>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span xmlns="http://www.w3.org/1999/xhtml" id="Nx" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                              </annotation-xml>
+                            </semantics>
+                            <mi>,</mi>
+                            <mstyle scriptlevel="0">
+                              <mspace width="0.25em"></mspace>
+                            </mstyle>
+                            <msub>
+                              <mi>N</mi>
+                              <mi>y</mi>
+                            </msub>
+                            <mi>=</mi>
+                            <semantics>
+                              <annotation-xml encoding="application/xhtml+xml">
+                                <span xmlns="http://www.w3.org/1999/xhtml" id="Ny" class="input" role="textbox" type="text" style="border-bottom: solid; min-width: 3ch; display: block; text-align:right" contenteditable=""></span>
+                              </annotation-xml>
+                            </semantics>
+                          </mtd>
+                        </mtr>
+                      </mtable>
+                    </math>
+
+                  </li>
+                    
+                </div>
+                <button class="w-100 btn btn-primary btn-lg mt-1" id="solveButton">Решить</button>
+              <!-- </form> -->
+            </div>
+          </section>
+          <!-- results -->
+          <section class="row bg-transparent-blur shadow text-white rounded py-3 my-3">
+            <div class="col">
+              <div id="SolutionGraph"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </body>
+</html>

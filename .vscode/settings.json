@@ -1,12 +1,4 @@
 {
-    "liveServer.settings.https": {
-        "passphrase": "true",
-        "key": "true",
-        "cert": "true",
-        "enable": 1
-    },
-    "liveServer.settings.root": "/wwwroot",
-    // "liveServer.settings.port": 5500,
-    // "liveServer.settings.useLocalIp": true,
-    // "jupyter.jupyterServerType": "local"
+    "liveServer.settings.port": 5500,
+    "liveServer.settings.root": "/wwwroot",   
 }
