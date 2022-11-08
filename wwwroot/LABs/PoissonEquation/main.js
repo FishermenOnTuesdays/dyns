@@ -55,7 +55,7 @@ $(document).ready(function() {
         
         //post request to server in plain javascript
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/', true);
+        xhr.open('POST', '/api', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(JSON.stringify({
             'request type': 'PoissonEquation',
