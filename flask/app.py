@@ -12,6 +12,9 @@ import sqlite3 as sl
 import pydyns as dyns
 import solvers
 try:
+    # print working directory
+    import os
+    print(os.getcwd())
     from optctrl import solvers as optctrl_solvers
 except ImportError:
     pass
@@ -242,6 +245,61 @@ def PoissonEquation(payload):
             'z_data': U.tolist(),
             'x': Xs.tolist(),
             'y': Ys.tolist()
+        })
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({
+            'response': 'error',
+            'error': str(e)
+        })
+
+def PoissonEquation1D(payload):
+    try:
+        f = FunctionStringToLambda(payload['fx'], 'x')
+        a = payload['a']
+        b = payload['b']
+        u_a = payload['u_a']
+        u_b = payload['u_b']
+        N = payload['N']
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({
+            'response': 'error',
+            'error': str(e)
+        })
+    try:
+        # match method_name:
+        #     case 'finite_element_method_1D':
+        #         method = solvers.finite_element_method_1D
+        #     case _:
+        #         return jsonify({
+        #             'response': 'error',
+        #             'error': 'Method not found'
+        #         })
+        Xs = np.linspace(a, b, N)
+        U_finite_element = solvers.finite_elements_method_1D(
+            f=f,
+            a=a,
+            b=b,
+            u_a=u_a,
+            u_b=u_b,
+            n=N
+        )
+        U_finite_difference = solvers.finite_difference_method_1D(
+            f=f,
+            a=a,
+            b=b,
+            u_a=u_a,
+            u_b=u_b,
+            n=N
+        )
+        diffU = np.abs(U_finite_element - U_finite_difference)
+        return jsonify({
+            'response': 'OK',
+            'U_finite_element': U_finite_element.tolist(),
+            'U_finite_difference': U_finite_difference.tolist(),
+            'U_difference': diffU.tolist(),
+            'x': Xs.tolist(),
         })
     except Exception as e:
         traceback.print_exc()
@@ -489,6 +547,9 @@ def api():
                 case 'PoissonEquation':
                     payload = json.loads(request.json['payload'])
                     response = PoissonEquation(payload)
+                case '1DPoissonEquation':
+                    payload = json.loads(request.json['payload'])
+                    response = PoissonEquation1D(payload)
                 case _:
                     response = jsonify({'response': 'error', 'error': 'unsupported request type'})
             print(f"--- {request_type} solved in %s seconds ---" % (time.perf_counter() - start_time))

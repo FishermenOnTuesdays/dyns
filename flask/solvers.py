@@ -334,3 +334,47 @@ def PoissonEquationMakeFullSolution(
         U[0][i] = border_x_min(y_min + i * hy)
         U[Nx-1][i] = border_x_max(y_min + i * hy)
     return U.T
+
+def finite_elements_method_1D(f, a: float, b: float, u_a: float, u_b: float, n: int) -> np.ndarray:
+    ''' Function to solve Poisson equation on segment with finite elements method ''' 
+
+    K = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i == j == 0:
+                K[i,j] = 1
+            if i == j == n-1:
+                K[i,j] = 1
+            if i == j:
+                K[i,j] = 2
+            if abs(i-j) == 1:
+                K[i,j] = -1
+
+    u = np.zeros(n)
+
+    # Set the right-hand side
+    h = (b - a) / (n - 1)
+    rhs = np.zeros(n)
+    rhs[0] = u_a
+    rhs[1:-1] = - np.vectorize(f)(np.linspace(a, b, n-2)) * h**2
+    rhs[-1] = u_b
+
+    # Solve the system
+    u = np.linalg.solve(K, rhs)
+    return u
+
+def finite_difference_method_1D(f, a: float, b: float, u_a: float, u_b: float, n: int) -> np.ndarray:
+    ''' Function to solve Poisson equation on segment with finite difference method '''
+    h = (b - a) / n
+    A = np.zeros((n, n))
+    b = np.zeros(n)
+    for i in range(n):
+        A[i][i] = 2 / h**2
+        if i > 0:
+            A[i][i - 1] = -1 / h**2
+        if i < n - 1:
+            A[i][i + 1] = -1 / h**2
+        b[i] = -f(a + (i + 1/2) * h)
+    b[0] += u_a / h**2
+    b[n - 1] += u_b / h**2
+    return np.linalg.solve(A, b)

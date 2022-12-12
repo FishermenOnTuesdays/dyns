@@ -56,3 +56,5 @@ py/server.pem
 key.pem
 cert.pem
 flask/dyns.db
+
+.DS_Store

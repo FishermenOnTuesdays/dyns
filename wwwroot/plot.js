@@ -363,7 +363,7 @@ function engageODELayout(){
                 s = this.id;
                 $(this).addClass('active');
                 $(this).siblings().removeClass('active');
-                makePlotXY(equationTimeSeries[this.id.split('/')[0]], equationTimeSeries[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
+                draw2DLinePlot(equationTimeSeries[this.id.split('/')[0]], equationTimeSeries[this.id.split('/')[1]], $(this).parent().siblings()['0'].id);
             }
         });
         $(document).on('click', '.btn-Poincare', function(){
@@ -2078,7 +2078,7 @@ function makePlotT(ndims, timeSeries){
         },
         config);
 }
-function makePlotXY(x, y, type){
+function draw2DLinePlot(x, y, type){
     var traces = [{
         x: x,
         y: y,
@@ -2110,7 +2110,7 @@ function makePlotPhase(timeSeries){
         $(elem).empty();
     });
     if (ndims == 2){
-        makePlotXY(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[1]], 'chartXY');
+        draw2DLinePlot(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[1]], 'chartXY');
     }
     else {
         var btnsample = '<button type="button" class="btn btn-outline-primary btn-ch btn-phase active" id="xx/yy">xxyy</button>';
@@ -2131,9 +2131,9 @@ function makePlotPhase(timeSeries){
             }
             $(elem).append(btn);
         });
-        makePlotXY(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[1]], 'chartXY');
-        makePlotXY(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[2]], 'chartXZ');
-        makePlotXY(timeSeries[ODEvarlist[1]], timeSeries[ODEvarlist[2]], 'chartYZ');
+        draw2DLinePlot(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[1]], 'chartXY');
+        draw2DLinePlot(timeSeries[ODEvarlist[0]], timeSeries[ODEvarlist[2]], 'chartXZ');
+        draw2DLinePlot(timeSeries[ODEvarlist[1]], timeSeries[ODEvarlist[2]], 'chartYZ');
     }
 }
 function makePlot3D(x, y, z, chartid){
